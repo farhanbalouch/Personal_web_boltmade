@@ -12,7 +12,7 @@
 export const SITE = {
   name: 'Farhan Balouch',
   origin: 'Ahmadpur East, Pakistan',
-  email: 'muhammadfarhan138223@gmail.com, // placeholder — replace with real email
+  email: 'muhammadfarhan138223@gmail.com', // placeholder — replace with real email
   domain: 'farhanbalouch.com', // placeholder — replace with real domain
 };
 
