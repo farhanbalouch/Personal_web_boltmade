@@ -19,9 +19,9 @@ export function Footer() {
               className="block transition-transform hover:scale-105 focus:outline-none"
             >
               <img 
-                src="/file_000000001b9081fa883d5a646d261400-removebg-preview.png" 
+                src="/file_000000005dc481fabda416f9778f3a0a-removebg-preview.png" 
                 alt="Farhan Balouch Full Logo" 
-                className="h-30 sm:h-44 w-auto max-w-[220px] object-contain drop-shadow-[0_4px_12px_rgba(234,179,8,0.15)]"
+                className="h-32 sm:h-48 w-auto max-w-[220px] object-contain drop-shadow-[0_4px_12px_rgba(234,179,8,0.15)]"
               />
             </button>
             <p className="text-sm text-text-muted leading-relaxed font-serif italic border-l-2 border-gold/40 pl-3">
