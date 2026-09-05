@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Menu, X, Sparkles } from 'lucide-react';
+import { Menu, X } from 'lucide-react';
 import { useRouter } from '@/router';
 
 const links = [
@@ -51,10 +51,13 @@ export function Navbar() {
         <nav className="max-w-6xl mx-auto px-5 sm:px-8 h-16 flex items-center justify-between">
           <button
             onClick={() => go('/')}
-            className="flex items-center gap-2 font-display text-lg font-semibold text-text hover:text-gold transition-colors"
+            className="flex items-center transition-transform hover:scale-105"
           >
-            <Sparkles className="w-4 h-4 text-gold" />
-            <span>Farhan Balouch</span>
+            <img 
+              src="/file_000000005dc481fabda416f9778f3a0a.png" 
+              alt="Farhan Balouch Logo" 
+              className="h-10 w-auto object-contain"
+            />
           </button>
 
           {/* Desktop nav */}
