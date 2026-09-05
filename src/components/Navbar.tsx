@@ -51,12 +51,12 @@ export function Navbar() {
         <nav className="max-w-6xl mx-auto px-5 sm:px-8 h-16 flex items-center justify-between">
           <button
             onClick={() => go('/')}
-            className="flex items-center transition-transform hover:scale-105"
+            className="flex items-center transition-transform hover:scale-105 focus:outline-none"
           >
             <img 
-              src="/file_000000005dc481fabda416f9778f3a0a.png" 
+              src="/file_000000001b9081fa883d5a646d261400-removebg-preview.png" 
               alt="Farhan Balouch Logo" 
-              className="h-10 w-auto object-contain"
+              className="h-12 sm:h-14 w-auto object-contain py-1 drop-shadow-[0_2px_8px_rgba(234,179,8,0.2)]"
             />
           </button>
 
