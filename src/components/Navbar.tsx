@@ -55,7 +55,7 @@ export function Navbar() {
             <img 
               src="/file_000000001b9081fa883d5a646d261400-removebg-preview.png" 
               alt="Farhan Balouch Logo" 
-              className="h-22 sm:h-32 w-auto max-w-[180px] sm:max-w-[240px] object-contain drop-shadow-[0_2px_10px_rgba(234,179,8,0.15)]"
+              className="h-28 sm:h-48 w-auto max-w-[180px] sm:max-w-[240px] object-contain drop-shadow-[0_2px_10px_rgba(234,179,8,0.15)]"
             />
           </button>
 
