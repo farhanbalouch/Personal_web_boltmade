@@ -12,25 +12,22 @@ export function Footer() {
         {/* Top Section */}
         <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-4 pb-12 border-b border-border/40">
           
-          {/* Brand & Horizontal Logo */}
-            >{/* Brand & Logo Column - Centered on Mobile & Desktop */}
-          <div className="space-y-4 flex flex-col items-center text-center">
-  <button
-    onClick={() => navigate('/')}
-    className="block transition-transform hover:scale-105 focus:outline-none"
-  >
-    <img 
-      src="/file_000000005dc481fabda416f9778f3a0a-removebg-preview.png" 
-      alt="Farhan Balouch Full Logo" 
-      className="h-32 sm:h-44 w-auto max-w-[320px] sm:max-w-[360px] mx-auto object-contain drop-shadow-[0_4px_12px_rgba(234,179,8,0.15)]"
-    />
-          
-  
-           </button>
-           <p className="text-sm text-text-muted leading-relaxed font-serif italic border-l-2 sm:border-l-0 sm:border-t-2 border-gold/40 pl-3 sm:pl-0 sm:pt-2">
-            "Farhan — A Story Still Being Written." ⭐
-          </p>
-        </div
+          {/* Brand & Logo Column - Centered on Mobile & Desktop */}
+          <div className="space-y-4 w-full flex flex-col items-center justify-center text-center">
+            <button
+              onClick={() => navigate('/')}
+              className="flex justify-center transition-transform hover:scale-105 focus:outline-none w-full"
+            >
+              <img 
+                src="/file_000000005dc481fabda416f9778f3a0a-removebg-preview.png" 
+                alt="Farhan Balouch Full Logo" 
+                className="h-32 sm:h-44 w-auto max-w-[280px] sm:max-w-[320px] mx-auto object-contain drop-shadow-[0_4px_12px_rgba(234,179,8,0.15)]"
+              />
+            </button>
+            <p className="text-sm text-text-muted leading-relaxed font-serif italic border-t-2 border-gold/40 pt-2 max-w-[280px]">
+              "Farhan — A Story Still Being Written." ⭐
+            </p>
+          </div>
 
           {/* Quick Links */}
           <div>
