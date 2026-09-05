@@ -6,22 +6,22 @@ export function Footer() {
   const year = new Date().getFullYear();
 
   return (
-    <footer className="border-t border-gold/20 bg-gradient-to-b from-bg/50 to-bg mt-auto pt-14 pb-8">
+    <footer className="border-t border-gold/20 bg-gradient-to-b from-bg/50 to-bg mt-auto pt-12 pb-8">
       <div className="max-w-6xl mx-auto px-5 sm:px-8">
         
-        {/* Top Grid Section */}
+        {/* Top Section */}
         <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-4 pb-12 border-b border-border/40">
           
-          {/* Brand Info & Responsive Logo */}
+          {/* Brand & Horizontal Logo */}
           <div className="space-y-4">
             <button
               onClick={() => navigate('/')}
               className="block transition-transform hover:scale-105 focus:outline-none"
             >
               <img 
-                src="/file_000000005dc481fabda416f9778f3a0a-removebg-preview.png" 
+                src="/file_000000001b9081fa883d5a646d261400-removebg-preview.png" 
                 alt="Farhan Balouch Full Logo" 
-                className="h-16 sm:h-20 max-w-[220px] w-auto object-contain drop-shadow-[0_4px_12px_rgba(234,179,8,0.2)]"
+                className="h-12 sm:h-14 w-auto max-w-[220px] object-contain drop-shadow-[0_4px_12px_rgba(234,179,8,0.15)]"
               />
             </button>
             <p className="text-sm text-text-muted leading-relaxed font-serif italic border-l-2 border-gold/40 pl-3">
@@ -29,7 +29,7 @@ export function Footer() {
             </p>
           </div>
 
-          {/* Navigation Links */}
+          {/* Quick Links */}
           <div>
             <h4 className="text-xs uppercase tracking-widest text-gold font-semibold mb-4">Navigation</h4>
             <ul className="space-y-2.5 text-sm">
@@ -49,7 +49,7 @@ export function Footer() {
             </ul>
           </div>
 
-          {/* Contact Details */}
+          {/* Direct Contact */}
           <div>
             <h4 className="text-xs uppercase tracking-widest text-gold font-semibold mb-4">Direct Contact</h4>
             <ul className="space-y-3 text-sm">
@@ -80,7 +80,7 @@ export function Footer() {
             </ul>
           </div>
 
-          {/* Social Links (Horizontal Badges) */}
+          {/* Connect With Me (Horizontal Social Links) */}
           <div>
             <h4 className="text-xs uppercase tracking-widest text-gold font-semibold mb-4">Connect With Me</h4>
             <p className="text-xs text-text-muted mb-4">Follow my journey across social channels:</p>
