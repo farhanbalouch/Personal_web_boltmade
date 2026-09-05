@@ -21,7 +21,7 @@ export function Footer() {
               <img 
                 src="/file_000000005dc481fabda416f9778f3a0a-removebg-preview.png" 
                 alt="Farhan Balouch Full Logo" 
-                className="h-40 sm:h-50 w-auto max-w-[280px] sm:max-w-[320px] mx-auto object-contain drop-shadow-[0_4px_12px_rgba(234,179,8,0.15)]"
+                className="h-46 sm:h-58 w-auto max-w-[280px] sm:max-w-[320px] mx-auto object-contain drop-shadow-[0_4px_12px_rgba(234,179,8,0.15)]"
               />
             </button>
             <p className="text-sm text-text-muted leading-relaxed font-serif italic border-t-2 border-gold/40 pt-2 max-w-[280px]">
