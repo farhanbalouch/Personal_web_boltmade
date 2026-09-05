@@ -22,10 +22,8 @@ export function Navbar() {
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
-  // Close mobile menu on route change
   useEffect(() => { setOpen(false); }, [route.path]);
 
-  // Lock scroll when mobile menu open
   useEffect(() => {
     document.body.style.overflow = open ? 'hidden' : '';
     return () => { document.body.style.overflow = ''; };
@@ -44,23 +42,24 @@ export function Navbar() {
       <header
         className={`fixed top-0 left-0 right-0 z-40 transition-all duration-300 ${
           scrolled
-            ? 'bg-bg/85 backdrop-blur-md border-b border-border/60'
-            : 'bg-transparent'
+            ? 'bg-bg/90 backdrop-blur-md border-b border-border/60 py-1'
+            : 'bg-transparent py-2'
         }`}
       >
-        <nav className="max-w-6xl mx-auto px-5 sm:px-8 h-16 flex items-center justify-between">
+        <nav className="max-w-6xl mx-auto px-4 sm:px-8 h-14 flex items-center justify-between">
           <button
             onClick={() => go('/')}
             className="flex items-center transition-transform hover:scale-105 focus:outline-none"
           >
+            {/* Wide Horizontal Logo - Perfectly proportioned */}
             <img 
               src="/file_000000001b9081fa883d5a646d261400-removebg-preview.png" 
               alt="Farhan Balouch Logo" 
-              className="h-12 sm:h-14 w-auto object-contain py-1 drop-shadow-[0_2px_8px_rgba(234,179,8,0.2)]"
+              className="h-9 sm:h-11 w-auto max-w-[180px] sm:max-w-[240px] object-contain drop-shadow-[0_2px_10px_rgba(234,179,8,0.15)]"
             />
           </button>
 
-          {/* Desktop nav */}
+          {/* Desktop Nav Links */}
           <ul className="hidden md:flex items-center gap-1">
             {links.map((l) => (
               <li key={l.href}>
@@ -78,7 +77,7 @@ export function Navbar() {
             ))}
           </ul>
 
-          {/* Mobile toggle */}
+          {/* Mobile Menu Toggle */}
           <button
             onClick={() => setOpen((v) => !v)}
             className="md:hidden p-2 text-text-muted hover:text-text transition-colors"
@@ -90,9 +89,9 @@ export function Navbar() {
         </nav>
       </header>
 
-      {/* Mobile menu overlay */}
+      {/* Mobile Menu Overlay */}
       {open && (
-        <div className="fixed inset-0 z-30 md:hidden bg-bg/95 backdrop-blur-lg pt-16 chat-pop">
+        <div className="fixed inset-0 z-30 md:hidden bg-bg/95 backdrop-blur-lg pt-20 chat-pop">
           <ul className="flex flex-col items-center gap-2 p-8">
             {links.map((l, i) => (
               <li key={l.href}>
