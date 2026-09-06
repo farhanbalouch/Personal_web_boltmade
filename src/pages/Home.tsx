@@ -269,52 +269,61 @@ export function Home() {
               ">
 
                 <button
-                  onClick={() => navigate('/story')}
-                  className="
-                    group
-                    inline-flex
-                    items-center
-                    gap-2
-                    px-5
-                    py-3
-                    rounded-xl
-                    bg-gold
-                    text-bg
-                    font-medium
-                    hover:bg-gold-soft
-                    hover:scale-[1.03]
-                    transition-all
-                    shadow-[0_10px_35px_rgba(212,168,75,0.18)]
-                  "
-                >
-                  Read my story
+                    
+  onClick={() => navigate('/story')}
+  className="
+    group
+    inline-flex
+    items-center
+    gap-2
+    px-5
+    py-3
+    rounded-xl
+    bg-gold
+    text-bg
+    font-medium
+    hover:bg-gold-soft
+    hover:scale-[1.03]
+    transition-all
+    shadow-[0_10px_35px_rgba(212,168,75,0.18)]
+  "
+>
+  Read my story
+  <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+</button>
 
-                  <ArrowRight className="
-                    w-4 h-4
-                    group-hover:translate-x-1
-                    transition-transform
-                  " />
-                </button>
+<button
+  onClick={() => navigate('/about')}
+  className="
+    group
+    inline-flex
+    items-center
+    gap-2
+    px-5
+    py-3
+    rounded-xl
+    bg-black/40
+    backdrop-blur-md
+    border
+    border-white/20
+    text-white
+    font-medium
+    hover:bg-black/55
+    hover:border-gold/70
+    hover:text-gold
+    hover:scale-[1.03]
+    transition-all
+    shadow-[0_10px_35px_rgba(0,0,0,0.35)]
+  "
+>
+  About me
+  <ArrowRight className="
+    w-4 h-4
+    group-hover:translate-x-1
+    transition-transform
+  " />
+</button>
 
-                <button
-                  onClick={() => navigate('/about')}
-                  className="
-                    inline-flex
-                    items-center
-                    gap-2
-                    px-5
-                    py-3
-                    rounded-xl
-                    border
-                    border-gold/30
-                    text-text
-                    hover:border-gold/70
-                    hover:text-gold
-                    transition-all
-                  "
-                >
-                  About me
-                </button>
 
               </div>
             </Reveal>
