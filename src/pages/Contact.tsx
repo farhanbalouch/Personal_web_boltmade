@@ -6,10 +6,27 @@ import { SITE } from '@/data/content';
 export function Contact() {
   // Placeholder social slots — clearly marked, ready to fill
   const socials = [
-    { icon: Github, label: 'GitHub', url: '', placeholder: 'github.com/yourusername' },
-    { icon: Twitter, label: 'Twitter / X', url: '', placeholder: 'x.com/yourhandle' },
-    { icon: Linkedin, label: 'LinkedIn', url: '', placeholder: 'https://www.linkedin.com/in/farhan-balouch-18a9b6434?trk=contact-info' },
-  ];
+    const socials = [
+  { 
+    icon: Github, 
+    label: 'GitHub', 
+    url: 'https://github.com/yourusername', // Actual Working URL
+    placeholder: 'https://github.com/yourusername' 
+  },
+  { 
+    icon: Twitter, 
+    label: 'Twitter / X', 
+    url: 'https://x.com/yourhandle', // Actual Working URL
+    placeholder: 'https://x.com/yourhandle' 
+  },
+  { 
+    icon: Linkedin, 
+    label: 'LinkedIn', 
+    url: 'https://www.linkedin.com/in/farhan-balouch-18a9b6434', // Cleaned URL without tracker
+    placeholder: 'https://www.linkedin.com/in/yourhandle' 
+  },
+];
+
 
   return (
     <>
