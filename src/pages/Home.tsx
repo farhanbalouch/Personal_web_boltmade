@@ -30,6 +30,15 @@ export function Home() {
         <div className="absolute inset-0 bg-gradient-to-b from-transparent via-bg/40 to-bg pointer-events-none" />
         <div className="relative max-w-6xl mx-auto px-5 sm:px-8 pt-20 pb-16 w-full">
           <Reveal>
+             <div className="mb-8 flex justify-center sm:justify-start">
+              <img
+      src="/Screenshot_20260906-151828_ChatGPT.jpg"
+      alt="Farhan Balouch"
+      className="w-32 h-32 sm:w-40 sm:h-40 rounded-2xl object-cover border border-gold/30 shadow-lg"
+        />
+             </div>
+          </Reveal>
+          <Reveal>
             <p className="text-sm text-gold/80 font-medium tracking-wide uppercase mb-4">
               {SITE.origin}
             </p>
