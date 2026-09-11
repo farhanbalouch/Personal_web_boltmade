@@ -15,6 +15,7 @@ function Routes() {
   const path = route.path;
 
   let page;
+  <CinematicIntro />
   if (path === '/') page = <Home />;
   else if (path === '/about') page = <About />;
   else if (path === '/story') page = <StoryHub />;
