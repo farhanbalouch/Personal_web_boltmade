@@ -6,7 +6,6 @@ import { SITE } from '@/data/content';
 export function Contact() {
   // Placeholder social slots — clearly marked, ready to fill
   const socials = [
-    const socials = [
   { 
     icon: Github, 
     label: 'GitHub', 
