@@ -154,3 +154,75 @@ h1, h2, h3, h4, .font-display {
     opacity: 0.5;
   }
         }
+@keyframes cinematicIntro {
+  0% {
+    opacity: 1;
+  }
+
+  75% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 0;
+    visibility: hidden;
+  }
+}
+
+@keyframes introText {
+  0% {
+    opacity: 0;
+    transform: scale(0.92);
+    letter-spacing: 0.55em;
+  }
+
+  25% {
+    opacity: 1;
+    transform: scale(1);
+    letter-spacing: 0.35em;
+  }
+
+  75% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 0;
+  }
+}
+
+@keyframes introFog {
+  0% {
+    transform: translateX(-15%) scale(0.9);
+    opacity: 0;
+  }
+
+  35% {
+    opacity: 0.7;
+  }
+
+  100% {
+    transform: translateX(15%) scale(1.2);
+    opacity: 0;
+  }
+}
+
+.animate-cinematic-intro {
+  animation: cinematicIntro 3s ease-out forwards;
+}
+
+.animate-intro-text {
+  animation: introText 3s ease-out forwards;
+}
+
+.animate-intro-fog {
+  animation: introFog 3s ease-out forwards;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-cinematic-intro,
+  .animate-intro-text,
+  .animate-intro-fog {
+    animation: none;
+  }
+    }
