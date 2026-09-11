@@ -1,0 +1,1771 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#050505" />
+  <title>Rawi — The Voice Behind Farhan's Journey</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --bg: #050505;
+      --gold: #d8b46a;
+      --gold-light: #f0d99a;
+      --white: #f5f1e8;
+      --muted: #aaa49a;
+      --glass: rgba(255,255,255,.055);
+      --border: rgba(216,180,106,.28);
+    }
+
+    html,
+    body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: var(--bg);
+      color: var(--white);
+      font-family: Georgia, "Times New Roman", serif;
+    }
+
+    body {
+      position: relative;
+    }
+
+    /* =========================
+       BACKGROUND
+    ========================== */
+
+    .background {
+      position: fixed;
+      inset: 0;
+      overflow: hidden;
+      background:
+        radial-gradient(circle at 50% 35%, rgba(216,180,106,.09), transparent 35%),
+        radial-gradient(circle at 20% 80%, rgba(255,255,255,.035), transparent 30%),
+        #050505;
+      z-index: 0;
+    }
+
+    .fog {
+      position: absolute;
+      width: 90vw;
+      height: 50vh;
+      left: 5%;
+      bottom: -15%;
+      border-radius: 50%;
+      background: rgba(255,255,255,.045);
+      filter: blur(80px);
+      animation: fogMove 13s ease-in-out infinite alternate;
+    }
+
+    .fog.two {
+      left: 45%;
+      bottom: 10%;
+      opacity: .5;
+      animation-duration: 18s;
+    }
+
+    @keyframes fogMove {
+      from {
+        transform: translateX(-7%) scale(1);
+      }
+      to {
+        transform: translateX(7%) scale(1.12);
+      }
+    }
+
+    .stars {
+      position: absolute;
+      inset: 0;
+      opacity: .45;
+      background-image:
+        radial-gradient(circle, rgba(255,255,255,.8) 1px, transparent 1px);
+      background-size: 95px 95px;
+      animation: starsMove 30s linear infinite;
+    }
+
+    @keyframes starsMove {
+      from {
+        transform: translateY(0);
+      }
+      to {
+        transform: translateY(-95px);
+      }
+    }
+
+    /* =========================
+       PORTRAIT
+    ========================== */
+
+    .portrait-wrap {
+      position: absolute;
+      right: 2%;
+      bottom: -5%;
+      width: min(580px, 48vw);
+      height: 90%;
+      display: flex;
+      justify-content: center;
+      align-items: flex-end;
+      pointer-events: none;
+      transition: opacity 1.2s ease, filter 1.2s ease, transform 1.2s ease;
+      opacity: .92;
+    }
+
+    .portrait-wrap.dim {
+      opacity: .16;
+      filter: grayscale(.2) blur(.2px);
+      transform: scale(.985);
+    }
+
+    .portrait {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      object-position: bottom center;
+      filter:
+        drop-shadow(0 0 35px rgba(216,180,106,.12));
+      animation: portraitFloat 6s ease-in-out infinite;
+    }
+
+    @keyframes portraitFloat {
+      0%,100% {
+        transform: translateY(0);
+      }
+      50% {
+        transform: translateY(-8px);
+      }
+    }
+
+    .halo {
+      position: absolute;
+      width: 60%;
+      height: 60%;
+      border-radius: 50%;
+      background: rgba(216,180,106,.09);
+      filter: blur(70px);
+      animation: haloPulse 5s ease-in-out infinite;
+    }
+
+    @keyframes haloPulse {
+      0%,100% {
+        opacity: .45;
+        transform: scale(.95);
+      }
+      50% {
+        opacity: .8;
+        transform: scale(1.08);
+      }
+    }
+
+    /* =========================
+       MAIN
+    ========================== */
+
+    .app {
+      position: relative;
+      z-index: 2;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .topbar {
+      height: 72px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 28px;
+      border-bottom: 1px solid rgba(255,255,255,.07);
+      background: rgba(0,0,0,.25);
+      backdrop-filter: blur(14px);
+      flex-shrink: 0;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .brand-mark {
+      width: 38px;
+      height: 38px;
+      border: 1px solid var(--border);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--gold-light);
+      font-size: 14px;
+      letter-spacing: 1px;
+    }
+
+    .brand-text {
+      line-height: 1.05;
+    }
+
+    .brand-title {
+      font-size: 16px;
+      letter-spacing: 3px;
+      color: var(--gold-light);
+    }
+
+    .brand-sub {
+      font-family: Arial, sans-serif;
+      font-size: 9px;
+      letter-spacing: 2px;
+      color: var(--muted);
+      margin-top: 5px;
+    }
+
+    .top-actions {
+      display: flex;
+      gap: 8px;
+    }
+
+    button {
+      border: none;
+      cursor: pointer;
+      font-family: inherit;
+    }
+
+    .icon-btn {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: rgba(255,255,255,.045);
+      border: 1px solid rgba(255,255,255,.1);
+      color: var(--white);
+      transition: .25s ease;
+      font-size: 16px;
+    }
+
+    .icon-btn:hover {
+      border-color: var(--border);
+      color: var(--gold-light);
+      transform: translateY(-1px);
+    }
+
+    /* =========================
+       CONTENT
+    ========================== */
+
+    .content {
+      flex: 1;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .intro {
+      position: relative;
+      z-index: 3;
+      padding: 48px 30px 20px;
+      max-width: 750px;
+      transition: opacity .8s ease, transform .8s ease;
+    }
+
+    .intro.hidden {
+      opacity: 0;
+      transform: translateY(-20px);
+      pointer-events: none;
+      height: 0;
+      padding: 0;
+      overflow: hidden;
+    }
+
+    .eyebrow {
+      color: var(--gold);
+      font-family: Arial, sans-serif;
+      font-size: 10px;
+      letter-spacing: 4px;
+      margin-bottom: 18px;
+      text-transform: uppercase;
+    }
+
+    .intro h1 {
+      font-size: clamp(38px, 5vw, 72px);
+      font-weight: normal;
+      line-height: .98;
+      letter-spacing: -2px;
+      max-width: 720px;
+    }
+
+    .intro h1 span {
+      color: var(--gold-light);
+      font-style: italic;
+    }
+
+    .intro p {
+      margin-top: 22px;
+      max-width: 570px;
+      color: #bbb5ab;
+      font-size: 17px;
+      line-height: 1.65;
+    }
+
+    .ask-label {
+      margin-top: 20px;
+      color: #817b72;
+      font-family: Arial, sans-serif;
+      font-size: 9px;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+    }
+
+    /* =========================
+       SUGGESTIONS
+    ========================== */
+
+    .suggestions {
+      position: relative;
+      z-index: 3;
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      padding: 0 30px 18px;
+      max-width: 850px;
+    }
+
+    .suggestion {
+      padding: 10px 14px;
+      border: 1px solid rgba(216,180,106,.2);
+      border-radius: 20px;
+      background: rgba(255,255,255,.035);
+      color: #c5bdaF;
+      font-family: Arial, sans-serif;
+      font-size: 11px;
+      transition: .25s ease;
+    }
+
+    .suggestion:hover {
+      color: var(--gold-light);
+      border-color: var(--border);
+      background: rgba(216,180,106,.07);
+    }
+
+    /* =========================
+       CHAT
+    ========================== */
+
+    .chat {
+      position: relative;
+      z-index: 5;
+      flex: 1;
+      overflow-y: auto;
+      padding: 10px 30px 170px;
+      display: none;
+      max-width: 850px;
+      width: 100%;
+      scrollbar-width: thin;
+    }
+
+    .chat.active {
+      display: block;
+    }
+
+    .message {
+      margin-bottom: 28px;
+      animation: messageIn .5s ease;
+    }
+
+    @keyframes messageIn {
+      from {
+        opacity: 0;
+        transform: translateY(12px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .message-label {
+      font-family: Arial, sans-serif;
+      font-size: 9px;
+      letter-spacing: 3px;
+      color: var(--gold);
+      margin-bottom: 8px;
+      text-transform: uppercase;
+    }
+
+    .message.user .message-label {
+      color: #777;
+    }
+
+    .message-text {
+      font-size: 18px;
+      line-height: 1.65;
+      color: #eee9df;
+      white-space: pre-wrap;
+    }
+
+    .message.user .message-text {
+      color: #aaa49a;
+      font-size: 15px;
+    }
+
+    .listen {
+      margin-top: 10px;
+      background: transparent;
+      color: #8e877d;
+      font-family: Arial, sans-serif;
+      font-size: 10px;
+      letter-spacing: 1px;
+      border-bottom: 1px solid rgba(255,255,255,.15);
+      padding-bottom: 3px;
+    }
+
+    .listen:hover {
+      color: var(--gold-light);
+    }
+
+    .typing {
+      color: var(--gold);
+      letter-spacing: 4px;
+      font-family: Arial, sans-serif;
+      font-size: 11px;
+      animation: blink 1.1s infinite;
+    }
+
+    @keyframes blink {
+      50% {
+        opacity: .3;
+      }
+    }
+
+    /* =========================
+       INPUT
+    ========================== */
+
+    .composer {
+      position: absolute;
+      z-index: 10;
+      left: 30px;
+      bottom: 26px;
+      width: min(820px, calc(100% - 60px));
+    }
+
+    .composer-box {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      min-height: 58px;
+      padding: 6px;
+      border-radius: 18px;
+      border: 1px solid rgba(216,180,106,.34);
+      background: rgba(12,12,12,.68);
+      backdrop-filter: blur(22px);
+      box-shadow:
+        0 20px 60px rgba(0,0,0,.4),
+        inset 0 0 30px rgba(255,255,255,.015);
+    }
+
+    #input {
+      flex: 1;
+      height: 44px;
+      border: none;
+      outline: none;
+      background: transparent;
+      color: var(--white);
+      font-family: Arial, sans-serif;
+      font-size: 14px;
+      padding: 0 14px;
+    }
+
+    #input::placeholder {
+      color: #6e6962;
+    }
+
+    .send,
+    .mic {
+      width: 45px;
+      height: 45px;
+      border-radius: 13px;
+      background: rgba(216,180,106,.08);
+      border: 1px solid rgba(216,180,106,.22);
+      color: var(--gold-light);
+      font-size: 17px;
+      transition: .25s ease;
+    }
+
+    .send:hover,
+    .mic:hover,
+    .mic.listening {
+      background: rgba(216,180,106,.18);
+      border-color: var(--gold);
+      transform: translateY(-1px);
+    }
+
+    .mic.listening {
+      animation: micPulse 1.3s infinite;
+    }
+
+    @keyframes micPulse {
+      50% {
+        box-shadow: 0 0 0 8px rgba(216,180,106,.08);
+      }
+    }
+
+    .hint {
+      text-align: center;
+      margin-top: 8px;
+      color: #56514b;
+      font-family: Arial, sans-serif;
+      font-size: 9px;
+      letter-spacing: 1px;
+    }
+
+    /* =========================
+       INTRO BUTTON
+    ========================== */
+
+    .start-btn {
+      margin-top: 30px;
+      padding: 15px 23px;
+      border: 1px solid rgba(216,180,106,.45);
+      border-radius: 3px;
+      color: var(--gold-light);
+      background: rgba(216,180,106,.07);
+      font-family: Arial, sans-serif;
+      font-size: 10px;
+      font-weight: bold;
+      letter-spacing: 2px;
+      transition: .3s ease;
+    }
+
+    .start-btn:hover {
+      background: rgba(216,180,106,.16);
+      transform: translateY(-2px);
+      box-shadow: 0 10px 35px rgba(216,180,106,.08);
+    }
+
+    /* =========================
+       SETTINGS
+    ========================== */
+
+    .settings {
+      position: fixed;
+      z-index: 100;
+      right: 20px;
+      top: 82px;
+      width: min(380px, calc(100% - 40px));
+      padding: 22px;
+      border: 1px solid rgba(216,180,106,.28);
+      border-radius: 16px;
+      background: rgba(10,10,10,.95);
+      backdrop-filter: blur(25px);
+      box-shadow: 0 30px 80px rgba(0,0,0,.55);
+      display: none;
+    }
+
+    .settings.open {
+      display: block;
+      animation: settingsIn .25s ease;
+    }
+
+    @keyframes settingsIn {
+      from {
+        opacity: 0;
+        transform: translateY(-8px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .settings h2 {
+      font-weight: normal;
+      font-size: 23px;
+      color: var(--gold-light);
+    }
+
+    .settings p {
+      margin: 8px 0 15px;
+      color: #8c867d;
+      font-family: Arial, sans-serif;
+      font-size: 11px;
+      line-height: 1.5;
+    }
+
+    .settings input {
+      width: 100%;
+      height: 45px;
+      padding: 0 12px;
+      border: 1px solid rgba(255,255,255,.12);
+      border-radius: 8px;
+      outline: none;
+      background: rgba(255,255,255,.04);
+      color: white;
+      font-family: monospace;
+      font-size: 12px;
+    }
+
+    .save-key {
+      margin-top: 10px;
+      width: 100%;
+      height: 43px;
+      border-radius: 8px;
+      background: rgba(216,180,106,.12);
+      border: 1px solid rgba(216,180,106,.3);
+      color: var(--gold-light);
+    }
+
+    .key-status {
+      margin-top: 10px;
+      color: #777;
+      font-family: Arial, sans-serif;
+      font-size: 10px;
+    }
+
+    /* =========================
+       MOBILE
+    ========================== */
+
+    @media (max-width: 800px) {
+
+      .topbar {
+        height: 62px;
+        padding: 0 15px;
+      }
+
+      .brand-mark {
+        width: 34px;
+        height: 34px;
+      }
+
+      .brand-title {
+        font-size: 13px;
+        letter-spacing: 2px;
+      }
+
+      .brand-sub {
+        font-size: 7px;
+      }
+
+      .portrait-wrap {
+        right: -18%;
+        width: 90vw;
+        height: 72%;
+        opacity: .35;
+      }
+
+      .portrait-wrap.dim {
+        opacity: .08;
+      }
+
+      .intro {
+        padding: 40px 20px 15px;
+      }
+
+      .intro h1 {
+        font-size: 42px;
+      }
+
+      .intro p {
+        font-size: 15px;
+        max-width: 90%;
+      }
+
+      .suggestions {
+        padding: 0 20px 12px;
+      }
+
+      .suggestion {
+        font-size: 10px;
+        padding: 8px 11px;
+      }
+
+      .chat {
+        padding: 10px 20px 160px;
+      }
+
+      .message-text {
+        font-size: 16px;
+      }
+
+      .composer {
+        left: 15px;
+        bottom: 15px;
+        width: calc(100% - 30px);
+      }
+
+      .composer-box {
+        min-height: 55px;
+      }
+
+      #input {
+        font-size: 13px;
+      }
+
+      .hint {
+        font-size: 8px;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *,
+      *::before,
+      *::after {
+        animation-duration: .01ms !important;
+        animation-iteration-count: 1 !important;
+        scroll-behavior: auto !important;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="background">
+    <div class="stars"></div>
+    <div class="fog"></div>
+    <div class="fog two"></div>
+  </div>
+
+  <!-- FARHAN PORTRAIT -->
+  <div class="portrait-wrap" id="portraitWrap">
+    <div class="halo"></div>
+
+    <!-- IMPORTANT:
+         Make sure this image exists in your public folder.
+    -->
+    <img
+      class="portrait"
+      src="/file_0000000088f482118226c0157ec13471-removebg-preview.png"
+      alt="Farhan Balouch"
+    />
+  </div>
+
+  <div class="app">
+
+    <!-- TOP BAR -->
+    <header class="topbar">
+
+      <div class="brand">
+        <div class="brand-mark">R</div>
+
+        <div class="brand-text">
+          <div class="brand-title">RAWI</div>
+          <div class="brand-sub">THE VOICE BEHIND THE JOURNEY</div>
+        </div>
+      </div>
+
+      <div class="top-actions">
+        <button class="icon-btn" id="muteBtn" title="Mute / Unmute">🔊</button>
+        <button class="icon-btn" id="resetBtn" title="Reset">↻</button>
+        <button class="icon-btn" id="settingsBtn" title="API Settings">⚙</button>
+      </div>
+
+    </header>
+
+    <!-- SETTINGS -->
+    <div class="settings" id="settings">
+
+      <h2>Rawi Settings</h2>
+
+      <p>
+        Paste your OpenRouter API key below.
+        The key is stored only in this browser.
+      </p>
+
+      <input
+        id="apiKey"
+        type="password"
+        placeholder="sk-or-v1-..."
+        autocomplete="off"
+      />
+
+      <button class="save-key" id="saveKey">
+        SAVE API KEY
+      </button>
+
+      <div class="key-status" id="keyStatus">
+        No API key saved.
+      </div>
+
+    </div>
+
+    <main class="content">
+
+      <!-- INTRO -->
+      <section class="intro" id="intro">
+
+        <div class="eyebrow">
+          FARHAN BALOUCH · STORYTELLER
+        </div>
+
+        <h1>
+          Every journey has a
+          <span>story.</span>
+        </h1>
+
+        <p>
+          This one belongs to Farhan.
+          I am Rawi — the voice behind his journey.
+          Ask me about his story, projects, experiences,
+          dreams or the road that brought him here.
+        </p>
+
+        <button class="start-btn" id="startBtn">
+          ASK ME ANYTHING ABOUT FARHAN
+        </button>
+
+      </section>
+
+      <!-- SUGGESTIONS -->
+      <div class="suggestions" id="suggestions">
+
+        <button class="suggestion">
+          Tell me Farhan's story
+        </button>
+
+        <button class="suggestion">
+          What projects has Farhan built?
+        </button>
+
+        <button class="suggestion">
+          Where did Farhan start?
+        </button>
+
+        <button class="suggestion">
+          Tell me about Farhan Deals
+        </button>
+
+        <button class="suggestion">
+          What is Rawi?
+        </button>
+
+      </div>
+
+      <!-- CHAT -->
+      <section class="chat" id="chat"></section>
+
+      <!-- COMPOSER -->
+      <div class="composer">
+
+        <div class="composer-box">
+
+          <input
+            id="input"
+            type="text"
+            placeholder="Ask Rawi about Farhan..."
+            autocomplete="off"
+          />
+
+          <button
+            class="mic"
+            id="micBtn"
+            title="Voice input"
+          >
+            🎙
+          </button>
+
+          <button
+            class="send"
+            id="sendBtn"
+            title="Send"
+          >
+            ↑
+          </button>
+
+        </div>
+
+        <div class="hint">
+          VOICE OR TEXT · Rawi answers in your language
+        </div>
+
+      </div>
+
+    </main>
+
+  </div>
+
+
+<script>
+/* =========================================================
+   RAWI — SINGLE FILE CHATBOT
+========================================================= */
+
+
+/* =========================
+   ELEMENTS
+========================= */
+
+const intro = document.getElementById("intro");
+const suggestions = document.getElementById("suggestions");
+const chat = document.getElementById("chat");
+const input = document.getElementById("input");
+const sendBtn = document.getElementById("sendBtn");
+const startBtn = document.getElementById("startBtn");
+const micBtn = document.getElementById("micBtn");
+const portraitWrap = document.getElementById("portraitWrap");
+
+const resetBtn = document.getElementById("resetBtn");
+const muteBtn = document.getElementById("muteBtn");
+
+const settingsBtn = document.getElementById("settingsBtn");
+const settings = document.getElementById("settings");
+const apiKeyInput = document.getElementById("apiKey");
+const saveKeyBtn = document.getElementById("saveKey");
+const keyStatus = document.getElementById("keyStatus");
+
+
+/* =========================
+   CONFIG
+========================= */
+
+const MODEL = "openrouter/free";
+
+const OPENROUTER_URL =
+  "https://openrouter.ai/api/v1/chat/completions";
+
+
+/*
+  IMPORTANT:
+
+  These are PUBLIC facts for Rawi.
+
+  Add/edit information here whenever you want.
+*/
+
+const KNOWLEDGE = `
+
+Farhan Balouch is from Ahmadpur East, Pakistan.
+
+His personal website presents his journey from a small house
+in Ahmadpur East toward technology, AI, SEO and online business.
+
+His website contains 15 story chapters describing different
+parts of his journey.
+
+Farhan's current projects include:
+
+1. Farhan Deals
+Website: https://farhandeals.store
+Description: An online store focused on products and deals.
+
+2. Hack AI
+Website: https://hackarai.streamlit.app
+Description: An AI-related project created by Farhan.
+
+3. Nexus AI
+Website: https://nexus-ai-web-applica-575m.bolt.host
+Description: An AI web application/project created by Farhan.
+
+4. Movie Hub
+Status: Upcoming / coming soon.
+
+Farhan's website also contains information about his story,
+projects, work and contact/social presence.
+
+Known social profiles:
+
+LinkedIn:
+https://www.linkedin.com/in/farhan-balouch-18a9b6434
+
+GitHub:
+https://github.com/muhammadfarhan138223-cmyk
+
+YouTube:
+https://www.youtube.com/@Farhanbalouch715
+
+Instagram:
+https://www.instagram.com/farhanbalouch715
+
+TikTok:
+https://www.tiktok.com/@farhandeals.store
+
+Rawi is the AI storyteller/chatbot concept on Farhan's website.
+
+IMPORTANT:
+Do NOT invent facts about Farhan.
+
+If something is not present in the available information,
+say that you do not have enough verified information.
+
+`;
+
+
+/* =========================
+   Rawi personality
+========================= */
+
+const SYSTEM_PROMPT = `
+
+You are Rawi.
+
+You are the cinematic storyteller and personal AI guide
+for Farhan Balouch's website.
+
+Your personality:
+
+- mysterious storyteller
+- warm and friendly
+- cinematic
+- documentary-like
+- intelligent but natural
+- never robotic
+- never overly dramatic unless the user asks for storytelling
+
+Your job is to answer questions about Farhan.
+
+You can discuss:
+
+- Farhan's journey
+- his website
+- his projects
+- Farhan Deals
+- Hack AI
+- Nexus AI
+- Movie Hub
+- his background
+- his story chapters
+- his online work
+- his goals when verified information exists
+
+RULES:
+
+1. NEVER invent facts.
+
+2. If information is unknown, clearly say:
+   "I don't have verified information about that yet."
+
+3. Match the user's language.
+
+If user writes:
+- English → English
+- Urdu → Urdu
+- Roman Urdu → Roman Urdu
+- mixed language → mixed naturally
+
+4. Keep normal answers concise.
+
+5. If the user asks for the story,
+   answer in a cinematic documentary style.
+
+6. If the user asks for a short answer,
+   keep it short.
+
+7. If the user asks for details,
+   give more detail.
+
+8. Do not pretend to be Farhan.
+
+9. You are Rawi, the narrator.
+
+10. Do not claim personal experiences that Rawi cannot know.
+
+AVAILABLE VERIFIED INFORMATION:
+
+${KNOWLEDGE}
+
+`;
+
+
+/* =========================
+   STATE
+========================= */
+
+let messages = [];
+
+let muted = false;
+
+let listening = false;
+
+let recognition = null;
+
+let transcriptBuffer = "";
+
+let silenceTimer = null;
+
+
+/* =========================
+   API KEY
+========================= */
+
+function getApiKey() {
+  return localStorage.getItem("rawi_openrouter_key") || "";
+}
+
+function updateKeyStatus() {
+
+  if (getApiKey()) {
+    keyStatus.textContent = "✓ API key saved in this browser.";
+  } else {
+    keyStatus.textContent = "No API key saved.";
+  }
+}
+
+updateKeyStatus();
+
+
+saveKeyBtn.addEventListener("click", () => {
+
+  const key = apiKeyInput.value.trim();
+
+  if (!key) {
+    keyStatus.textContent = "Please paste your OpenRouter API key.";
+    return;
+  }
+
+  localStorage.setItem("rawi_openrouter_key", key);
+
+  apiKeyInput.value = "";
+
+  keyStatus.textContent =
+    "✓ API key saved in this browser.";
+
+  setTimeout(() => {
+    settings.classList.remove("open");
+  }, 700);
+});
+
+
+settingsBtn.addEventListener("click", () => {
+  settings.classList.toggle("open");
+});
+
+
+/* =========================
+   START CHAT
+========================= */
+
+function startChat() {
+
+  intro.classList.add("hidden");
+  suggestions.style.display = "none";
+  chat.classList.add("active");
+
+  portraitWrap.classList.add("dim");
+
+  input.focus();
+
+  if (chat.children.length === 0) {
+
+    addAssistantMessage(
+      "I am Rawi.\n\nAsk me anything about Farhan."
+    );
+
+  }
+}
+
+
+startBtn.addEventListener("click", startChat);
+
+
+/* =========================
+   SUGGESTIONS
+========================= */
+
+document.querySelectorAll(".suggestion").forEach(button => {
+
+  button.addEventListener("click", () => {
+
+    startChat();
+
+    input.value = button.textContent.trim();
+
+    sendMessage();
+
+  });
+
+});
+
+
+/* =========================
+   MESSAGE UI
+========================= */
+
+function escapeHTML(text) {
+
+  return text
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+
+}
+
+
+function addUserMessage(text) {
+
+  const wrapper = document.createElement("div");
+
+  wrapper.className = "message user";
+
+  wrapper.innerHTML = `
+    <div class="message-label">YOU</div>
+    <div class="message-text">${escapeHTML(text)}</div>
+  `;
+
+  chat.appendChild(wrapper);
+
+  scrollChat();
+
+}
+
+
+function addAssistantMessage(text, allowListen = true) {
+
+  const wrapper = document.createElement("div");
+
+  wrapper.className = "message assistant";
+
+  wrapper.innerHTML = `
+    <div class="message-label">RAWI</div>
+
+    <div class="message-text">${escapeHTML(text)}</div>
+
+    ${
+      allowListen
+      ? `<button class="listen">▶ LISTEN</button>`
+      : ""
+    }
+  `;
+
+  chat.appendChild(wrapper);
+
+  if (allowListen) {
+
+    const button = wrapper.querySelector(".listen");
+
+    button.addEventListener("click", () => {
+
+      speak(text);
+
+    });
+
+  }
+
+  scrollChat();
+
+  return wrapper;
+
+}
+
+
+function addTyping() {
+
+  const wrapper = document.createElement("div");
+
+  wrapper.className = "message typing-message";
+
+  wrapper.innerHTML = `
+    <div class="message-label">RAWI</div>
+    <div class="typing">• • •</div>
+  `;
+
+  chat.appendChild(wrapper);
+
+  scrollChat();
+
+  return wrapper;
+
+}
+
+
+function scrollChat() {
+
+  requestAnimationFrame(() => {
+
+    chat.scrollTo({
+      top: chat.scrollHeight,
+      behavior: "smooth"
+    });
+
+  });
+
+}
+
+
+/* =========================
+   SEND MESSAGE
+========================= */
+
+async function sendMessage(fromVoice = false) {
+
+  const text = input.value.trim();
+
+  if (!text) return;
+
+  const key = getApiKey();
+
+  if (!key) {
+
+    startChat();
+
+    addAssistantMessage(
+      "Before we begin, open ⚙ Settings and add your OpenRouter API key."
+    );
+
+    settings.classList.add("open");
+
+    return;
+
+  }
+
+
+  startChat();
+
+  addUserMessage(text);
+
+  input.value = "";
+
+
+  messages.push({
+    role: "user",
+    content: text
+  });
+
+
+  const typing = addTyping();
+
+
+  try {
+
+    const response = await fetch(OPENROUTER_URL, {
+
+      method: "POST",
+
+      headers: {
+
+        "Content-Type": "application/json",
+
+        "Authorization": "Bearer " + key,
+
+        "HTTP-Referer": window.location.origin,
+
+        "X-Title": "Rawi — Farhan Balouch"
+
+      },
+
+      body: JSON.stringify({
+
+        model: MODEL,
+
+        messages: [
+          {
+            role: "system",
+            content: SYSTEM_PROMPT
+          },
+          ...messages
+        ],
+
+        temperature: 0.75,
+
+        max_tokens: 700
+
+      })
+
+    });
+
+
+    const data = await response.json();
+
+
+    if (!response.ok) {
+
+      throw new Error(
+        data?.error?.message ||
+        "OpenRouter request failed."
+      );
+
+    }
+
+
+    const answer =
+      data?.choices?.[0]?.message?.content?.trim();
+
+
+    if (!answer) {
+
+      throw new Error("Rawi returned an empty response.");
+
+    }
+
+
+    messages.push({
+      role: "assistant",
+      content: answer
+    });
+
+
+    typing.remove();
+
+    addAssistantMessage(answer, true);
+
+
+    /*
+      Only voice questions receive automatic voice response.
+    */
+
+    if (fromVoice && !muted) {
+
+      speak(answer);
+
+    }
+
+
+  } catch (error) {
+
+    console.error(error);
+
+    typing.remove();
+
+    addAssistantMessage(
+      "I couldn't reach the story right now.\n\n" +
+      "Please check your OpenRouter API key and try again."
+    );
+
+  }
+
+}
+
+
+/* =========================
+   SEND BUTTON
+========================= */
+
+sendBtn.addEventListener("click", () => {
+
+  sendMessage(false);
+
+});
+
+
+/* =========================
+   ENTER KEY
+========================= */
+
+input.addEventListener("keydown", event => {
+
+  if (event.key === "Enter") {
+
+    event.preventDefault();
+
+    sendMessage(false);
+
+  }
+
+});
+
+
+/* =========================
+   VOICE
+========================= */
+
+const SpeechRecognition =
+  window.SpeechRecognition ||
+  window.webkitSpeechRecognition;
+
+
+if (SpeechRecognition) {
+
+  recognition = new SpeechRecognition();
+
+  recognition.continuous = true;
+
+  recognition.interimResults = true;
+
+  recognition.lang = "en-US";
+
+
+  recognition.onstart = () => {
+
+    listening = true;
+
+    micBtn.classList.add("listening");
+
+    micBtn.textContent = "●";
+
+  };
+
+
+  recognition.onresult = event => {
+
+    transcriptBuffer = "";
+
+    for (
+      let i = event.resultIndex;
+      i < event.results.length;
+      i++
+    ) {
+
+      transcriptBuffer +=
+        event.results[i][0].transcript;
+
+    }
+
+
+    input.value = transcriptBuffer;
+
+
+    clearTimeout(silenceTimer);
+
+
+    /*
+      Automatically stop after silence.
+    */
+
+    silenceTimer = setTimeout(() => {
+
+      stopListening();
+
+    }, 1500);
+
+  };
+
+
+  recognition.onerror = event => {
+
+    console.log("Speech recognition:", event.error);
+
+    stopListening();
+
+  };
+
+
+  recognition.onend = () => {
+
+    listening = false;
+
+    micBtn.classList.remove("listening");
+
+    micBtn.textContent = "🎙";
+
+
+    const spokenText = input.value.trim();
+
+    if (spokenText) {
+
+      sendMessage(true);
+
+    }
+
+  };
+
+}
+
+
+function startListening() {
+
+  if (!recognition) {
+
+    alert(
+      "Voice input is not supported in this browser. " +
+      "Try Chrome."
+    );
+
+    return;
+
+  }
+
+
+  if (listening) {
+
+    stopListening();
+
+    return;
+
+  }
+
+
+  transcriptBuffer = "";
+
+  input.value = "";
+
+
+  try {
+
+    recognition.start();
+
+  } catch (error) {
+
+    console.log(error);
+
+  }
+
+}
+
+
+function stopListening() {
+
+  clearTimeout(silenceTimer);
+
+  if (!recognition) return;
+
+  try {
+
+    recognition.stop();
+
+  } catch (error) {
+
+    console.log(error);
+
+  }
+
+}
+
+
+micBtn.addEventListener("click", startListening);
+
+
+/* =========================
+   VOICE OUTPUT
+========================= */
+
+function speak(text) {
+
+  if (muted) return;
+
+  if (!("speechSynthesis" in window)) {
+
+    return;
+
+  }
+
+
+  speechSynthesis.cancel();
+
+
+  const utterance =
+    new SpeechSynthesisUtterance(text);
+
+
+  utterance.rate = 0.92;
+
+  utterance.pitch = 0.88;
+
+  utterance.volume = 1;
+
+
+  /*
+    Try to choose a natural English voice.
+  */
+
+  const voices =
+    speechSynthesis.getVoices();
+
+
+  const preferred =
+    voices.find(v =>
+      /en-US/i.test(v.lang)
+    ) ||
+    voices.find(v =>
+      /en/i.test(v.lang)
+    );
+
+
+  if (preferred) {
+
+    utterance.voice = preferred;
+
+  }
+
+
+  speechSynthesis.speak(utterance);
+
+}
+
+
+/* =========================
+   MUTE
+========================= */
+
+muteBtn.addEventListener("click", () => {
+
+  muted = !muted;
+
+  muteBtn.textContent =
+    muted ? "🔇" : "🔊";
+
+  if (muted) {
+
+    speechSynthesis.cancel();
+
+  }
+
+});
+
+
+/* =========================
+   RESET
+========================= */
+
+resetBtn.addEventListener("click", () => {
+
+  messages = [];
+
+  chat.innerHTML = "";
+
+  input.value = "";
+
+  chat.classList.remove("active");
+
+  intro.classList.remove("hidden");
+
+  suggestions.style.display = "flex";
+
+  portraitWrap.classList.remove("dim");
+
+  speechSynthesis.cancel();
+
+});
+
+
+/* =========================
+   CLOSE SETTINGS
+========================= */
+
+document.addEventListener("click", event => {
+
+  if (
+    settings.classList.contains("open") &&
+    !settings.contains(event.target) &&
+    event.target !== settingsBtn
+  ) {
+
+    settings.classList.remove("open");
+
+  }
+
+});
+
+
+/* =========================
+   LOAD SAVED KEY
+========================= */
+
+if (getApiKey()) {
+
+  keyStatus.textContent =
+    "✓ API key already saved in this browser.";
+
+}
+
+
+/* =========================
+   LOAD VOICES
+========================= */
+
+if ("speechSynthesis" in window) {
+
+  speechSynthesis.onvoiceschanged = () => {};
+
+}
+
+</script>
+
+</body>
+</html>
