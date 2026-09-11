@@ -1,370 +1,580 @@
-// ────────────────────────────────────────────────────────────
-//  Central content for Farhan Balouch's personal site.
-//  This is the ONLY place to edit story text, highlights, etc.
-//
-//  PRIVACY NOTE: All female individuals have been anonymized.
-//  Names, identifying relationships, and details that could
-//  expose them on a public, searchable website have been
-//  removed or generalized. The emotional truth of the story
-//  is preserved.
-// ────────────────────────────────────────────────────────────
+import { ArrowRight, Compass, ExternalLink, Heart, MessageCircle, Rocket, Sparkles } from 'lucide-react';
+import { Seo } from '@/components/Seo';
+import { Starfield } from '@/components/Starfield';
+import { Reveal } from '@/components/Reveal';
+import { useRouter } from '@/router';
+import { personSchema, SITE } from '@/data/content';
 
-export const SITE = {
-  name: 'Farhan Balouch',
-  origin: 'Ahmadpur East, Pakistan',
-  email: 'muhammadfarhan138223@gmail.com', // placeholder — replace with real email
-  domain: 'farhanbalouch.com', // placeholder — replace with real domain
-};
-
-export type Highlight = {
-  icon: 'compass' | 'heart' | 'rocket';
-  title: string;
-  body: string;
-};
-
-export const highlights: Highlight[] = [
+const projects = [
   {
-    icon: 'compass',
-    title: 'Where I Started',
-    body: 'A small town in southern Punjab — Ahmadpur East — where the horizon was flat, the stars were close, and a restless kid kept finding things to build, raise, and try.',
+    number: '01',
+    title: 'Farhan Deals',
+    category: 'ONLINE BUSINESS',
+    description:
+      'An online store built from Ahmadpur East — turning an idea into a real e-commerce business.',
+    url: 'https://farhandeals.store',
+    status: 'LIVE',
   },
   {
-    icon: 'heart',
-    title: 'What I Once Wanted',
-    body: 'I dreamed of becoming a doctor — not for prestige, but to heal the person I loved most. When life took that away, the dream reshaped itself, but the instinct never left.',
+    number: '02',
+    title: 'Hack AI',
+    category: 'AI EXPERIMENT',
+    description:
+      'An AI-focused experiment where ideas, automation and technology come together.',
+    url: 'https://hackarai.streamlit.app',
+    status: 'LIVE',
   },
   {
-    icon: 'rocket',
-    title: 'Where I’m Headed',
-    body: 'Today my compass points to technology, AI, SEO, and online business — building things that reach across the world from where I began. The story isn’t over; it’s only just begun.',
+    number: '03',
+    title: 'Nexus AI',
+    category: 'AI / TECHNOLOGY',
+    description:
+      'A futuristic AI web project exploring what can be built with modern technology.',
+    url: 'https://nexus-ai-web-applica-575m.bolt.host',
+    status: 'LIVE',
+  },
+  {
+    number: '04',
+    title: 'Movie Hub',
+    category: 'UPCOMING',
+    description:
+      'Something new is being built. The next chapter of the digital journey is still loading.',
+    url: null,
+    status: 'COMING SOON',
   },
 ];
 
-export type Phase = {
-  id: string;
-  label: string;
-  startPart: number;
-  endPart: number;
-};
-
-export const phases: Phase[] = [
-  { id: 'childhood', label: 'Childhood', startPart: 1, endPart: 2 },
-  { id: 'school', label: 'School Years', startPart: 3, endPart: 6 },
-  { id: 'loss-change', label: 'Loss & Change', startPart: 7, endPart: 13 },
-  { id: 'forward', label: 'Looking Forward', startPart: 14, endPart: 15 },
-];
-
-export type StoryChapter = {
-  slug: string;
-  part: number;
-  title: string;
-  subtitle: string;
-  period: string;
-  phase: string;
-  excerpt: string;
-  paragraphs: string[];
-};
-
-export const storyChapters: StoryChapter[] = [
+const chapters = [
   {
-    slug: 'part-1-ahmadpur-east',
-    part: 1,
-    title: 'Ahmadpur East: Where It All Began',
-    subtitle: 'A small house, a restless kid, and the feeling that I had to do something',
-    period: 'Childhood',
-    phase: 'childhood',
-    excerpt:
-      'My story doesn\'t begin in a big city\'s glamorous background. It begins in an ordinary house in Ahmadpur East — where I was born, grew up, and carried a strange feeling inside: "I have to do something with my life."',
-    paragraphs: [
-      'Meri kahani kisi bade shehar ke glamorous background se shuru nahi hoti. Ye kahani Ahmadpur East ke ek aam se ghar se shuru hoti hai — jahan main paida hua, bada hua, aur jahan bachpan se mere andar ek ajeeb si feeling thi: "Mujhe zindagi mein kuch karna hai."',
-      'Us waqt mujhe nahi pata tha ke "kuch bara karna" exactly kya hota hai. Lekin khaali bethna mujhe kabhi pasand nahi tha. Kabhi chickens palne ka shauq chadh jata, kabhi koi naya kaam seekhne ka. Chhote chhote experiments karta aur unhein poori seriousness se leta.',
-      'Ek chhota sa chick agar mar jata ya billi utha leti, to mujhe genuinely dukh hota tha. Main rota bhi tha. Shayad wahi bachpan ka shauq baad mein meri personality ka hissa ban gaya: kuch banana, kuch seekhna, kuch try karna.',
-    ],
+    number: '01',
+    title: 'Where It All Began',
+    text: 'Every journey has a beginning. Mine started in a small place with big questions.',
   },
   {
-    slug: 'part-2-school-ka-pehla-safar',
-    part: 2,
-    title: 'School Ka Pehla Safar',
-    subtitle: 'A failed admission test, a new beginning, and a school that became a second home',
-    period: 'Early school',
-    phase: 'childhood',
-    excerpt:
-      'I stepped into the world of school around age four. A failed admission test at a new school — I couldn\'t recite the six times table — led to a fresh start in class 1. That school would become my second home.',
-    paragraphs: [
-      'Maine school ki duniya mein qareeban chaar saal ki umar mein qadam rakha. Pehle ek school mein nursery, prep aur phir class 1 tak padha. Phir family ne decide kiya ke mujhe us school mein hona chahiye jahan meri bari sister parhti thi.',
-      'Naya school us waqt Ahmadpur East ke achay schools mein count hota tha. Lekin admission ka pehla impression? Six ka table. Test hua aur main fail. Purane school ne kaha ke agar main wahi rahun to mujhe agay ki class mein promote kar denge. Lekin Abu ne decide kiya ke ab school change hoga.',
-      'To main new school mein class 1 se dobara start hua. Naya environment, naye teachers, naye bachay... Aur main ghar aa kar aksar complain karta: "Mujhe wapis purane school jana hai!"',
-      'Lekin waqt ke saath wahi school mera second home ban gaya. Class 2 mein dost banne lage. Class 3 tak studies mein improvement aayi aur maine second position hasil kar li.',
-      'Phir school ki building change hui, playground bada mila, aur bachpan ka woh phase shuru hua jahan school sirf parhai nahi tha — school poori duniya tha. Class 4 mein meri neatness ka bhi school ko fikr hone lagi. Ek baar ghar message gaya ke Farhan ko thora neat bheja karo.',
-      'Class 5 tak parhai mein dil lag chuka tha aur maine dobara second position li. Aur phir ek din boys aur girls ki classes officially separate ho gayin. Hum bachay andar se: "Finally!"',
-    ],
+    number: '02',
+    title: 'The Early Years',
+    text: 'Before technology, before business — there was curiosity, observation and a lot to learn.',
   },
   {
-    slug: 'part-3-the-boy-who-was-afraid-of-school',
-    part: 3,
-    title: 'The Boy Who Was Afraid of School',
-    subtitle: 'When confidence arrived, and so did something unexpected',
-    period: 'Class 6–7',
-    phase: 'school',
-    excerpt:
-      'Class 6 made me confident — friends, games, the kind of school life where break-time plans mattered more than homework. Then class 7 brought an unexpected turn: a face I couldn\'t forget.',
-    paragraphs: [
-      'Class 6 mein main kaafi confident ho gaya. Teachers ke saath hansi mazaaq, friends ke saath unlimited bakwaas, games, masti... School life ka woh version jahan homework se zyada important hota tha: "Aaj break mein kya karna hai?"',
-      'Lekin phir class 7 mein meri life ne ek unexpected turn liya. Ek din school se cycle par ghar ja raha tha jab raaste mein ek larki nazar aayi. Main usay pehle kabhi nahi dekha tha. Us din bas ek nazar pari... Aur phir ghar ja kar bhi wahi chehra yaad aata raha.',
-      'Agle din main usi jagah se guzra. Phir dobara. Phir mujhe curiosity hui ke ye hai kaun? Aur yahan se meri teenage curiosity ne detective mode activate kar diya.',
-      'Dheere dheere mujhe uska ghar aur school routine maloom hone laga. Main subah school se pehle uske raaste ke aas paas rukne laga. Jo larka kabhi school jane ke liye excuses banata tha, woh ab school se aadha ghanta pehle ghar se nikalta tha.',
-      'Reason? School nahi. Ek jhalak. Mere friends ne bhi notice kar liya ke jo banda normally late hota tha, ab daily time par aa raha hai. Aur phir feelings ki duniya mein mera unofficial admission ho gaya.',
-    ],
+    number: '03',
+    title: 'School Days',
+    text: 'The years that quietly shaped the person behind the screen.',
   },
   {
-    slug: 'part-4-pehla-crush-pehli-confusion',
-    part: 4,
-    title: 'Pehla Crush, Pehli Confusion',
-    subtitle: 'A teenage investigation, a two-page love letter that was never delivered, and a silence that spoke volumes',
-    period: 'Class 7–8',
-    phase: 'school',
-    excerpt:
-      'Boys and girls weren\'t allowed to talk at school, so my investigation was creative. A two-page love letter stayed in my pocket for days — I never found the courage to deliver it. The response, when it finally came, was silence.',
-    paragraphs: [
-      'Us waqt school mein boys aur girls ke darmiyan baat karna allowed nahi tha. Isliye meri investigation bhi thori creative thi. Kabhi school records se naam ka idea, kabhi routine ka, kabhi common acquaintances se information... Teenage brain ko agar kisi cheez ki curiosity ho jaye to Google bhi sharma jaye.',
-      'Lekin ek problem thi: parhai ka kya? Main usay dekhne mein itna involved ho gaya ke studies ka focus kam hone laga. Class 7 kisi tarah nikal gayi. Class 8 mein bhi situation kuch aisi hi rahi.',
-      'Phir ek waqt aaya jab mujhe laga: "Ya to baat clear karo... ya move on karo." Maine ek love letter likha. Do pages. Kai din pocket mein raha. Himmat nahi hui dene ki. Aakhir woh letter bhi history ban gaya.',
-      'Phir maine chhote chhote papers par ek sentence likha aur us tak pohanchane ki koshish ki. Response? Silence. Phir papers wapas bahar nazar aaye. Maine ise rejection samjha.',
-      'Baad mein ek mysterious gesture hua jo aaj tak mere liye completely clear nahi hua. Aur teenage heart ne apna favourite solution nikala: "Chalo... shayad ye chapter yahin khatam."',
-      'Main usay bhoolne ki koshish karta raha. Lekin kuch yaadein delete button se delete nahi hotin.',
-    ],
+    number: '04',
+    title: 'Finding My Direction',
+    text: 'Somewhere along the way, ordinary interests started turning into something bigger.',
   },
   {
-    slug: 'part-5-position-mil-gayi',
-    part: 5,
-    title: 'Position Mil Gayi, Lekin…',
-    subtitle: 'A trophy won, but the one person I wanted to see it wasn\'t there',
-    period: 'Class 8',
-    phase: 'school',
-    excerpt:
-      'I won second position again — but I wasn\'t at school that day. I was in Islamabad. The trophy came home, the result was good, but something was missing. Reality said: "Not every scene gets its audience."',
-    paragraphs: [
-      'Class 8 ke result mein maine phir second position hasil kar li. Lekin result day par main school mein nahi tha. Main Islamabad mein tha.',
-      'Ghar se message aaya: "Aj tumhara result tha na?" Main bola: "Han." Trophy ghar aa gayi. Result acha tha. Khushi bhi hui.',
-      'Lekin dil mein ek ajeeb si kami thi. Mere zehen mein ek simple si imagination thi: Agar main stage par hota... naam announce hota... trophy milti... aur woh bhi saamne hoti... to shayad uske chehre par ek chhoti si smile hi dekh leta.',
-      'Reality ne bas itna kaha: "Not every scene gets its audience."',
-    ],
+    number: '05',
+    title: 'The First Spark',
+    text: 'The moment technology stopped being something to watch and became something to explore.',
   },
   {
-    slug: 'part-6-islamabad-mountains-and-memories',
-    part: 6,
-    title: 'Islamabad: Mountains, Memories & a Wider World',
-    subtitle: 'A night bus, cold mountains, and the first feeling that the world was bigger than my town',
-    period: 'Class 8',
-    phase: 'school',
-    excerpt:
-      'After my class 8 exams, I visited Islamabad for the first time. A night journey, then waking up to mountains everywhere. For the first time, I felt that the world was much bigger than Ahmadpur East.',
-    paragraphs: [
-      'Class 8 ke papers ke baad mujhe pehli baar Islamabad jane ka chance mila. Bus ka pehla proper safar. Night journey. Window ke bahar andhera. Phir subah aankh khuli... aur bahar sirf pahaar hi pahaar.',
-      'Ahmadpur East ki garmi se nikla hua main Islamabad ki thandi subah mein mountains dekh raha tha. Woh scene mere liye kisi movie se kam nahi tha. Faisal Mosque pehli baar dekhi. Photos aur videos banaye. Ek vlog bhi banaya tha... jo unfortunately delete ho gaya.',
-      'Islamabad mein kuch din guzare. Balcony se gali ka scene dekhta rehta. Ramzan bhi wahi guzra. Thanda weather, pahaar, badal, kabhi dhoop...',
-      'Aur pehli baar mujhe mehsoos hua ke duniya Ahmadpur East se kaafi badi hai.',
-    ],
+    number: '06',
+    title: 'Discovering The Internet',
+    text: 'A completely new world opened up — information, ideas, opportunities and endless possibilities.',
   },
   {
-    slug: 'part-7-ek-aur-rishta-ek-alag-kahani',
-    part: 7,
-    title: 'Ek Aur Rishta, Ek Alag Kahani',
-    subtitle: 'A new connection, small moments that felt like a film, and a tragedy that brought reality close',
-    period: 'Teenage years',
-    phase: 'loss-change',
-    excerpt:
-      'Someone close to the family showed me care and affection. Small moments — walking together, carrying a bag, a simple goodbye — were enough for a teenage mind to build a whole film. Then a family tragedy brought reality crashing in.',
-    paragraphs: [
-      'Ek aur connection bana — koi jo family ke qareeb tha. School aur family gatherings ki wajah se mulaqat hoti rehti. Woh relatively shy thi, lekin mere saath care aur affection show karti thi.',
-      'Phir circumstances aise bane ke school ke baad tuition ka connection bhi ho gaya. Kabhi saath ghar ki taraf jana. Kabhi bag carry karna. Kabhi door tak chhor kar aana. Kabhi ek simple sa: "Bye." Aur teenage mind ke liye bas itna hi kaafi hota hai ke poori film ban jaye.',
-      'Dheere dheere kuch logon ko dono ke darmiyan feelings ka idea ho gaya. Lekin phir ek family tragedy hui. Ek chhoti loss — unexpected, sudden — ne sab ko hila diya.',
-      'Uska janaza mere liye life ke un moments mein se tha jo insaan bhool nahi sakta. Main us janaze ko apne kandhon par utha raha tha aur mere zehen mein ek sher aya: "Jee rahe hain kapray badal badal kar, ek din uthaye jayenge kandhay badal badal kar."',
-      'Us din bachpan ki masti ke beech zindagi ki reality bohat qareeb se nazar aayi.',
-    ],
+    number: '07',
+    title: 'Learning To Build',
+    text: 'Not knowing everything was never the point. The point was learning how to start.',
   },
   {
-    slug: 'part-8-jab-family-ko-pata-chal-gaya',
-    part: 8,
-    title: 'Jab Family Ko Pata Chal Gaya',
-    subtitle: 'Teasing, pressure, and the denial that hurt someone — and taught me something',
-    period: 'Teenage years',
-    phase: 'loss-change',
-    excerpt:
-      'The story wasn\'t just ours anymore. Teasing started, word reached my mother, and under pressure I did what teenage boys do: I denied everything. That denial hurt someone, and it taught me that understanding feelings and accepting them are two different things.',
-    paragraphs: [
-      'Family gatherings mein teasing shuru hui. Meri aur us connection ki story ab sirf hum dono tak nahi rahi thi. Baat meri mother tak bhi pahunch gayi.',
-      'Aur phir woh classic moment aaya jahan teenage boy pressure mein aa kar: "Mujhe kuch nahi pata." Maine feelings deny kar di.',
-      'Is denial ne saamne wale ko hurt kiya. Kuch waqt ke liye distance aa gaya. Baad mein dheere dheere normal communication wapas aayi.',
-      'Is chapter ne mujhe ek cheez samjhayi: feelings ko samajhna aur feelings ko accept karna do alag cheezen hain.',
-    ],
+    number: '08',
+    title: 'The AI Era',
+    text: 'Artificial intelligence changed the way I looked at technology — and at what I could create.',
   },
   {
-    slug: 'part-9-chhoti-jobs-bade-lessons',
-    part: 9,
-    title: 'Chhoti Jobs, Bade Lessons',
-    subtitle: 'Working at medical stores, learning by doing, and the seeds of a dream',
-    period: 'School holidays',
-    phase: 'loss-change',
-    excerpt:
-      'My father believed I shouldn\'t sit idle. So school holidays meant working — medical stores, small jobs, learning by doing. I didn\'t know it then, but every small job was teaching me something. Medicine\'s basics took root here.',
-    paragraphs: [
-      'Mere bachpan ka ek aur important part tha kaam karna. Mere father ka mindset tha ke main ghar mein farigh na bethun. Isliye school holidays mein mujhe different places par kaam seekhne aur busy rehne ke opportunities milti rahin.',
-      'Medical stores par bhi kaam seekha. Pehle chhoti payment mili, phir doosri jagah kuch zyada. Ek jagah sirf experience ke liye kaam karne ko kaha gaya aur payment nahi milni thi, to main do din baad chhor aaya.',
-      'Ek aur jagah par kaam shuru kiya, lekin month complete hone se pehle hi chhor diya. Us waqt mujhe shayad samajh nahi aata tha ke ye sab experiences future mein kis kaam aayenge.',
-      'Lekin aaj peeche dekhta hoon to lagta hai: har chhota kaam mujhe kuch na kuch sikha raha tha. Medicine ka basic knowledge bhi isi journey ka hissa bana.',
-      'Baad mein jab meri Nani medicines ke naam aur unke uses poochti thin, to mujhe unhein samjhana acha lagta tha. Unki khushi mujhe khushi deti thi. Aur shayad isi wajah se medical field aur doctor banne ka dream bhi mere andar strong hota gaya.',
-    ],
+    number: '09',
+    title: 'The First Real Projects',
+    text: 'Ideas slowly became websites, experiments and projects that could actually be opened by someone else.',
   },
   {
-    slug: 'part-10-nani',
-    part: 10,
-    title: 'Nani',
-    subtitle: 'The person I loved most, the dream to heal her, and the day the phone rang',
-    period: 'Turning point',
-    phase: 'loss-change',
-    excerpt:
-      'My grandmother — Nani — was the person I was emotionally closest to. I dreamed of becoming a doctor so I could treat her myself. Then one day, the phone rang, and my mother\'s cry told me everything.',
-    paragraphs: [
-      'Meri Nani meri life ke un logon mein se thin jin ke saath mera emotional connection bohat strong tha. Unki health aksar theek nahi rehti thi. Main kabhi unke paas baith kar medicines ke baare mein batata, kabhi unki health ko lekar sochta.',
-      'Dil mein ek dream tha: "Kaash main doctor ban jaun aur apni Nani ka khud ilaaj kar sakun." Main medical field ki taraf isi dream ke saath bhi attract hua.',
-      'Phir ek din unki tabiyat bohat kharab ho gayi. Doctor ghar aaya. Phir ambulance bulani pari. Family unke saath hospital ki taraf chali gayi. Hum ghar mein intezar kar rahe thay.',
-      'Main namaz parhne ke liye uthne hi wala tha. Socha: "Namaz parhta hoon, dua karta hoon. InshaAllah theek ho jayengi."',
-      'Aur phir... phone aaya. Meri mother ki cheekh ne sab kuch bata diya. Nani nahi rahi thin.',
-      'Woh meri life ke sabse khofnaak dinon mein se ek tha. Mehmaan aaye. Janaza hua. Dafan kiya gaya. Ghar mein khamoshi thi. Aur phir waqt ne apna kaam kiya. Insaan gham ke saath jeena seekhta gaya.',
-    ],
+    number: '10',
+    title: 'Farhan Deals',
+    text: 'An idea became an online business — with all the learning, pressure and responsibility that came with it.',
   },
   {
-    slug: 'part-11-the-unexpected-message',
-    part: 11,
-    title: 'The Unexpected Message',
-    subtitle: 'A late-night message that opened a new emotional chapter',
-    period: 'After loss',
-    phase: 'loss-change',
-    excerpt:
-      'After Nani\'s passing, another unexpected emotional turn came. A message arrived one night — not simple, carrying feelings. I was confused, deflected at first, but eventually gave an answer. A new chapter had begun.',
-    paragraphs: [
-      'Nani ke inteqal ke kuch waqt baad meri life mein ek aur unexpected emotional turn aaya. Kisi ne — jis ke baare mein meri mother ka zehen mein bhi kabhi mere future ke context mein zikr aaya tha — ne ek raat mujhe private message bheja.',
-      'Message simple nahi tha. Usmein feelings ka izhar tha. Main confuse ho gaya. Mujhe samajh nahi aa raha tha ke jawab kya doon. Main seedha jawab dene ke bajaye baat ghumaata raha.',
-      'Lekin eventually feelings ka ek jawab diya. Us raat baat hui. Phir kuch din baad dobara communication hui. Aur yahan se meri life mein ek naya emotional chapter shuru hua.',
-    ],
+    number: '11',
+    title: 'Building With AI',
+    text: 'From simple experiments to real applications, AI became a serious part of the journey.',
   },
   {
-    slug: 'part-12-confusion',
-    part: 12,
-    title: 'Confusion',
-    subtitle: 'Between old memories and a new possibility, I didn\'t know my own heart',
-    period: 'Emotional crossroads',
-    phase: 'loss-change',
-    excerpt:
-      'The problem was that my past feelings were still alive somewhere. Old memories on one side, a new possibility on the other, and me in the middle. I admitted it to myself: "I don\'t know who I love."',
-    paragraphs: [
-      'Problem ye thi ke meri past feelings bhi kahin na kahin zinda thin. Ek taraf purani memories. Doosri taraf ek nayi possibility. Aur beech mein main.',
-      'Kuch logon ko dono sides ki baaton ka idea bhi hone laga. Ek doosre se private baatein share ho jati thin. Aur main aur zyada confuse hota gaya.',
-      'Maine khud accept kiya: "Mujhe khud nahi pata main kis se love karta hoon." Lekin ek cheez clear thi: mera emotional world ab pehle jaisa simple nahi raha tha.',
-    ],
+    number: '12',
+    title: 'Failures & Lessons',
+    text: 'Not every idea worked. Not every attempt succeeded. But every mistake left something behind.',
   },
   {
-    slug: 'part-13-manzil-se-kuch-kilometer-pehle',
-    part: 13,
-    title: 'Manzil Se Kuch Kilometer Pehle',
-    subtitle: 'The U-turn that changed everything — so close to where I wanted to be',
-    period: 'Emotional turning point',
-    phase: 'loss-change',
-    excerpt:
-      'A family event, a sentence from my mother that made my heart race, a bike ride toward the person I cared about — and then a phone call. A death in the family. "Go back." I was only kilometers away. That U-turn wasn\'t just a bike turning around.',
-    paragraphs: [
-      'Phir meri story ka woh scene aaya jise main aaj bhi apne emotional turning points mein count karta hoon. Ek din family ke saath ek event par jana tha. Meri mother ne kaha ke agar raat ho gayi to hum relatives ke ghar chale jayenge.',
-      'Mere liye bas ye sentence kaafi tha. Main excited ho gaya. Kyun? Kyun ke shayad usay dekh sakta tha. Main mother ke saath bike par nikla. Event attend hua. Sab khatam hua.',
-      'Ab meri nazar sirf aglay destination par thi. Main us ghar ki taraf jana chahta tha jahan meri feelings mera intezar kar rahi thin. Lekin exactly us waqt ek phone call aayi. Ek aur loss ki khabar.',
-      'Mother ne kaha: "Wapas chalo." Maine convince karne ki koshish ki. Kaha ke abhi relatives ke ghar chalte hain, subah wapas aa jayenge. Lekin meri nahi chali.',
-      'Aur phir... U-TURN. Main jis taraf apni manzil samajh kar ja raha tha, usi road par wapas mud gaya. Sabse painful part? Us ghar ki doori sirf kuch kilometers thi. Manzil saamne thi. Lekin main wahan nahi pohunch saka.',
-      'Us raat mere andar kuch aur change hua. Mujhe laga ke main us person ko sirf miss nahi karta. Main uske saath future imagine karne laga hoon. Dreams. Companionship. Ek beautiful life.',
-      'Aur isi liye woh U-turn mere liye sirf bike ka U-turn nahi tha. Woh meri feelings ka U-turn tha. Us din ke baad longing aur gehri ho gayi.',
-    ],
+    number: '13',
+    title: 'The Bigger Vision',
+    text: 'The goal slowly became bigger than one website, one project or one business.',
   },
   {
-    slug: 'part-14-the-boy-who-keeps-looking-forward',
-    part: 14,
-    title: 'The Boy Who Keeps Looking Forward',
-    subtitle: 'Looking back and seeing the thread that connects it all',
-    period: 'Reflection',
-    phase: 'forward',
-    excerpt:
-      'Looking at my journey today, I see a strange connection. Raising chickens, winning positions, working at medical stores, falling for medicine, then turning toward technology, AI, SEO. At every stage, one thing repeated: I wanted to do something. The journey never stopped.',
-    paragraphs: [
-      'Aaj main apni journey ko dekhta hoon to mujhe ek strange connection nazar aata hai. Bachpan mein chickens palta tha. Phir school mein positions hasil ki. Phir medical stores par kaam seekha. Phir medicine aur healthcare mein interest bana.',
-      'Phir technology, websites, AI, SEO aur online business ki taraf attraction hua. Har stage par ek hi cheez repeat hoti rahi: main kuch karna chahta tha.',
-      'Kabhi mujhe pata tha ke kya karna hai. Kabhi nahi pata tha. Kabhi main successful hua. Kabhi fail. Kabhi kisi ko paane ki koshish ki. Kabhi kisi ko bhoolne ki. Kabhi kisi loss ne tod diya. Kabhi kisi naye dream ne dobara khara kar diya.',
-      'Lekin journey rukki nahi.',
-    ],
+    number: '14',
+    title: 'What Comes Next',
+    text: 'Some chapters are already written. Others are waiting to happen.',
   },
   {
-    slug: 'part-15-abhi-kahani-baqi-hai',
-    part: 15,
-    title: 'Abhi Kahani Baqi Hai',
-    subtitle: 'The story isn\'t over — this is only the part written so far',
-    period: 'Now & next',
-    phase: 'forward',
-    excerpt:
-      'Today I\'m still young. The final chapter of my life\'s book hasn\'t been written. There\'s education, a career to build, something to create in technology and AI. And one day, I want to look back and say: that small boy from Ahmadpur East never gave up.',
-    paragraphs: [
-      'Aaj main abhi young hoon. Meri life ki book ka final chapter likha hi nahi gaya. Abhi education hai. Career banana hai. Technology aur AI mein kuch apna karna hai. Financially strong hona hai. Apni identity build karni hai.',
-      'Aur ek din aisi zindagi create karni hai jahan peeche mud kar dekhun to keh sakun: "Haan... woh chhota sa larka jo Ahmadpur East mein kuch bara karne ke sapne dekhta tha, usne haar nahi maani."',
-      'Meri kahani mein love hai. Loss hai. Family hai. School hai. Comedy hai. Confusion hai. Ambition hai. Aur bohat saare unanswered questions bhi.',
-      'Lekin sabse important baat: This is not the end of the story. This is only the part that has been written so far.',
-      '— Farhan',
-    ],
+    number: '15',
+    title: 'This Is Only The Beginning',
+    text: 'The story is not finished. You are simply arriving somewhere in the middle of it.',
   },
 ];
 
-export type Project = {
-  title: string;
-  category: string;
-  description: string;
-  status: 'placeholder' | 'coming-soon' | 'live';
-  link?: string;
-};
+export default function Home() {
+  const { navigate } = useRouter();
 
-export const projects: Project[] = [
-  {
-    title: 'Project One',
-    category: 'SEO',
-    description: 'A placeholder for your first project. Replace this with a real project — a campaign, a site, a tool, or a case study.',
-    status: 'placeholder',
-  },
-  {
-    title: 'Project Two',
-    category: 'AI',
-    description: 'A placeholder for an AI-related project — a model, an integration, an experiment worth showing.',
-    status: 'placeholder',
-  },
-  {
-    title: 'Project Three',
-    category: 'Online Business',
-    description: 'A placeholder for an online business venture — a store, a service, a product.',
-    status: 'placeholder',
-  },
-  {
-    title: 'Project Four',
-    category: 'Content',
-    description: 'A placeholder for a content or writing project — a blog, a guide, a series.',
-    status: 'placeholder',
-  },
-];
+  return (
+    <>
+      <Seo
+        title="Farhan Balouch — From Ahmadpur East to AI, SEO & Online Business"
+        description="The personal site of Farhan Balouch — his story, projects, AI experiments, online business and the journey from Ahmadpur East to the digital world."
+        canonical={SITE.url}
+      />
 
-// ── JSON-LD Person schema (injected on home page) ──
-export const personSchema = {
-  '@context': 'https://schema.org',
-  '@type': 'Person',
-  name: 'Farhan Balouch',
-  url: 'https://farhanbalouch.com',
-  description:
-    'Originally from Ahmadpur East, Pakistan. Works in AI, SEO, and online business. His story spans a small-town childhood, a dream of medicine, loss, and a pivot to technology.',
-  knowsAbout: ['Artificial Intelligence', 'SEO', 'Technology', 'Online Business', 'Web Development'],
-  address: {
-    '@type': 'PostalAddress',
-    addressLocality: 'Ahmadpur East',
-    addressCountry: 'PK',
-  },
-};
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(personSchema),
+        }}
+      />
+
+      <main className="relative overflow-hidden bg-black text-white">
+        <Starfield />
+
+        {/* =========================================================
+            HERO
+        ========================================================== */}
+        <section className="relative flex min-h-[92vh] items-center overflow-hidden">
+          {/* Cinematic fog */}
+          <div className="pointer-events-none absolute inset-0 z-0 overflow-hidden">
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_45%,rgba(212,175,55,0.10),transparent_45%)]" />
+
+            <div
+              className="absolute -inset-[20%] opacity-60"
+              style={{
+                background:
+                  'radial-gradient(ellipse at center, rgba(255,255,255,0.10) 0%, rgba(255,255,255,0.025) 35%, transparent 70%)',
+                filter: 'blur(45px)',
+                animation: 'fogDrift 12s ease-in-out infinite alternate',
+              }}
+            />
+
+            <div
+              className="absolute inset-0 bg-black/20"
+              style={{
+                animation: 'introFog 3.2s ease-out forwards',
+              }}
+            />
+          </div>
+
+          <div className="relative z-10 mx-auto grid w-full max-w-7xl items-center gap-10 px-6 py-24 md:grid-cols-2 md:px-10 lg:px-12">
+            <Reveal>
+              <div className="max-w-2xl">
+                <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.03] px-4 py-2 text-xs uppercase tracking-[0.28em] text-white/55 backdrop-blur">
+                  <Compass className="h-3.5 w-3.5 text-[#d4af37]" />
+                  Ahmadpur East, Pakistan
+                </div>
+
+                <h1
+                  className="text-5xl font-semibold leading-[0.95] tracking-[-0.04em] sm:text-6xl md:text-7xl lg:text-8xl"
+                  style={{
+                    animation: 'revealHero 1.2s ease-out both',
+                  }}
+                >
+                  I am{' '}
+                  <span className="bg-gradient-to-r from-[#f5e6a8] via-[#d4af37] to-[#a67c00] bg-clip-text text-transparent">
+                    Farhan
+                  </span>{' '}
+                  Balouch.
+                  <br />
+                  <span className="text-white/80">This is my story.</span>
+                </h1>
+
+                <p className="mt-7 max-w-xl text-base leading-8 text-white/55 sm:text-lg">
+                  From a small house in Ahmadpur East to the world of technology,
+                  AI, SEO, and online business.
+                </p>
+
+                <div className="mt-9 flex flex-wrap gap-4">
+                  <button
+                    onClick={() => navigate('/story')}
+                    className="group inline-flex items-center gap-3 rounded-full bg-white px-6 py-3.5 text-sm font-semibold text-black transition-all duration-300 hover:scale-[1.03] hover:bg-[#f5e6a8]"
+                  >
+                    Read my story
+                    <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+                  </button>
+
+                  <button
+                    onClick={() => navigate('/about')}
+                    className="inline-flex items-center gap-3 rounded-full border border-white/15 bg-white/[0.03] px-6 py-3.5 text-sm font-medium text-white/80 backdrop-blur transition-all duration-300 hover:border-[#d4af37]/50 hover:bg-white/[0.06]"
+                  >
+                    About me
+                  </button>
+                </div>
+              </div>
+            </Reveal>
+
+            {/* Portrait */}
+            <Reveal delay={150}>
+              <div className="relative flex min-h-[430px] items-end justify-center md:min-h-[620px]">
+                <div className="absolute left-1/2 top-1/2 h-[330px] w-[330px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#d4af37]/10 blur-[90px]" />
+
+                <div
+                  className="absolute bottom-12 left-1/2 h-[75%] w-[80%] -translate-x-1/2 rounded-full opacity-60"
+                  style={{
+                    background:
+                      'radial-gradient(ellipse, rgba(212,175,55,0.12), transparent 65%)',
+                    filter: 'blur(25px)',
+                    animation: 'haloPulse 5s ease-in-out infinite',
+                  }}
+                />
+
+                <img
+                  src="/file_0000000088f482118226c0157ec13471-removebg-preview.png"
+                  alt="Farhan Balouch"
+                  className="relative z-10 max-h-[600px] w-auto max-w-full object-contain drop-shadow-[0_30px_80px_rgba(0,0,0,0.8)]"
+                  style={{
+                    animation: 'heroFloat 6s ease-in-out infinite',
+                  }}
+                />
+              </div>
+            </Reveal>
+          </div>
+
+          <div className="absolute bottom-8 left-1/2 z-20 -translate-x-1/2">
+            <div className="flex flex-col items-center gap-2 text-[10px] uppercase tracking-[0.35em] text-white/25">
+              <span>Scroll to enter the story</span>
+              <div className="h-10 w-px bg-gradient-to-b from-[#d4af37]/60 to-transparent" />
+            </div>
+          </div>
+        </section>
+
+        {/* =========================================================
+            PROJECTS — CINEMATIC TRAILER
+        ========================================================== */}
+        <section className="relative border-t border-white/[0.06] py-28 sm:py-36">
+          <div className="mx-auto max-w-7xl px-6 md:px-10 lg:px-12">
+            <Reveal>
+              <div className="mb-16 max-w-3xl">
+                <div className="mb-5 flex items-center gap-3 text-xs font-medium uppercase tracking-[0.3em] text-[#d4af37]">
+                  <Rocket className="h-4 w-4" />
+                  The digital journey
+                </div>
+
+                <h2 className="text-4xl font-semibold tracking-[-0.03em] sm:text-5xl md:text-6xl">
+                  Ideas became{' '}
+                  <span className="text-white/35">something real.</span>
+                </h2>
+
+                <p className="mt-6 max-w-2xl text-base leading-8 text-white/45 sm:text-lg">
+                  Websites, experiments, businesses and unfinished ideas.
+                  These are some of the things that exist because I decided to
+                  stop only imagining — and start building.
+                </p>
+              </div>
+            </Reveal>
+
+            <div className="grid gap-5 md:grid-cols-2">
+              {projects.map((project, index) => (
+                <Reveal key={project.number} delay={index * 90}>
+                  <article
+                    className="group relative min-h-[330px] overflow-hidden rounded-3xl border border-white/[0.08] bg-white/[0.025] p-7 transition-all duration-500 hover:-translate-y-1 hover:border-[#d4af37]/30 hover:bg-white/[0.045] sm:p-9"
+                  >
+                    {/* background number */}
+                    <div className="pointer-events-none absolute -right-5 -top-12 text-[180px] font-bold leading-none text-white/[0.025] transition-transform duration-700 group-hover:translate-x-3">
+                      {project.number}
+                    </div>
+
+                    <div className="relative z-10 flex h-full flex-col">
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs tracking-[0.25em] text-[#d4af37]/80">
+                          {project.category}
+                        </span>
+
+                        <span className="rounded-full border border-white/10 px-3 py-1 text-[9px] tracking-[0.18em] text-white/35">
+                          {project.status}
+                        </span>
+                      </div>
+
+                      <div className="mt-auto">
+                        <h3 className="text-3xl font-semibold tracking-tight sm:text-4xl">
+                          {project.title}
+                        </h3>
+
+                        <p className="mt-4 max-w-md text-sm leading-7 text-white/45 sm:text-base">
+                          {project.description}
+                        </p>
+
+                        {project.url ? (
+                          <a
+                            href={project.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="group/link mt-7 inline-flex items-center gap-2 text-sm font-medium text-white/75 transition-colors hover:text-[#f5e6a8]"
+                          >
+                            Enter project
+                            <ExternalLink className="h-4 w-4 transition-transform group-hover/link:-translate-y-0.5 group-hover/link:translate-x-0.5" />
+                          </a>
+                        ) : (
+                          <span className="mt-7 inline-flex items-center gap-2 text-sm text-white/30">
+                            The next chapter is loading
+                            <Sparkles className="h-4 w-4 text-[#d4af37]/60" />
+                          </span>
+                        )}
+                      </div>
+                    </div>
+
+                    <div className="absolute bottom-0 left-0 h-px w-0 bg-gradient-to-r from-transparent via-[#d4af37] to-transparent transition-all duration-700 group-hover:w-full" />
+                  </article>
+                </Reveal>
+              ))}
+            </div>
+
+            <Reveal delay={350}>
+              <div className="mt-12 flex items-center justify-center">
+                <div className="flex items-center gap-3 text-center text-xs uppercase tracking-[0.25em] text-white/25">
+                  <span className="h-px w-10 bg-white/10" />
+                  But these projects are only part of the story
+                  <span className="h-px w-10 bg-white/10" />
+                </div>
+              </div>
+            </Reveal>
+          </div>
+        </section>
+
+        {/* =========================================================
+            15 CHAPTERS — TRAILER / SUSPENSE
+        ========================================================== */}
+        <section className="relative border-t border-white/[0.06] py-28 sm:py-36">
+          <div className="mx-auto max-w-7xl px-6 md:px-10 lg:px-12">
+            <Reveal>
+              <div className="mx-auto mb-16 max-w-3xl text-center">
+                <div className="mb-5 text-xs font-medium uppercase tracking-[0.3em] text-[#d4af37]">
+                  15 chapters
+                </div>
+
+                <h2 className="text-4xl font-semibold tracking-[-0.03em] sm:text-5xl md:text-6xl">
+                  One life.
+                  <br />
+                  <span className="text-white/35">Countless turning points.</span>
+                </h2>
+
+                <p className="mx-auto mt-6 max-w-2xl text-base leading-8 text-white/45 sm:text-lg">
+                  Some chapters are about places. Some are about people.
+                  Some are about failures, dreams and decisions.
+                  And some are still waiting to be written.
+                </p>
+              </div>
+            </Reveal>
+
+            <div className="relative">
+              {/* timeline line */}
+              <div className="absolute bottom-0 left-[15px] top-0 w-px bg-gradient-to-b from-[#d4af37]/50 via-white/10 to-transparent md:left-1/2 md:-translate-x-1/2" />
+
+              <div className="space-y-4">
+                {chapters.map((chapter, index) => (
+                  <Reveal key={chapter.number} delay={(index % 5) * 60}>
+                    <button
+                      onClick={() => navigate('/story')}
+                      className="group relative flex w-full items-start gap-6 text-left md:gap-10"
+                    >
+                      <div className="relative z-10 flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-white/15 bg-black text-[10px] text-white/40 transition-all duration-300 group-hover:border-[#d4af37]/60 group-hover:text-[#d4af37] md:absolute md:left-1/2 md:-translate-x-1/2">
+                        {index + 1}
+                      </div>
+
+                      <div
+                        className={`w-full rounded-2xl border border-white/[0.06] bg-white/[0.02] p-5 transition-all duration-500 group-hover:border-[#d4af37]/20 group-hover:bg-white/[0.035] md:w-[calc(50%-45px)] ${
+                          index % 2 === 0
+                            ? 'md:mr-auto md:text-right'
+                            : 'md:ml-auto'
+                        }`}
+                      >
+                        <div className="flex items-center justify-between gap-4 md:block">
+                          <span className="text-[10px] tracking-[0.25em] text-[#d4af37]/65">
+                            CHAPTER {chapter.number}
+                          </span>
+
+                          <ArrowRight
+                            className={`h-4 w-4 text-white/20 transition-all duration-300 group-hover:text-[#d4af37] ${
+                              index % 2 === 0 ? 'md:ml-auto' : ''
+                            }`}
+                          />
+                        </div>
+
+                        <h3 className="mt-2 text-lg font-medium text-white/85 sm:text-xl">
+                          {chapter.title}
+                        </h3>
+
+                        <p className="mt-2 text-sm leading-6 text-white/35">
+                          {chapter.text}
+                        </p>
+                      </div>
+                    </button>
+                  </Reveal>
+                ))}
+              </div>
+            </div>
+
+            <Reveal delay={300}>
+              <div className="mt-16 text-center">
+                <button
+                  onClick={() => navigate('/story')}
+                  className="group inline-flex items-center gap-3 rounded-full border border-white/10 bg-white/[0.03] px-7 py-3.5 text-sm font-medium text-white/70 backdrop-blur transition-all duration-300 hover:border-[#d4af37]/40 hover:text-white"
+                >
+                  Enter all 15 chapters
+                  <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+                </button>
+              </div>
+            </Reveal>
+          </div>
+        </section>
+
+        {/* =========================================================
+            RAWI — STORYTELLER
+        ========================================================== */}
+        <section className="relative overflow-hidden border-t border-white/[0.06] py-32 sm:py-40">
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(212,175,55,0.08),transparent_45%)]" />
+
+          <div className="relative mx-auto max-w-5xl px-6 text-center md:px-10">
+            <Reveal>
+              <div className="mx-auto mb-7 flex h-16 w-16 items-center justify-center rounded-2xl border border-[#d4af37]/20 bg-[#d4af37]/[0.06]">
+                <MessageCircle className="h-7 w-7 text-[#d4af37]" />
+              </div>
+
+              <div className="mb-5 flex items-center justify-center gap-3 text-xs uppercase tracking-[0.3em] text-[#d4af37]">
+                <Sparkles className="h-4 w-4" />
+                Meet Rawi
+                <Sparkles className="h-4 w-4" />
+              </div>
+
+              <h2 className="text-4xl font-semibold tracking-[-0.03em] sm:text-5xl md:text-6xl">
+                Every story needs
+                <br />
+                <span className="text-white/35">a storyteller.</span>
+              </h2>
+
+              <p className="mx-auto mt-7 max-w-2xl text-base leading-8 text-white/45 sm:text-lg">
+                I have written the chapters.
+                <br />
+                <span className="text-white/65">
+                  Rawi knows how to tell them.
+                </span>
+              </p>
+
+              <p className="mx-auto mt-5 max-w-xl text-sm leading-7 text-white/30">
+                Ask Rawi about Farhan, his journey, his projects, the lessons
+                behind the story — or simply start a conversation.
+              </p>
+
+              <button
+                onClick={() => navigate('/rawi')}
+                className="group mt-10 inline-flex items-center gap-3 rounded-full bg-[#d4af37] px-7 py-4 text-sm font-semibold text-black shadow-[0_10px_50px_rgba(212,175,55,0.15)] transition-all duration-300 hover:scale-[1.03] hover:bg-[#f5e6a8]"
+              >
+                Talk to Rawi
+                <MessageCircle className="h-4 w-4 transition-transform group-hover:scale-110" />
+              </button>
+            </Reveal>
+          </div>
+        </section>
+
+        {/* =========================================================
+            FINAL CTA
+        ========================================================== */}
+        <section className="border-t border-white/[0.06] py-24">
+          <div className="mx-auto max-w-4xl px-6 text-center">
+            <Reveal>
+              <Heart className="mx-auto h-5 w-5 text-[#d4af37]/60" />
+
+              <p className="mt-5 text-sm uppercase tracking-[0.28em] text-white/25">
+                The journey continues
+              </p>
+
+              <h2 className="mt-4 text-3xl font-semibold tracking-tight text-white/80 sm:text-4xl">
+                This is only the beginning.
+              </h2>
+
+              <button
+                onClick={() => navigate('/story')}
+                className="group mt-8 inline-flex items-center gap-2 text-sm text-white/50 transition-colors hover:text-[#f5e6a8]"
+              >
+                Start the story
+                <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+              </button>
+            </Reveal>
+          </div>
+        </section>
+      </main>
+
+      <style>{`
+        @keyframes introFog {
+          0% {
+            opacity: 1;
+          }
+          65% {
+            opacity: 0.35;
+          }
+          100% {
+            opacity: 0;
+          }
+        }
+
+        @keyframes heroFloat {
+          0%,
+          100% {
+            transform: translateY(0px);
+          }
+          50% {
+            transform: translateY(-10px);
+          }
+        }
+
+        @keyframes haloPulse {
+          0%,
+          100% {
+            transform: translateX(-50%) scale(0.95);
+            opacity: 0.45;
+          }
+          50% {
+            transform: translateX(-50%) scale(1.08);
+            opacity: 0.75;
+          }
+        }
+
+        @keyframes fogDrift {
+          0% {
+            transform: translate3d(-3%, 0, 0) scale(1);
+          }
+          100% {
+            transform: translate3d(3%, -2%, 0) scale(1.08);
+          }
+        }
+
+        @keyframes revealHero {
+          0% {
+            opacity: 0;
+            transform: translateY(25px);
+            filter: blur(8px);
+          }
+          100% {
+            opacity: 1;
+            transform: translateY(0);
+            filter: blur(0);
+          }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+          *,
+          *::before,
+          *::after {
+            animation-duration: 0.01ms !important;
+            animation-iteration-count: 1 !important;
+            transition-duration: 0.01ms !important;
+            scroll-behavior: auto !important;
+          }
+        }
+      `}</style>
+    </>
+  );
+    }
