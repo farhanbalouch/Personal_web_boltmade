@@ -8,6 +8,7 @@ import { StoryHub } from '@/pages/StoryHub';
 import { StoryChapter } from '@/pages/StoryChapter';
 import { Work } from '@/pages/Work';
 import { Contact } from '@/pages/Contact';
+import { CinematicIntro } from '@/components/CinematicIntro';
 
 function Routes() {
   const { route } = useRouter();
