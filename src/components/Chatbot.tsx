@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { MessageCircle, X, Send, Sparkles } from 'lucide-react';
+import { GoogleGenAI } from '@google/genai';
 
 type Msg = { role: 'user' | 'assistant'; content: string };
 
@@ -7,7 +8,7 @@ const GREETING =
   "Assalam-o-alaikum! I'm Rawi — the storyteller of Farhan's journey. Ask me about where he's from, what he once dreamed of, or where he's headed. Main yahan hoon sunane ke liye. ✨";
 
 const FALLBACK =
-  "Seems the storytelling lamp has run out of oil right now — the chat backend isn't reachable. Please try again later, or explore the My Story pages to read Farhan's journey directly.";
+  "Seems the storytelling lamp has run out of oil right now — API key is missing or invalid. Please check your .env file.";
 
 export function Chatbot() {
   const [open, setOpen] = useState(false);
@@ -34,28 +35,33 @@ export function Chatbot() {
     setLoading(true);
 
     try {
-      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-      const anonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
-      if (!supabaseUrl || !anonKey) throw new Error('missing-config');
+      // Fetch key from .env
+      const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
+      if (!apiKey) throw new Error('missing-config');
 
-      const res = await fetch(`${supabaseUrl}/functions/v1/rawi`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${anonKey}`,
-        },
-        body: JSON.stringify({
-          messages: history.map((m) => ({ role: m.role, content: m.content })),
-        }),
+      const ai = new GoogleGenAI({ apiKey });
+
+      // Gemini System Prompt to keep Rawi character
+      const response = await ai.models.generateContent({
+        model: 'gemini-2.5-flash',
+        contents: [
+          {
+            role: 'user',
+            parts: [
+              {
+                text: `You are Rawi, the personal AI storyteller for Farhan's portfolio website. Respond politely in a mix of English and Roman Urdu/Hindi. Answer the user's question: "${text}"`,
+              },
+            ],
+          },
+        ],
       });
 
-      if (!res.ok) throw new Error(`http-${res.status}`);
-      const data = await res.json();
-      const reply: string | undefined = data?.reply;
-      if (!reply || typeof reply !== 'string') throw new Error('bad-shape');
+      const reply = response.text;
+      if (!reply) throw new Error('bad-shape');
 
       setMessages((prev) => [...prev, { role: 'assistant', content: reply }]);
-    } catch {
+    } catch (error) {
+      console.error(error);
       setFailed(true);
       setMessages((prev) => [...prev, { role: 'assistant', content: FALLBACK }]);
     } finally {
