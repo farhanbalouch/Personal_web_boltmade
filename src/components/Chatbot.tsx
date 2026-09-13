@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { MessageCircle, X, Send, Sparkles } from 'lucide-react';
-import { GoogleGenAI } from '@google/genai';
+import { GoogleGenerativeAI } from "@google/generative-ai";
 
 type Msg = { role: 'user' | 'assistant'; content: string };
 
