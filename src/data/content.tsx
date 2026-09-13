@@ -3,7 +3,6 @@ import { Seo } from '@/components/Seo';
 import { Starfield } from '@/components/Starfield';
 import { Reveal } from '@/components/Reveal';
 import { useRouter } from '@/router';
-import { personSchema, SITE } from '@/data/content';
 
 const projects = [
   {
