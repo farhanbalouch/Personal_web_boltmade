@@ -3,6 +3,17 @@ import { Seo } from '@/components/Seo';
 import { Starfield } from '@/components/Starfield';
 import { Reveal } from '@/components/Reveal';
 import { useRouter } from '@/router';
+export const personSchema = {
+  "@context": "https://schema.org",
+  "@type": "Person",
+  "name": "Farhan Balouch",
+  "url": "https://Farhanbalouch.com",
+  "jobTitle": "Developer & Entrepreneur",
+  "sameAs": [
+    "https://github.com/muhammadfarhan138223-cmyk"
+  ]
+};
+
 
 const projects = [
   {
