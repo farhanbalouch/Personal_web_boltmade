@@ -489,35 +489,8 @@ export function Home() {
         </div>
       </section>
 
-      {/* Rawi teaser */}
-      <section className="py-20 sm:py-24 max-w-6xl mx-auto px-5 sm:px-8">
-        <Reveal>
-          <div className="relative rounded-3xl border border-border bg-gradient-to-br from-bg-card via-bg-soft to-bg-card overflow-hidden p-8 sm:p-12 text-center">
-            <div className="absolute -top-12 -right-12 w-48 h-48 rounded-full bg-gold/5 blur-3xl" />
-            <div className="absolute -bottom-12 -left-12 w-48 h-48 rounded-full bg-teal/5 blur-3xl" />
-            <div className="relative">
-              <div className="inline-flex items-center justify-center w-14 h-14 rounded-full bg-gradient-to-br from-gold/20 to-teal/20 border border-gold/30 mb-5">
-                <Sparkles className="w-6 h-6 text-gold" />
-              </div>
-              <h2 className="font-display text-3xl sm:text-4xl mb-4">Meet Rawi</h2>
-              <p className="text-text-muted max-w-md mx-auto leading-relaxed mb-6">
-                Rawi is the storyteller of this site — a warm, slightly poetic
-                narrator who knows Farhan's journey. Ask a question, get a story back.
-              </p>
-              <p className="text-sm text-text-muted/70 italic mb-6">
-                Look for the glowing chat button at the bottom of any page.
-              </p>
-              <button
-                onClick={() => navigate('/story')}
-                className="inline-flex items-center gap-2 text-gold hover:text-gold-soft transition-colors link-underline"
-              >
-                <MessageCircle className="w-4 h-4" />
-                Or read the story first
-              </button>
-            </div>
-          </div>
-        </Reveal>
-      </section>
+      <RawiSpotlight />
+   <FeaturedProjects />
     </>
   );
 }
