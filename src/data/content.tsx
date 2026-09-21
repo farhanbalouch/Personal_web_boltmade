@@ -284,4 +284,3 @@ export const storyChapters = [
     paragraphs: ['This chapter is being written. The full story is coming soon.'],
   },
 ];
-
