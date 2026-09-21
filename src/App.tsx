@@ -28,9 +28,8 @@ function Routes() {
       <CinematicIntro />
       <Navbar />
       <main className="flex-1">{page}</main>
-      <Footer />
-      <Chatbot />
-    </div>
+     <Footer />
+      </div>
   );
 }
 
