@@ -4,7 +4,9 @@ import { Seo } from '@/components/Seo';
 import { Starfield } from '@/components/Starfield';
 import { Reveal } from '@/components/Reveal';
 import { useRouter } from '@/router';
-import { highlights, personSchema, SITE } from '@/data/content';
+import { highlights, SITE } from '@/data/content';
+import { RawiSpotlight } from '@/components/RawiSpotlight';
+import { FeaturedProjects } from '@/components/FeaturedProjects';
 
 const iconMap = { compass: Compass, heart: Heart, rocket: Rocket };
 
