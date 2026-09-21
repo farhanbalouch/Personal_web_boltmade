@@ -6,18 +6,107 @@
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="theme-color" content="#0a0e17" />
-    <!-- Default title/description — per-page overrides via react-helmet-equivalent injected tags -->
-    <title data-default>Farhan Balouch — Personal Site</title>
-    <meta name="description" content="The personal site of Farhan Balouch — from Ahmadpur East to the world of AI, SEO, and online business." />
-    <!-- Open Graph (home page) -->
+
+    <!-- Title / description (per-page overrides come from Seo.tsx) -->
+    <title data-default>Farhan Balouch — Official Website | AI, SEO &amp; Online Business</title>
+    <meta name="description" content="Farhan Balouch — official website. From Ahmadpur East, Pakistan to AI, SEO and online business. Read his story, explore his projects (Nexus AI, Rawi, Farhan Deals, Hack AI) and meet Rawi, his AI storyteller." />
+    <meta name="author" content="Farhan Balouch" />
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+    <link rel="canonical" href="https://farhanbalouch.com/" />
+
+    <!-- Open Graph -->
     <meta property="og:type" content="website" />
-    <meta property="og:title" content="Farhan Balouch — Personal Site" />
-    <meta property="og:description" content="From Ahmadpur East to the world of AI, SEO, and online business. The story of Farhan Balouch." />
     <meta property="og:site_name" content="Farhan Balouch" />
+    <meta property="og:locale" content="en_US" />
+    <meta property="og:url" content="https://farhanbalouch.com/" />
+    <meta property="og:title" content="Farhan Balouch — Official Website" />
+    <meta property="og:description" content="From Ahmadpur East to the world of AI, SEO and online business. The story and projects of Farhan Balouch." />
+    <meta property="og:image" content="https://farhanbalouch.com/og-image.jpg" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="Farhan Balouch — official website" />
+
     <!-- Twitter -->
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="Farhan Balouch — Personal Site" />
-    <meta name="twitter:description" content="From Ahmadpur East to the world of AI, SEO, and online business." />
+    <meta name="twitter:title" content="Farhan Balouch — Official Website" />
+    <meta name="twitter:description" content="From Ahmadpur East to the world of AI, SEO and online business." />
+    <meta name="twitter:image" content="https://farhanbalouch.com/og-image.jpg" />
+
+    <!--
+      Structured data (static, so Google sees it in the very first HTML — no JavaScript needed).
+      Jab tumhare personal social profiles (LinkedIn, X, Instagram...) ban jayen to unke links
+      "sameAs" list mein Person ke andar add kar dena.
+    -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "WebSite",
+          "@id": "https://farhanbalouch.com/#website",
+          "url": "https://farhanbalouch.com/",
+          "name": "Farhan Balouch",
+          "alternateName": "Farhan Balouch Official Website",
+          "inLanguage": "en",
+          "publisher": { "@id": "https://farhanbalouch.com/#person" }
+        },
+        {
+          "@type": "ProfilePage",
+          "@id": "https://farhanbalouch.com/#profilepage",
+          "url": "https://farhanbalouch.com/",
+          "name": "Farhan Balouch — Official Website",
+          "isPartOf": { "@id": "https://farhanbalouch.com/#website" },
+          "mainEntity": { "@id": "https://farhanbalouch.com/#person" }
+        },
+        {
+          "@type": "Person",
+          "@id": "https://farhanbalouch.com/#person",
+          "name": "Farhan Balouch",
+          "givenName": "Farhan",
+          "familyName": "Balouch",
+          "url": "https://farhanbalouch.com/",
+          "mainEntityOfPage": { "@id": "https://farhanbalouch.com/#profilepage" },
+          "image": {
+            "@type": "ImageObject",
+            "url": "https://farhanbalouch.com/farhan-balouch.jpg",
+            "width": 512,
+            "height": 512
+          },
+          "description": "Farhan Balouch is a developer and entrepreneur from Ahmadpur East, Pakistan, building in AI, SEO and online business. Creator of Nexus AI, Rawi, Farhan Deals and Hack AI.",
+          "jobTitle": "Developer & Entrepreneur",
+          "address": {
+            "@type": "PostalAddress",
+            "addressLocality": "Ahmadpur East",
+            "addressCountry": "PK"
+          },
+          "knowsAbout": [
+            "Artificial Intelligence",
+            "Search Engine Optimization",
+            "E-commerce",
+            "Web Development",
+            "Cybersecurity"
+          ],
+          "sameAs": [
+            "https://github.com/muhammadfarhan138223-cmyk"
+          ]
+        },
+        {
+          "@type": "Organization",
+          "@id": "https://farhanbalouch.com/#farhandeals",
+          "name": "Farhan Deals",
+          "url": "https://farhandeals.store",
+          "founder": { "@id": "https://farhanbalouch.com/#person" },
+          "sameAs": [
+            "https://www.instagram.com/farhan_deals/",
+            "https://www.tiktok.com/@farhandeals.store",
+            "https://www.youtube.com/@FarhanDeals",
+            "https://www.facebook.com/p/Farhan-Deals-61586852994463/"
+          ]
+        }
+      ]
+    }
+    </script>
+
     <!-- Fonts: Fraunces (display serif) + Inter (sans body) -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -25,6 +114,19 @@
   </head>
   <body>
     <div id="root"></div>
+    <!-- Crawlers / no-JS visitors ke liye basic content (React load hote hi replace ho jata hai) -->
+    <noscript>
+      <h1>Farhan Balouch</h1>
+      <p>Farhan Balouch — developer and entrepreneur from Ahmadpur East, Pakistan, building in AI, SEO and online business.</p>
+      <ul>
+        <li><a href="https://farhanbalouch.com/story">My Story</a></li>
+        <li><a href="https://farhanbalouch.com/work">Projects</a></li>
+        <li><a href="https://nexusai.farhanbalouch.com">Nexus AI</a></li>
+        <li><a href="https://rawi.farhanbalouch.com">Rawi — AI storyteller</a></li>
+        <li><a href="https://farhandeals.store">Farhan Deals</a></li>
+        <li><a href="https://hackarai.streamlit.app">Hack AI</a></li>
+      </ul>
+    </noscript>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
