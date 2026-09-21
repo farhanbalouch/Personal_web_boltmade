@@ -1,7 +1,6 @@
 import { RouterProvider, useRouter } from '@/router';
 import { Navbar } from '@/components/Navbar';
 import { Footer } from '@/components/Footer';
-import { Chatbot } from '@/components/Chatbot';
 import { Home } from '@/pages/Home';
 import { About } from '@/pages/About';
 import { StoryHub } from '@/pages/StoryHub';
