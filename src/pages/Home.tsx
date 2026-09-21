@@ -21,11 +21,7 @@ export function Home() {
         path="/"
       />
 
-      {/* JSON-LD Person schema */}
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(personSchema) }}
-      />
+      
 
       {/* Hero */}
       <section className="relative min-h-screen overflow-hidden bg-bg">
@@ -40,8 +36,7 @@ export function Home() {
             35% {
               opacity: 0.85;
             }
-            70% {
-              opacity: 0.55;
+            70% {              opacity: 0.55;
               transform: scale(1.15) translateY(-10px);
             }
             100% {
