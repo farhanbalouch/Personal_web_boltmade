@@ -15,7 +15,6 @@ function Routes() {
   const path = route.path;
 
   let page;
-  <CinematicIntro />
   if (path === '/') page = <Home />;
   else if (path === '/about') page = <About />;
   else if (path === '/story') page = <StoryHub />;
@@ -26,6 +25,7 @@ function Routes() {
 
   return (
     <div className="min-h-screen flex flex-col bg-bg">
+      <CinematicIntro />
       <Navbar />
       <main className="flex-1">{page}</main>
       <Footer />
