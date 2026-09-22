@@ -1,0 +1,50 @@
+name: Merge blog posts into story (review required)
+
+# Runs every Sunday at 18:00 UTC (~11pm PKT), plus you can trigger it
+# manually any time from the Actions tab ("Run workflow").
+on:
+  schedule:
+    - cron: '0 18 * * 0'
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  merge-story:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Classify blog posts into story chapters
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        run: node scripts/merge-story.mjs
+
+      - name: Read summary
+        id: summary
+        run: |
+          {
+            echo 'body<<EOF'
+            cat content/last-merge-summary.md
+            echo EOF
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Open Pull Request for review
+        uses: peter-evans/create-pull-request@v6
+        with:
+          commit-message: 'chore(story): proposed updates from recent blog posts'
+          branch: story-update-bot
+          delete-branch: true
+          title: 'Story update: review AI-suggested chapter additions'
+          body: ${{ steps.summary.outputs.body }}
+          add-paths: |
+            src/data/story-chapters.json
+            content/story-merge-state.json
