@@ -1,8 +1,12 @@
-// Central data file for the site. Pure data only — no JSX/components here.
-// Add/edit story chapters, projects, and highlights below.
+// Central data file for the site. Pure data + type re-exports only — no JSX/components here.
 //
-// NOTE: Person / WebSite JSON-LD (SEO) ab index.html mein static hai,
-// isliye yahan personSchema nahi hai.
+// Story chapters, phases and blog posts now live in JSON files
+// (story-chapters.json, phases.json, blog-posts.json) so automation
+// scripts (scripts/publish-blog.mjs, scripts/merge-story.mjs) can edit
+// them safely without touching TypeScript/JSX code.
+
+import phasesData from './phases.json';
+import storyChaptersData from './story-chapters.json';
 
 export const SITE = {
   name: 'Farhan Balouch',
@@ -130,157 +134,25 @@ export const projects: Project[] = [
 ];
 
 // ---------------------------------------------------------------------
-// STORY
-// Groups of chapters shown on the Story hub timeline.
-// startPart/endPart refer to each chapter's `part` number below.
-// (Phase names apni marzi se badal sakte ho.)
+// STORY (data lives in JSON — see note at top of file)
 // ---------------------------------------------------------------------
-export const phases = [
-  { id: 'early-life', label: 'Early Life', startPart: 1, endPart: 4 },
-  { id: 'growing-up', label: 'Growing Up', startPart: 5, endPart: 8 },
-  { id: 'lessons', label: 'Lessons & Loss', startPart: 9, endPart: 12 },
-  { id: 'looking-forward', label: 'Looking Forward', startPart: 13, endPart: 15 },
-];
+export type Phase = {
+  id: string;
+  label: string;
+  startPart: number;
+  endPart: number;
+};
 
-// Slugs sitemap.xml ke slugs se EXACT match karte hain — inhe change mat karna
-// (agar karo to sitemap.xml mein bhi change karna hoga).
-// `excerpt` = Story hub card + meta description.
-// `paragraphs` = chapter ka full text. Abhi placeholder hai — jab full story
-// add karni ho to sirf paragraphs ka array replace karna.
-export const storyChapters = [
-  {
-    slug: 'part-1-ahmadpur-east',
-    part: 1,
-    period: 'Roots',
-    title: 'Ahmadpur East',
-    subtitle: 'Where this story starts.',
-    excerpt: 'Part 1 of Farhan Balouch\u2019s story \u2014 Ahmadpur East, where it all began. The full chapter is coming soon.',
-    paragraphs: ['This chapter is being written. The full story is coming soon.'],
-  },
-  {
-    slug: 'part-2-school-ka-pehla-safar',
-    part: 2,
-    period: 'School Years',
-    title: 'School Ka Pehla Safar',
-    subtitle: 'The first journey to school.',
-    excerpt: 'Part 2 of Farhan Balouch\u2019s story \u2014 School Ka Pehla Safar. The full chapter is coming soon.',
-    paragraphs: ['This chapter is being written. The full story is coming soon.'],
-  },
-  {
-    slug: 'part-3-the-boy-who-was-afraid-of-school',
-    part: 3,
-    period: 'School Years',
-    title: 'The Boy Who Was Afraid of School',
-    subtitle: 'Chapter three.',
-    excerpt: 'Part 3 of Farhan Balouch\u2019s story \u2014 The Boy Who Was Afraid of School. The full chapter is coming soon.',
-    paragraphs: ['This chapter is being written. The full story is coming soon.'],
-  },
-  {
-    slug: 'part-4-pehla-crush-pehli-confusion',
-    part: 4,
-    period: 'Growing Up',
-    title: 'Pehla Crush, Pehli Confusion',
-    subtitle: 'Chapter four.',
-    excerpt: 'Part 4 of Farhan Balouch\u2019s story \u2014 Pehla Crush, Pehli Confusion. The full chapter is coming soon.',
-    paragraphs: ['This chapter is being written. The full story is coming soon.'],
-  },
-  {
-    slug: 'part-5-position-mil-gayi',
-    part: 5,
-    period: 'School Years',
-    title: 'Position Mil Gayi',
-    subtitle: 'Chapter five.',
-    excerpt: 'Part 5 of Farhan Balouch\u2019s story \u2014 Position Mil Gayi. The full chapter is coming soon.',
-    paragraphs: ['This chapter is being written. The full story is coming soon.'],
-  },
-  {
-    slug: 'part-6-islamabad-mountains-and-memories',
-    part: 6,
-    period: 'Memories',
-    title: 'Islamabad: Mountains and Memories',
-    subtitle: 'Chapter six.',
-    excerpt: 'Part 6 of Farhan Balouch\u2019s story \u2014 Islamabad: Mountains and Memories. The full chapter is coming soon.',
-    paragraphs: ['This chapter is being written. The full story is coming soon.'],
-  },
-  {
-    slug: 'part-7-ek-aur-rishta-ek-alag-kahani',
-    part: 7,
-    period: 'Growing Up',
-    title: 'Ek Aur Rishta, Ek Alag Kahani',
-    subtitle: 'Chapter seven.',
-    excerpt: 'Part 7 of Farhan Balouch\u2019s story \u2014 Ek Aur Rishta, Ek Alag Kahani. The full chapter is coming soon.',
-    paragraphs: ['This chapter is being written. The full story is coming soon.'],
-  },
-  {
-    slug: 'part-8-jab-family-ko-pata-chal-gaya',
-    part: 8,
-    period: 'Family',
-    title: 'Jab Family Ko Pata Chal Gaya',
-    subtitle: 'Chapter eight.',
-    excerpt: 'Part 8 of Farhan Balouch\u2019s story \u2014 Jab Family Ko Pata Chal Gaya. The full chapter is coming soon.',
-    paragraphs: ['This chapter is being written. The full story is coming soon.'],
-  },
-  {
-    slug: 'part-9-chhoti-jobs-bade-lessons',
-    part: 9,
-    period: 'Early Work',
-    title: 'Chhoti Jobs, Bade Lessons',
-    subtitle: 'Chapter nine.',
-    excerpt: 'Part 9 of Farhan Balouch\u2019s story \u2014 Chhoti Jobs, Bade Lessons. The full chapter is coming soon.',
-    paragraphs: ['This chapter is being written. The full story is coming soon.'],
-  },
-  {
-    slug: 'part-10-nani',
-    part: 10,
-    period: 'Family',
-    title: 'Nani',
-    subtitle: 'Chapter ten.',
-    excerpt: 'Part 10 of Farhan Balouch\u2019s story \u2014 Nani. The full chapter is coming soon.',
-    paragraphs: ['This chapter is being written. The full story is coming soon.'],
-  },
-  {
-    slug: 'part-11-the-unexpected-message',
-    part: 11,
-    period: 'Life Moments',
-    title: 'The Unexpected Message',
-    subtitle: 'Chapter eleven.',
-    excerpt: 'Part 11 of Farhan Balouch\u2019s story \u2014 The Unexpected Message. The full chapter is coming soon.',
-    paragraphs: ['This chapter is being written. The full story is coming soon.'],
-  },
-  {
-    slug: 'part-12-confusion',
-    part: 12,
-    period: 'Life Moments',
-    title: 'Confusion',
-    subtitle: 'Chapter twelve.',
-    excerpt: 'Part 12 of Farhan Balouch\u2019s story \u2014 Confusion. The full chapter is coming soon.',
-    paragraphs: ['This chapter is being written. The full story is coming soon.'],
-  },
-  {
-    slug: 'part-13-manzil-se-kuch-kilometer-pehle',
-    part: 13,
-    period: 'The Road So Far',
-    title: 'Manzil Se Kuch Kilometer Pehle',
-    subtitle: 'Chapter thirteen.',
-    excerpt: 'Part 13 of Farhan Balouch\u2019s story \u2014 Manzil Se Kuch Kilometer Pehle. The full chapter is coming soon.',
-    paragraphs: ['This chapter is being written. The full story is coming soon.'],
-  },
-  {
-    slug: 'part-14-the-boy-who-keeps-looking-forward',
-    part: 14,
-    period: 'Looking Ahead',
-    title: 'The Boy Who Keeps Looking Forward',
-    subtitle: 'Chapter fourteen.',
-    excerpt: 'Part 14 of Farhan Balouch\u2019s story \u2014 The Boy Who Keeps Looking Forward. The full chapter is coming soon.',
-    paragraphs: ['This chapter is being written. The full story is coming soon.'],
-  },
-  {
-    slug: 'part-15-abhi-kahani-baqi-hai',
-    part: 15,
-    period: 'Ongoing',
-    title: 'Abhi Kahani Baqi Hai',
-    subtitle: 'The story is not over.',
-    excerpt: 'Part 15 of Farhan Balouch\u2019s story \u2014 Abhi Kahani Baqi Hai. The full chapter is coming soon.',
-    paragraphs: ['This chapter is being written. The full story is coming soon.'],
-  },
-];
+export type StoryChapter = {
+  slug: string;
+  part: number;
+  period: string;
+  title: string;
+  subtitle: string;
+  excerpt: string;
+  paragraphs: string[];
+};
+
+export const phases = phasesData as Phase[];
+export const storyChapters = storyChaptersData as StoryChapter[];
+
