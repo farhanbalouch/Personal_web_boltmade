@@ -105,4 +105,9 @@
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
+  <url>
+    <loc>https://farhanbalouch.com/blog/a-day-i-chose-friends-over-lectures-my-college-confession</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
 </urlset>
