@@ -1,0 +1,5 @@
+Title idea: What Are AI Tokens? A Simple Explanation for Beginners
+
+Jab maine pehli baar suna ke AI models words ke bajaye tokens use karte hain, mujhe ye concept confusing laga. Main samajhna chahta tha ke token actually kya hota hai, AI models ki token limits kyun hoti hain, aur tokens API cost ko kaise affect karte hain.
+
+Is guide mein main AI tokens ko simple language aur practical examples ke saath explain karunga.
