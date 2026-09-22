@@ -5,10 +5,11 @@ import { useRouter } from '@/router';
 const links = [
   { href: '/', label: 'Home' },
   { href: '/about', label: 'About' },
-  { href: '/story', label: 'My Story' },
-  { href: '/work', label: 'Work' },
-  { href: '/contact', label: 'Contact' },
   { href: '/blog', label: 'Blog' },
+  { href: '/work', label: 'Work' },
+  { href: '/story', label: 'My Story' },
+  { href: '/contact', label: 'Contact' },
+  
 ];
 
 export function Navbar() {
