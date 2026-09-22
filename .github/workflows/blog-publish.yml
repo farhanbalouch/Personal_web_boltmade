@@ -1,8 +1,6 @@
 name: Publish blog draft
 
 # Runs whenever a file is added/changed under content/drafts/.
-# Publishing moves the file to content/published-drafts/, which is a
-# different path, so this does not re-trigger itself.
 on:
   push:
     branches: [main]
@@ -16,6 +14,7 @@ permissions:
 jobs:
   publish:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -30,20 +29,15 @@ jobs:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
         run: node scripts/publish-blog.mjs
 
+      - name: Commit and push
+        run: |
+          git config user.name "muhammadfarhan138223-cmyk"
+          git config user.email "Muhammadfarhan138223@gmail.com"
+          git add content/drafts content/published-drafts src/data/blog-posts.json public/sitemap.xml
 
-       - name: Commit and push
-  run: |
-    git config user.name "muhammadfarhan138223-cmyk"
-    git config user.email "Muhammadfarhan138223@gmail.com"
-    git add content/drafts content/published-drafts src/data/blog-posts.json public/sitemap.xml
-    if git diff --cached --quiet; then
-      echo "Nothing to commit."
-    else
-      git commit -m "chore(blog): auto-publish new post(s)"
-      git push
-    fi
-
-
-      
-
-       
+          if git diff --cached --quiet; then
+            echo "Nothing to commit."
+          else
+            git commit -m "chore(blog): auto-publish new post(s)"
+            git push
+          fi
