@@ -1,49 +1,94 @@
 // scripts/publish-blog.mjs
-//
-// Reads any new raw notes from content/drafts/, asks Gemini to turn each
-// one into a polished English blog post (SEO title, keywords, excerpt,
-// body paragraphs), writes it into src/data/blog-posts.json with an
-// automatic date/time, appends the URL to public/sitemap.xml, and moves
-// the processed draft out of content/drafts/ so it isn't reprocessed.
-//
-// This script only edits files — it does NOT run git commands. The
-// GitHub Action (.github/workflows/blog-publish.yml) commits and pushes
-// whatever this script changes.
-//
-// Requires env var GEMINI_API_KEY (set as a GitHub Actions repo secret).
 
 import { readdir, readFile, writeFile, rename, mkdir } from 'node:fs/promises';
 import path from 'node:path';
 
 const ROOT = process.cwd();
+
 const DRAFTS_DIR = path.join(ROOT, 'content/drafts');
 const PUBLISHED_DIR = path.join(ROOT, 'content/published-drafts');
 const BLOG_JSON = path.join(ROOT, 'src/data/blog-posts.json');
 const SITEMAP = path.join(ROOT, 'public/sitemap.xml');
+
 const SITE_URL = 'https://farhanbalouch.com';
+const AUTHOR_NAME = 'Farhan Balouch';
+const AUTHOR_URL = `${SITE_URL}/about`;
 
 const GEMINI_MODEL = 'gemini-2.5-flash';
-const GEMINI_URL = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent`;
 
-const SYSTEM_PROMPT = `You are the blog editor for Farhan Balouch's personal website (farhanbalouch.com).
-Farhan writes his raw notes casually, mixing Hinglish/Roman Urdu and English. Your job:
+const GEMINI_URL =
+  `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent`;
 
-1. Rewrite the note as a polished, warm, first-person English blog post in Farhan's voice
-   (a builder from Ahmadpur East, Pakistan working in AI, SEO and online business).
-   You may add natural color/detail ("namak mirch") but NEVER invent facts, names, numbers,
-   or events that aren't implied by the note.
-2. Write an SEO-friendly, slightly hooky headline (title).
-3. Write a 1-2 sentence excerpt/meta description.
-4. Split the body into 2-6 short paragraphs.
-5. Suggest 3-6 relevant SEO keywords/tags (short phrases, no hashtags).
+const SYSTEM_PROMPT = `
+You are the SEO-focused blog editor for Farhan Balouch's personal website,
+farhanbalouch.com.
 
-Respond with ONLY a JSON object in exactly this shape:
+Turn Farhan's raw notes into a useful, authentic, search-friendly English blog post.
+
+PRIORITY 1 — SEO:
+- Make the main topic immediately clear.
+- Use natural search phrases people may actually search for.
+- Put the main topic naturally in the title.
+- Naturally mention the main topic in the introduction and relevant parts of the article.
+- Use related terms and natural variations.
+- Prefer specific long-tail phrases when appropriate.
+- Write a clear SEO-friendly excerpt/meta description.
+- Choose 3-6 highly relevant keywords/topics.
+- Never keyword-stuff.
+- Never repeat keywords unnaturally.
+- Never create keywords unrelated to the actual article.
+
+PRIORITY 2 — EASY ENGLISH:
+- Use simple, natural and professional English.
+- Pakistani, Indian and international readers should understand it easily.
+- Avoid unnecessarily difficult vocabulary.
+- Avoid academic or fancy wording when a common word works better.
+- Do not make the article sound artificially intelligent.
+- Clear English is more important than complicated English.
+
+AUTHENTICITY:
+- Write in Farhan's first-person voice.
+- Farhan is a builder from Ahmadpur East, Pakistan working around AI,
+  SEO, websites and online business.
+- Never invent facts, names, dates, numbers, achievements, projects,
+  events or experiences.
+- Do not exaggerate his achievements.
+- Improve the writing, but keep the original meaning and facts.
+
+ARTICLE QUALITY:
+- Start with a clear introduction.
+- Stay focused on one main topic.
+- Give useful information or a genuine personal perspective.
+- Use 2-6 short paragraphs.
+- Avoid filler and repetition.
+- Avoid generic AI-style motivational language.
+
+TITLE:
+- Clear and descriptive.
+- SEO-friendly.
+- Main topic should appear naturally.
+- No clickbait.
+- No unnecessary punctuation.
+
+EXCERPT:
+- 1-2 clear sentences.
+- Explain exactly what the article is about.
+- Include the main topic naturally when appropriate.
+
+KEYWORDS:
+- 3-6 relevant search phrases.
+- Use specific phrases when possible.
+- No hashtags.
+
+Return ONLY valid JSON in exactly this format:
+
 {
   "title": "string",
   "excerpt": "string",
   "body": ["paragraph 1", "paragraph 2"],
   "keywords": ["keyword one", "keyword two"]
-}`;
+}
+`;
 
 function slugify(str) {
   return str
@@ -58,16 +103,28 @@ function slugify(str) {
 
 async function callGemini(rawNote) {
   const apiKey = process.env.GEMINI_API_KEY;
-  if (!apiKey) throw new Error('GEMINI_API_KEY is not set');
+
+  if (!apiKey) {
+    throw new Error('GEMINI_API_KEY is not set');
+  }
 
   const res = await fetch(`${GEMINI_URL}?key=${apiKey}`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: {
+      'Content-Type': 'application/json',
+    },
     body: JSON.stringify({
-      systemInstruction: { parts: [{ text: SYSTEM_PROMPT }] },
-      contents: [{ role: 'user', parts: [{ text: rawNote }] }],
+      systemInstruction: {
+        parts: [{ text: SYSTEM_PROMPT }],
+      },
+      contents: [
+        {
+          role: 'user',
+          parts: [{ text: rawNote }],
+        },
+      ],
       generationConfig: {
-        temperature: 0.8,
+        temperature: 0.7,
         responseMimeType: 'application/json',
       },
     }),
@@ -79,8 +136,14 @@ async function callGemini(rawNote) {
   }
 
   const data = await res.json();
-  const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
-  if (!text) throw new Error('Gemini returned no content');
+
+  const text =
+    data.candidates?.[0]?.content?.parts?.[0]?.text;
+
+  if (!text) {
+    throw new Error('Gemini returned no content');
+  }
+
   return JSON.parse(text);
 }
 
@@ -93,8 +156,17 @@ async function readJsonSafe(file, fallback) {
 }
 
 function addSitemapUrl(xml, url) {
-  if (xml.includes(`<loc>${url}</loc>`)) return xml; // already there
-  const entry = `  <url>\n    <loc>${url}</loc>\n    <changefreq>monthly</changefreq>\n    <priority>0.6</priority>\n  </url>\n`;
+  if (xml.includes(`<loc>${url}</loc>`)) {
+    return xml;
+  }
+
+  const entry = `  <url>
+    <loc>${url}</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+`;
+
   return xml.replace('</urlset>', `${entry}</urlset>`);
 }
 
@@ -102,6 +174,7 @@ async function main() {
   await mkdir(PUBLISHED_DIR, { recursive: true });
 
   let files;
+
   try {
     files = await readdir(DRAFTS_DIR);
   } catch {
@@ -109,7 +182,10 @@ async function main() {
     return;
   }
 
-  const draftFiles = files.filter((f) => !f.startsWith('.') && f !== 'processed');
+  const draftFiles = files.filter(
+    (f) => !f.startsWith('.') && f !== 'processed'
+  );
+
   if (draftFiles.length === 0) {
     console.log('No new drafts to publish.');
     return;
@@ -123,45 +199,75 @@ async function main() {
   for (const file of draftFiles) {
     const fullPath = path.join(DRAFTS_DIR, file);
     const raw = (await readFile(fullPath, 'utf8')).trim();
+
     if (!raw) continue;
 
     console.log(`Processing draft: ${file}`);
+
     let result;
+
     try {
       result = await callGemini(raw);
     } catch (err) {
-      console.error(`  Failed to process ${file}:`, err.message);
-      continue; // leave the draft in place, try again next run
+      console.error(`Failed to process ${file}:`, err.message);
+      continue;
     }
 
     let slug = slugify(result.title) || `update-${Date.now()}`;
+
     let suffix = 2;
+
     while (existingSlugs.has(slug)) {
       slug = `${slugify(result.title)}-${suffix++}`;
     }
+
     existingSlugs.add(slug);
 
     const post = {
       slug,
       title: result.title,
       excerpt: result.excerpt,
-      body: Array.isArray(result.body) ? result.body : [String(result.body)],
-      keywords: Array.isArray(result.keywords) ? result.keywords : [],
+      body: Array.isArray(result.body)
+        ? result.body
+        : [String(result.body)],
+
+      keywords: Array.isArray(result.keywords)
+        ? result.keywords
+        : [],
+
+      author: {
+        name: AUTHOR_NAME,
+        url: AUTHOR_URL,
+      },
+
       publishedAt: new Date().toISOString(),
     };
 
     posts.unshift(post);
 
     if (sitemap) {
-      sitemap = addSitemapUrl(sitemap, `${SITE_URL}/blog/${slug}`);
+      sitemap = addSitemapUrl(
+        sitemap,
+        `${SITE_URL}/blog/${slug}`
+      );
     }
 
-    await rename(fullPath, path.join(PUBLISHED_DIR, file));
-    console.log(`  Published as: ${slug}`);
+    await rename(
+      fullPath,
+      path.join(PUBLISHED_DIR, file)
+    );
+
+    console.log(`Published as: ${slug}`);
   }
 
-  await writeFile(BLOG_JSON, JSON.stringify(posts, null, 2) + '\n');
-  if (sitemap) await writeFile(SITEMAP, sitemap);
+  await writeFile(
+    BLOG_JSON,
+    JSON.stringify(posts, null, 2) + '\n'
+  );
+
+  if (sitemap) {
+    await writeFile(SITEMAP, sitemap);
+  }
 
   console.log('Done.');
 }
