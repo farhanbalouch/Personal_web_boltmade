@@ -1,0 +1,26 @@
+[
+  {
+    "id": "early-life",
+    "label": "Early Life",
+    "startPart": 1,
+    "endPart": 4
+  },
+  {
+    "id": "growing-up",
+    "label": "Growing Up",
+    "startPart": 5,
+    "endPart": 8
+  },
+  {
+    "id": "lessons",
+    "label": "Lessons & Loss",
+    "startPart": 9,
+    "endPart": 12
+  },
+  {
+    "id": "looking-forward",
+    "label": "Looking Forward",
+    "startPart": 13,
+    "endPart": 15
+  }
+]
