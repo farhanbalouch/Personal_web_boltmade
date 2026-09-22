@@ -9,8 +9,8 @@ export const SITE = {
   url: 'https://farhanbalouch.com',
   origin: 'Ahmadpur East, Pakistan',
   email: 'Muhammadfarhan138223@gmail.com',
-  image: 'https://farhanbalouch.com/farhan-balouch.jpg',
-  ogImage: 'https://farhanbalouch.com/og-image.jpg',
+  image: 'https://farhanbalouch.com/Screenshot_20260906-151828_ChatGPT.jpg',
+  ogImage: 'https://farhanbalouch.com/file_00000000ca408208a7324bf59d7e0124.png',
   github: 'https://github.com/muhammadfarhan138223-cmyk',
 };
 
