@@ -1,0 +1,43 @@
+name: Publish blog draft
+
+# Runs whenever a file is added/changed under content/drafts/.
+# Publishing moves the file to content/published-drafts/, which is a
+# different path, so this does not re-trigger itself.
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'content/drafts/**'
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Publish new drafts
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        run: node scripts/publish-blog.mjs
+
+      - name: Commit and push
+        run: |
+          git config user.name "farhan-blog-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add content/drafts content/published-drafts src/data/blog-posts.json public/sitemap.xml
+          if git diff --cached --quiet; then
+            echo "Nothing to commit."
+          else
+            git commit -m "chore(blog): auto-publish new post(s)"
+            git push
+          fi
