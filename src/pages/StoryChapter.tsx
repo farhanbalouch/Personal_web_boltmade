@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { ArrowLeft, ArrowRight, BookOpen, Sparkles } from 'lucide-react';
 import { Seo } from '@/components/Seo';
 import { Reveal } from '@/components/Reveal';
@@ -65,6 +66,23 @@ export function StoryChapter({ slug }: { slug: string }) {
             <h1 className="font-display text-4xl sm:text-5xl mb-3 leading-tight">{t.title}</h1>
           </Reveal>
           <Reveal delay={140}>
+           <Reveal delay={150}>
+  <button
+    onClick={() => setShowSummary((s) => !s)}
+    className="mb-8 inline-flex items-center gap-2 px-4 py-2 rounded-xl border border-gold/30 bg-gold/5 text-sm text-gold hover:bg-gold/10 transition-colors"
+  >
+    <Sparkles className="w-4 h-4" />
+    {showSummary ? (language === 'ur' ? 'خلاصہ چھپائیں' : 'Hide summary') : (language === 'ur' ? 'اس صفحے کا خلاصہ دیکھیں' : 'Show page summary')}
+  </button>
+  {showSummary && (
+    <div
+      dir={isUrdu ? 'rtl' : 'ltr'}
+      className="mb-8 rounded-xl border border-border bg-bg-card/50 p-5 text-text-muted leading-relaxed"
+    >
+      {t.excerpt}
+    </div>
+  )}
+</Reveal>
             <p className="text-lg text-text-muted/80 mb-10">{t.subtitle}</p>
           </Reveal>
 
