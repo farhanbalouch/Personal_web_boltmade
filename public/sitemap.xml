@@ -96,6 +96,11 @@
     <priority>0.7</priority>
   </url>
   <url>
+   <loc>https://farhanbalouch.com/story/part-16-my-ai-journey</loc>
+   <changefreq>monthly</changefreq>
+   <priority>0.7</priority>
+  </url>
+  <url>
     <loc>https://farhanbalouch.com/work</loc>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
