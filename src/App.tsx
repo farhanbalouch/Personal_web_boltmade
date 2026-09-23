@@ -10,7 +10,7 @@ import { Contact } from '@/pages/Contact';
 import { CinematicIntro } from '@/components/CinematicIntro';
 import { Blog } from '@/pages/Blog';
 import { BlogPost } from '@/pages/BlogPost';
-
+import { LanguageProvider } from '@/context/LanguageContext';
 function Routes() {
   const { route } = useRouter();
   const path = route.path;
@@ -38,9 +38,11 @@ function Routes() {
 
 function App() {
   return (
-    <RouterProvider>
-      <Routes />
-    </RouterProvider>
+    <LanguageProvider>
+      <RouterProvider>
+        <Routes />
+      </RouterProvider>
+    </LanguageProvider>
   );
 }
 
