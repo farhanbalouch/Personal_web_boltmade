@@ -135,6 +135,13 @@ export const projects: Project[] = [
 
 // ---------------------------------------------------------------------
 // STORY (data lives in JSON — see note at top of file)
+//
+// Each chapter has a translation per language (English, Hinglish, Urdu)
+// so the story pages can offer a language switcher. SEO meta tags
+// (<title>, description, JSON-LD) always use the English translation,
+// regardless of which language the visitor has selected to read —
+// this keeps what Google indexes stable while the on-page reading
+// experience can switch.
 // ---------------------------------------------------------------------
 export type Phase = {
   id: string;
@@ -143,16 +150,22 @@ export type Phase = {
   endPart: number;
 };
 
+export type Language = 'en' | 'hi' | 'ur';
+
+export type ChapterTranslation = {
+  title: string;
+  subtitle: string;
+  excerpt: string;
+  moral: string;
+  paragraphs: string[];
+};
+
 export type StoryChapter = {
   slug: string;
   part: number;
   period: string;
-  title: string;
-  subtitle: string;
-  excerpt: string;
-  paragraphs: string[];
+  translations: Record<Language, ChapterTranslation>;
 };
 
 export const phases = phasesData as Phase[];
 export const storyChapters = storyChaptersData as StoryChapter[];
-
