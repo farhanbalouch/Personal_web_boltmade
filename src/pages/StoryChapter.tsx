@@ -1,11 +1,15 @@
-import { ArrowLeft, ArrowRight, BookOpen } from 'lucide-react';
+import { ArrowLeft, ArrowRight, BookOpen, Sparkles } from 'lucide-react';
 import { Seo } from '@/components/Seo';
 import { Reveal } from '@/components/Reveal';
+import { LanguageSwitcher } from '@/components/LanguageSwitcher';
 import { useRouter } from '@/router';
+import { useLanguage } from '@/context/LanguageContext';
 import { storyChapters } from '@/data/content';
 
 export function StoryChapter({ slug }: { slug: string }) {
   const { navigate } = useRouter();
+  const { language } = useLanguage();
+  const isUrdu = language === 'ur';
   const chapter = storyChapters.find((c) => c.slug === slug);
 
   if (!chapter) {
@@ -27,43 +31,66 @@ export function StoryChapter({ slug }: { slug: string }) {
 
   const prev = storyChapters[chapter.part - 2] || null;
   const next = storyChapters[chapter.part] || null;
+  const t = chapter.translations[language];
+  const tEn = chapter.translations.en; // SEO always uses English
 
   return (
     <>
       <Seo
-        title={`${chapter.title} — Farhan Balouch`}
-        description={chapter.excerpt}
+        title={`${tEn.title} — Farhan Balouch`}
+        description={tEn.excerpt}
         path={`/story/${chapter.slug}`}
       />
 
-      <article className="pt-32 pb-16 max-w-2xl mx-auto px-5 sm:px-8">
+      <article className={`pt-32 pb-16 max-w-2xl mx-auto px-5 sm:px-8 ${isUrdu ? 'font-urdu' : ''}`}>
         <Reveal>
-          <button
-            onClick={() => navigate('/story')}
-            className="inline-flex items-center gap-1.5 text-sm text-text-muted hover:text-gold transition-colors mb-8"
-          >
-            <ArrowLeft className="w-4 h-4" /> All chapters
-          </button>
+          <div className="flex items-center justify-between gap-4 mb-8 flex-wrap">
+            <button
+              onClick={() => navigate('/story')}
+              className="inline-flex items-center gap-1.5 text-sm text-text-muted hover:text-gold transition-colors"
+            >
+              <ArrowLeft className="w-4 h-4" /> All chapters
+            </button>
+            <LanguageSwitcher />
+          </div>
         </Reveal>
 
-        <Reveal delay={60}>
-          <p className="text-sm text-teal font-medium tracking-wide uppercase mb-3">
-            Chapter {chapter.part} · {chapter.period}
-          </p>
-        </Reveal>
-        <Reveal delay={100}>
-          <h1 className="font-display text-4xl sm:text-5xl mb-3 leading-tight">{chapter.title}</h1>
-        </Reveal>
-        <Reveal delay={140}>
-          <p className="text-lg text-text-muted/80 mb-10">{chapter.subtitle}</p>
-        </Reveal>
+        <div dir={isUrdu ? 'rtl' : 'ltr'}>
+          <Reveal delay={60}>
+            <p className="text-sm text-teal font-medium tracking-wide uppercase mb-3">
+              {language === 'ur' ? `\u0628\u0627\u0628 ${chapter.part}` : `Chapter ${chapter.part}`} \u00b7 {chapter.period}
+            </p>
+          </Reveal>
+          <Reveal delay={100}>
+            <h1 className="font-display text-4xl sm:text-5xl mb-3 leading-tight">{t.title}</h1>
+          </Reveal>
+          <Reveal delay={140}>
+            <p className="text-lg text-text-muted/80 mb-10">{t.subtitle}</p>
+          </Reveal>
 
-        <div className="space-y-6">
-          {chapter.paragraphs.map((p, i) => (
-            <Reveal key={i} delay={120 + i * 60}>
-              <p className="text-lg text-text-muted leading-[1.75]">{p}</p>
-            </Reveal>
-          ))}
+          <div className="space-y-6">
+            {t.paragraphs.map((p, i) => (
+              <Reveal key={i} delay={120 + i * 60}>
+                <p className="text-lg text-text-muted leading-[1.75]">{p}</p>
+              </Reveal>
+            ))}
+          </div>
+
+          {/* Moral / takeaway — always shown in English, for SEO and because
+              it reads as the writer's own reflection regardless of the
+              reading language selected. */}
+          <Reveal delay={140 + t.paragraphs.length * 60}>
+            <div
+              dir="ltr"
+              className="mt-10 rounded-xl border border-gold/25 bg-gold/5 p-5 flex items-start gap-3"
+            >
+              <Sparkles className="w-5 h-5 text-gold shrink-0 mt-0.5" />
+              <div>
+                <p className="text-xs text-gold font-medium uppercase tracking-wide mb-1.5">Takeaway</p>
+                <p className="text-sm text-text-muted leading-relaxed">{t.moral}</p>
+              </div>
+            </div>
+          </Reveal>
         </div>
       </article>
 
@@ -78,7 +105,9 @@ export function StoryChapter({ slug }: { slug: string }) {
               <span className="flex items-center gap-1.5 text-xs text-text-muted mb-1.5">
                 <ArrowLeft className="w-3.5 h-3.5" /> Previous
               </span>
-              <span className="font-display text-lg group-hover:text-gold transition-colors">{prev.title}</span>
+              <span className="font-display text-lg group-hover:text-gold transition-colors">
+                {prev.translations[language].title}
+              </span>
             </button>
           ) : <div className="hidden sm:block" />}
 
@@ -90,7 +119,9 @@ export function StoryChapter({ slug }: { slug: string }) {
               <span className="flex items-center justify-end gap-1.5 text-xs text-text-muted mb-1.5">
                 Next <ArrowRight className="w-3.5 h-3.5" />
               </span>
-              <span className="font-display text-lg group-hover:text-gold transition-colors">{next.title}</span>
+              <span className="font-display text-lg group-hover:text-gold transition-colors">
+                {next.translations[language].title}
+              </span>
             </button>
           ) : <div className="hidden sm:block" />}
         </div>
