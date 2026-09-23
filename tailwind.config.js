@@ -18,6 +18,7 @@ export default {
       fontFamily: {
         display: ['Fraunces', 'Georgia', 'serif'],
         body: ['Inter', 'system-ui', 'sans-serif'],
+        urdu: ['"Noto Nastaliq Urdu"', 'serif'],
       },
       spacing: {
         '18': '4.5rem',
