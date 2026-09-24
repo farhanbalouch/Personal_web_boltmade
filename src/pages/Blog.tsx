@@ -26,7 +26,7 @@ export function Blog() {
         </Reveal>
         <Reveal delay={140}>
           <p className="text-lg text-text-muted max-w-2xl leading-relaxed">
-            Short updates, whenever there\u2019s something worth sharing \u2014 written as it happens.
+             Written as it happens.
           </p>
         </Reveal>
       </section>
@@ -37,7 +37,7 @@ export function Blog() {
             <div className="rounded-2xl border border-dashed border-border bg-bg-soft/30 p-10 text-center">
               <Newspaper className="w-8 h-8 text-gold mx-auto mb-4" />
               <p className="text-text-muted">
-                No posts yet \u2014 the first update is on its way.
+                ​What’s Happening Now: Short Blog Stories & Sudden Thoughts
               </p>
             </div>
           </Reveal>
