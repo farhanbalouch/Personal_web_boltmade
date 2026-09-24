@@ -1,28 +1,27 @@
-import { Mail, MapPin, Send, Globe, Github, Youtube, Facebook, Instagram, MessageCircle, LucideIcon } from 'lucide-react';
+import { Mail, MapPin, Send, Globe, Github, Youtube, Facebook, Instagram, MessageCircle, Linkedin } from 'lucide-react';
 import { Seo } from '@/components/Seo';
 import { Reveal } from '@/components/Reveal';
 import { SITE } from '@/data/content';
 
-// Type definition for social item
+// Flexible interface for social items to avoid render runtime crashes
 interface SocialItem {
   label: string;
   handle: string;
   url: string;
   color?: string;
   badge?: string;
-  icon?: LucideIcon | (({ className }: { className?: string }) => JSX.Element);
+  icon?: any;
   faviconUrl?: string;
 }
 
 export function Contact() {
-  // TikTok Icon Component (Custom SVG)
+  // Custom TikTok Icon
   const TiktokIcon = ({ className }: { className?: string }) => (
     <svg className={className} viewBox="0 0 24 24" fill="currentColor">
       <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 1 1-5.2-1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V5.8a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 3 12a6.34 6.34 0 0 0 6.34 6.34 6.34 6.34 0 0 0 6.34-6.34V9.05a8.16 8.16 0 0 0 4.91 1.64V7.24a4.85 4.85 0 0 1-1-.55z" />
     </svg>
   );
 
-  // All social media, websites & dynamic favicons
   const socials: SocialItem[] = [
     { 
       icon: MessageCircle, 
@@ -108,7 +107,6 @@ export function Contact() {
       />
 
       <section className="pt-28 pb-20 max-w-2xl mx-auto px-5 sm:px-8">
-        {/* Availability Badge */}
         <Reveal>
           <p className="text-sm text-gold font-semibold tracking-wider uppercase mb-3 flex items-center gap-2">
             <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
@@ -116,7 +114,6 @@ export function Contact() {
           </p>
         </Reveal>
         
-        {/* Main Title */}
         <Reveal delay={80}>
           <h1 className="font-display text-4xl sm:text-5xl font-bold mb-4 leading-tight text-text">
             Say Salaam & Let's Connect
@@ -125,11 +122,11 @@ export function Contact() {
 
         <Reveal delay={140}>
           <p className="text-base sm:text-lg text-text-muted leading-relaxed mb-10">
-            Whether it's a project, a inquiry, or just a hello — reach out directly on WhatsApp or connect on any platform below.
+            Whether it's a project, an inquiry, or just a hello — reach out directly on WhatsApp or connect on any platform below.
           </p>
         </Reveal>
 
-        {/* WhatsApp Direct Card */}
+        {/* WhatsApp Direct */}
         <Reveal delay={180}>
           <a
             href="https://wa.me/923093244171?text=Hi%20Farhan,%20I%20reached%20out%20via%20your%20website!"
@@ -153,10 +150,10 @@ export function Contact() {
           </a>
         </Reveal>
 
-        {/* Email Card */}
+        {/* Email Direct */}
         <Reveal delay={220}>
           <a
-            href={`mailto:${SITE.email}`}
+            href={`mailto:${SITE?.email || ''}`}
             className="group block rounded-2xl border border-border bg-bg-card p-6 mb-6 hover:border-gold/50 transition-all"
           >
             <div className="flex items-center gap-4">
@@ -165,14 +162,14 @@ export function Contact() {
               </div>
               <div className="flex-1 min-w-0">
                 <p className="text-xs font-medium text-text-muted uppercase tracking-wider mb-1">Email Direct</p>
-                <p className="font-display text-lg text-text font-semibold truncate">{SITE.email}</p>
+                <p className="font-display text-lg text-text font-semibold truncate">{SITE?.email}</p>
               </div>
               <Send className="w-5 h-5 text-text-muted group-hover:translate-x-1 transition-transform" />
             </div>
           </a>
         </Reveal>
 
-        {/* Location Card */}
+        {/* Location */}
         <Reveal delay={240}>
           <div className="flex items-center gap-4 rounded-2xl border border-border bg-bg-card/50 p-6 mb-10">
             <div className="w-12 h-12 rounded-xl bg-teal/10 border border-teal/20 flex items-center justify-center text-teal">
@@ -180,12 +177,12 @@ export function Contact() {
             </div>
             <div>
               <p className="text-xs text-text-muted uppercase tracking-wide mb-1">Based in</p>
-              <p className="font-display text-lg text-text font-medium">{SITE.origin}</p>
+              <p className="font-display text-lg text-text font-medium">{SITE?.origin}</p>
             </div>
           </div>
         </Reveal>
 
-        {/* Social & External Web Links Section */}
+        {/* Social Links List */}
         <Reveal delay={260}>
           <h2 className="font-display text-xl font-bold mb-6 flex items-center gap-2 text-text">
             <Globe className="w-5 h-5 text-teal" />
@@ -194,43 +191,45 @@ export function Contact() {
         </Reveal>
 
         <div className="space-y-3">
-          {socials.map((s, i) => (
-            <Reveal key={s.label} delay={280 + i * 40}>
-              <a
-                href={s.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className={`group flex items-center gap-4 rounded-xl border border-border bg-bg-card p-4 transition-all hover:bg-bg-soft ${s.color}`}
-              >
-                {/* Dynamic Favicon or Lucide Icon Container */}
-                <div className="w-10 h-10 rounded-lg bg-bg-soft border border-border flex items-center justify-center text-text group-hover:scale-110 transition-transform overflow-hidden p-2">
-                  {s.faviconUrl ? (
-                    <img 
-                      src={s.faviconUrl} 
-                      alt={s.label} 
-                      className="w-full h-full object-contain"
-                    />
-                  ) : (
-                    s.icon && <s.icon className="w-5 h-5" />
-                  )}
-                </div>
-
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2">
-                    <p className="text-sm font-semibold text-text">{s.label}</p>
-                    {s.badge && (
-                      <span className="text-[10px] bg-emerald-500/10 text-emerald-400 px-2 py-0.5 rounded-full font-medium">
-                        {s.badge}
-                      </span>
+          {socials.map((s, i) => {
+            const IconComponent = s.icon;
+            return (
+              <Reveal key={s.label} delay={280 + i * 40}>
+                <a
+                  href={s.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={`group flex items-center gap-4 rounded-xl border border-border bg-bg-card p-4 transition-all hover:bg-bg-soft ${s.color}`}
+                >
+                  <div className="w-10 h-10 rounded-lg bg-bg-soft border border-border flex items-center justify-center text-text group-hover:scale-110 transition-transform overflow-hidden p-2">
+                    {s.faviconUrl ? (
+                      <img 
+                        src={s.faviconUrl} 
+                        alt={s.label} 
+                        className="w-full h-full object-contain"
+                      />
+                    ) : (
+                      IconComponent && <IconComponent className="w-5 h-5" />
                     )}
                   </div>
-                  <p className="text-xs text-text-muted truncate">{s.handle}</p>
-                </div>
 
-                <Send className="w-4 h-4 text-text-muted group-hover:translate-x-1 transition-transform shrink-0" />
-              </a>
-            </Reveal>
-          ))}
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2">
+                      <p className="text-sm font-semibold text-text">{s.label}</p>
+                      {s.badge && (
+                        <span className="text-[10px] bg-emerald-500/10 text-emerald-400 px-2 py-0.5 rounded-full font-medium">
+                          {s.badge}
+                        </span>
+                      )}
+                    </div>
+                    <p className="text-xs text-text-muted truncate">{s.handle}</p>
+                  </div>
+
+                  <Send className="w-4 h-4 text-text-muted group-hover:translate-x-1 transition-transform shrink-0" />
+                </a>
+              </Reveal>
+            );
+          })}
         </div>
       </section>
     </>
