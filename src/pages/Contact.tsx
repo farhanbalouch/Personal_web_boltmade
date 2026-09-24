@@ -4,19 +4,35 @@ import { Reveal } from '@/components/Reveal';
 import { SITE } from '@/data/content';
 
 export function Contact() {
-  // Placeholder social slots — clearly marked, ready to fill
+  // Real social links configuration
   const socials = [
-    { icon: Github, label: 'GitHub', url: '', placeholder: 'github.com/yourusername' },
-    { icon: Twitter, label: 'Twitter / X', url: '', placeholder: 'x.com/yourhandle' },
-    { icon: Linkedin, label: 'LinkedIn', url: '', placeholder: 'https://www.linkedin.com/in/farhan-balouch-18a9b6434?trk=contact-info' },
-    { icon: Google, label: 'Farhan Deals', url: 'https://farhandeals.store', placeholder: 'Open Farhan Deals' },
+    { 
+      icon: Github, 
+      label: 'GitHub', 
+      url: 'https://github.com/yourusername' // Apna GitHub username daalein
+    },
+    { 
+      icon: Twitter, 
+      label: 'Twitter / X', 
+      url: 'https://x.com/yourhandle' // Apna Twitter handle daalein
+    },
+    { 
+      icon: Linkedin, 
+      label: 'LinkedIn', 
+      url: 'https://www.linkedin.com/in/farhan-balouch-18a9b6434?trk=contact-info' 
+    },
+    { 
+      icon: Globe, 
+      label: 'Farhan Deals', 
+      url: 'https://farhandeals.store' 
+    },
   ];
 
   return (
     <>
       <Seo
         title="Contact — Farhan Balouch"
-        description="Get in touch with Farhan Balouch. Email and social links (coming soon)."
+        description="Get in touch with Farhan Balouch via email or social platforms."
         path="/contact"
       />
 
@@ -36,11 +52,11 @@ export function Contact() {
           </p>
         </Reveal>
 
-        {/* Email card */}
+        {/* Email Card */}
         <Reveal delay={180}>
           <a
             href={`mailto:${SITE.email}`}
-            className="card-glow block rounded-2xl border border-border bg-bg-card p-7 mb-10"
+            className="card-glow block rounded-2xl border border-border bg-bg-card p-7 mb-10 hover:border-gold/50 transition-colors"
           >
             <div className="flex items-center gap-4">
               <div className="w-12 h-12 rounded-xl bg-gold/10 border border-gold/20 flex items-center justify-center">
@@ -55,7 +71,7 @@ export function Contact() {
           </a>
         </Reveal>
 
-        {/* Location */}
+        {/* Location Card */}
         <Reveal delay={220}>
           <div className="flex items-center gap-4 rounded-2xl border border-border bg-bg-card/50 p-6 mb-10">
             <div className="w-12 h-12 rounded-xl bg-teal/10 border border-teal/20 flex items-center justify-center">
@@ -68,7 +84,7 @@ export function Contact() {
           </div>
         </Reveal>
 
-        {/* Social slots */}
+        {/* Real Social Links */}
         <Reveal delay={260}>
           <h2 className="font-display text-xl mb-5 flex items-center gap-2">
             <Globe className="w-5 h-5 text-teal" />
@@ -78,28 +94,24 @@ export function Contact() {
         <div className="space-y-3">
           {socials.map((s, i) => (
             <Reveal key={s.label} delay={300 + i * 80}>
-              <div className="flex items-center gap-4 rounded-xl border border-dashed border-border bg-bg-soft/20 p-5">
+              <a
+                href={s.url || '#'}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-4 rounded-xl border border-border bg-bg-card p-5 hover:border-teal/40 transition-all block"
+              >
                 <div className="w-10 h-10 rounded-lg bg-bg-soft border border-border flex items-center justify-center">
-                  <s.icon className="w-5 h-5 text-text-muted" />
+                  <s.icon className="w-5 h-5 text-text" />
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-medium text-text">{s.label}</p>
-                  <p className="text-xs text-text-muted/70">{s.url ? s.url : `Not set yet — ${s.placeholder}`}</p>
+                  <p className="text-xs text-text-muted/70 truncate">{s.url}</p>
                 </div>
-                <span className="text-xs text-text-muted/60 italic">slot open</span>
-              </div>
+                <Send className="w-4 h-4 text-text-muted shrink-0" />
+              </a>
             </Reveal>
           ))}
         </div>
-
-        {/* Note */}
-        <Reveal delay={560}>
-          <p className="mt-10 text-sm text-text-muted/70 leading-relaxed flex items-start gap-2">
-            <Sparkles className="w-4 h-4 text-gold/60 shrink-0 mt-0.5" />
-            Social profiles aren't set up yet — these slots are ready and waiting.
-            Once you create the accounts, the links can be wired in.
-          </p>
-        </Reveal>
       </section>
     </>
   );
