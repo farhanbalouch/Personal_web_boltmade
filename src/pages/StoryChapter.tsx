@@ -3,6 +3,7 @@ import { ArrowLeft, ArrowRight, BookOpen, Sparkles } from 'lucide-react';
 import { Seo } from '@/components/Seo';
 import { Reveal } from '@/components/Reveal';
 import { LanguageSwitcher } from '@/components/LanguageSwitcher';
+import { StoryDisclaimer } from '@/components/StoryDisclaimer';
 import { useRouter } from '@/router';
 import { useLanguage } from '@/context/LanguageContext';
 import { storyChapters } from '@/data/content';
@@ -37,8 +38,10 @@ export function StoryChapter({ slug }: { slug: string }) {
   const tEn = chapter.translations.en; // SEO always uses English
 
   return (
-    <>
-      <Seo
+  <>
+    <StoryDisclaimer />
+
+    <Seo
         title={`${tEn.title} — Farhan Balouch`}
         description={tEn.excerpt}
         path={`/story/${chapter.slug}`}
