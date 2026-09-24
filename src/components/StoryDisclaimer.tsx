@@ -1,94 +1,82 @@
 import { useEffect, useState } from 'react';
-import { Sparkles } from 'lucide-react';
-import { useLanguage } from '@/context/LanguageContext';
+import { AlertCircle } from 'lucide-react';
 
-const messages = {
-  en: [
-    'AI-generated & creatively edited — not every detail is 100% accurate.',
-    'This story is based on real experiences, but some scenes may be creatively presented.',
-    'A personal story, creatively edited with AI — please don’t take every scene literally.',
-    'Some details, scenes & dialogues may be AI-generated or creatively reconstructed.',
-    'Inspired by real moments — presented through AI-assisted storytelling.',
-    'Story note: Not every scene represents events exactly as they happened.',
-    'For storytelling purposes, some moments may be reconstructed or dramatized.',
-  ],
+const messages = [
+  'AI-generated & creatively edited — not every detail is 100% accurate.',
+  'This story is based on real experiences, but some scenes may be creatively presented.',
+  'A personal story, creatively edited with AI — please don’t take every scene literally.',
+  'Some details, scenes & dialogues may be AI-generated or creatively reconstructed.',
+  'Inspired by real moments — presented through AI-assisted storytelling.',
+  'Story note: Not every scene represents events exactly as they happened.',
+  'For storytelling purposes, some moments may be reconstructed or dramatized.',
+];
 
-  hi: [
-    'AI-generated & creatively edited — not every detail is 100% accurate.',
-    'This story is based on real experiences, but some scenes may be creatively presented.',
-    'A personal story, creatively edited with AI — please don’t take every scene literally.',
-    'Some details, scenes & dialogues may be AI-generated or creatively reconstructed.',
-    'Inspired by real moments — presented through AI-assisted storytelling.',
-    'Story note: Not every scene represents events exactly as they happened.',
-    'For storytelling purposes, some moments may be reconstructed or dramatized.',
-  ],
-
-  ur: [
-    'AI-generated & creatively edited — not every detail is 100% accurate.',
-    'This story is based on real experiences, but some scenes may be creatively presented.',
-    'A personal story, creatively edited with AI — please don’t take every scene literally.',
-    'Some details, scenes & dialogues may be AI-generated or creatively reconstructed.',
-    'Inspired by real moments — presented through AI-assisted storytelling.',
-    'Story note: Not every scene represents events exactly as they happened.',
-    'For storytelling purposes, some moments may be reconstructed or dramatized.',
-  ],
-} as const;
+const positions = [
+  'story-disclaimer-top',
+  'story-disclaimer-middle',
+  'story-disclaimer-bottom',
+  'story-disclaimer-upper-middle',
+];
 
 export function StoryDisclaimer() {
-  const { language } = useLanguage();
   const [messageIndex, setMessageIndex] = useState(0);
+  const [positionIndex, setPositionIndex] = useState(0);
   const [visible, setVisible] = useState(false);
 
-  const currentMessages = messages[language] || messages.en;
-
   useEffect(() => {
-    let showTimer: ReturnType<typeof setTimeout>;
-    let hideTimer: ReturnType<typeof setTimeout>;
+    let mounted = true;
+    let timer: ReturnType<typeof setTimeout>;
 
-    const showNext = () => {
-      setMessageIndex((current) => (current + 1) % currentMessages.length);
+    const runAnimation = () => {
+      if (!mounted) return;
+
       setVisible(true);
 
-      hideTimer = setTimeout(() => {
-        setVisible(false);
-      }, 7000);
+      // Stay completely still for 2 seconds.
+      timer = setTimeout(() => {
+        if (!mounted) return;
 
-      showTimer = setTimeout(() => {
-        showNext();
-      }, 13000);
+        setVisible(false);
+
+        // Wait 5 seconds after leaving before next message.
+        timer = setTimeout(() => {
+          if (!mounted) return;
+
+          setMessageIndex((current) => (current + 1) % messages.length);
+          setPositionIndex((current) => (current + 1) % positions.length);
+
+          runAnimation();
+        }, 5000);
+      }, 11000); // 2 sec stop + ~9 sec total visible animation
     };
 
-    // First appearance after about 5 seconds.
-    showTimer = setTimeout(() => {
-      setVisible(true);
-
-      hideTimer = setTimeout(() => {
-        setVisible(false);
-      }, 7000);
-
-      showTimer = setTimeout(() => {
-        showNext();
-      }, 13000);
-    }, 5000);
+    // Initial 10 second delay.
+    timer = setTimeout(() => {
+      runAnimation();
+    }, 10000);
 
     return () => {
-      clearTimeout(showTimer);
-      clearTimeout(hideTimer);
+      mounted = false;
+      clearTimeout(timer);
     };
-  }, [language, currentMessages.length]);
+  }, []);
 
   return (
     <div
       className={`story-disclaimer ${
-        visible ? 'story-disclaimer-visible' : ''
-      }`}
-      dir={language === 'ur' ? 'rtl' : 'ltr'}
+        positions[positionIndex]
+      } ${visible ? 'story-disclaimer-visible' : ''}`}
       aria-hidden="true"
     >
       <div className="story-disclaimer-inner">
-        <Sparkles className="story-disclaimer-icon" />
-        <span>{currentMessages[messageIndex]}</span>
+        <span className="story-disclaimer-alert">
+          <AlertCircle />
+        </span>
+
+        <span className="story-disclaimer-text">
+          {messages[messageIndex]}
+        </span>
       </div>
     </div>
   );
-    }
+          }
