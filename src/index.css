@@ -226,3 +226,132 @@ h1, h2, h3, h4, .font-display {
     animation: none;
   }
     }
+
+/* ── Story AI Disclaimer ─────────────────────────────────── */
+
+.story-disclaimer {
+  position: fixed;
+  top: 50%;
+  left: 0;
+  width: 100%;
+  z-index: 40;
+  pointer-events: none;
+
+  opacity: 0;
+  visibility: hidden;
+  transform: translateX(-110%);
+}
+
+.story-disclaimer-visible {
+  visibility: visible;
+  animation: story-disclaimer-slide 7s linear forwards;
+}
+
+.story-disclaimer-inner {
+  width: max-content;
+  max-width: 92vw;
+  margin: 0 auto;
+
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  padding: 8px 14px;
+
+  border: 1px solid rgba(232, 177, 75, 0.25);
+  border-radius: 999px;
+
+  background: rgba(10, 14, 23, 0.82);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+
+  color: var(--text-muted);
+  font-size: 12px;
+  line-height: 1.4;
+  text-align: center;
+
+  box-shadow:
+    0 8px 30px rgba(0, 0, 0, 0.18),
+    0 0 0 1px rgba(255, 255, 255, 0.02);
+}
+
+.story-disclaimer-icon {
+  width: 13px;
+  height: 13px;
+  flex-shrink: 0;
+  color: var(--gold);
+}
+
+@keyframes story-disclaimer-slide {
+  0% {
+    opacity: 0;
+    transform: translateX(-110%);
+  }
+
+  10% {
+    opacity: 0.85;
+  }
+
+  25% {
+    opacity: 0.95;
+  }
+
+  75% {
+    opacity: 0.95;
+  }
+
+  90% {
+    opacity: 0.75;
+  }
+
+  100% {
+    opacity: 0;
+    transform: translateX(110%);
+    visibility: hidden;
+  }
+}
+
+/* Mobile */
+@media (max-width: 640px) {
+  .story-disclaimer-inner {
+    max-width: 88vw;
+    padding: 7px 11px;
+    font-size: 10px;
+    gap: 6px;
+  }
+
+  .story-disclaimer-icon {
+    width: 11px;
+    height: 11px;
+  }
+}
+
+/* Respect users who prefer reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .story-disclaimer {
+    transform: none;
+  }
+
+  .story-disclaimer-visible {
+    animation: story-disclaimer-fade 2s ease forwards;
+  }
+
+  @keyframes story-disclaimer-fade {
+    0% {
+      opacity: 0;
+    }
+
+    20% {
+      opacity: 0.85;
+    }
+
+    80% {
+      opacity: 0.85;
+    }
+
+    100% {
+      opacity: 0;
+      visibility: hidden;
+    }
+  }
+  }
