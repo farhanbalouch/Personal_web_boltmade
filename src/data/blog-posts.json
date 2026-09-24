@@ -1,5 +1,26 @@
 [
   {
+    "slug": "welcome-to-farhanbalouchcom-my-first-blog-post",
+    "title": "Welcome to FarhanBalouch.com: My First Blog Post",
+    "excerpt": "Farhan Balouch shares his excitement and thoughts on launching his personal website, FarhanBalouch.com, and publishing his very first blog post. Discover what to expect from this new online journey.",
+    "body": [
+      "Hello everyone! Today, September 24, 2026, marks a special moment for me: the official launch of my personal website, FarhanBalouch.com, and the publication of my very first blog post. It’s 5:30 PM here, and after a lot of work, seeing the site finally complete brings a real sense of accomplishment. I’m truly happy to get this journey started.",
+      "This blog will be a space where I share my thoughts, experiences, and perhaps some lighthearted updates, either daily or weekly, Inshallah. As this is my first time writing a blog post, I'm not entirely sure how to react, but the excitement of connecting with you all through this platform is definitely the strongest feeling. I look forward to sharing more here soon."
+    ],
+    "keywords": [
+      "Farhan Balouch blog",
+      "FarhanBalouch.com launch",
+      "first blog post",
+      "personal website launch",
+      "Pakistani blogger"
+    ],
+    "author": {
+      "name": "Farhan Balouch",
+      "url": "https://farhanbalouch.com/about"
+    },
+    "publishedAt": "2026-09-24T12:07:20.937Z"
+  },
+  {
     "slug": "why-i-built-my-personal-website-my-journey-and-learnings",
     "title": "Why I Built My Personal Website: My Journey and Learnings",
     "excerpt": "Discover why I decided to build my personal website, farhanbalouch.com, and the valuable lessons I learned about AI tools, SEO, and web development during the process.",
