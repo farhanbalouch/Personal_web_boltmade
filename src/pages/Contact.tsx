@@ -9,6 +9,7 @@ export function Contact() {
     { icon: Github, label: 'GitHub', url: '', placeholder: 'github.com/yourusername' },
     { icon: Twitter, label: 'Twitter / X', url: '', placeholder: 'x.com/yourhandle' },
     { icon: Linkedin, label: 'LinkedIn', url: '', placeholder: 'https://www.linkedin.com/in/farhan-balouch-18a9b6434?trk=contact-info' },
+    { icon: Google, label: 'Farhan Deals', url: 'https://farhandeals.store', placeholder: 'Open Farhan Deals' },
   ];
 
   return (
