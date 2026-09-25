@@ -127,8 +127,10 @@ export function Footer() {
               </a>
             </div>
           </div>
+          
 
         </div>
+        <SubscribeFooter />
 
         {/* Bottom Bar */}
         <div className="mt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-text-muted">
