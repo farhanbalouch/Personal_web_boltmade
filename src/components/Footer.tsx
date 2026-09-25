@@ -1,5 +1,6 @@
 import { Mail, MapPin, Phone, Instagram, Youtube, Facebook } from 'lucide-react';
 import { useRouter } from '@/router';
+import { SubscribeFooter } from '@/components/SubscribeFooter';   {/* <-- YE LINE NAYI DAALNI HAI */}
 
 export function Footer() {
   const { navigate } = useRouter();
