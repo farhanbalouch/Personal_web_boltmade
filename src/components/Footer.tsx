@@ -33,7 +33,7 @@ export function Footer() {
           <div>
             <h4 className="text-xs uppercase tracking-widest text-gold font-semibold mb-4">Navigation</h4>
             <ul className="space-y-2.5 text-sm">
-              {['About', 'My Story', 'Work', 'Contact'].map((item) => {
+              {['About', 'My Story', 'Blog', 'Work', 'Contact'].map((item) => {
                 const path = item === 'My Story' ? '/story' : `/${item.toLowerCase()}`;
                 return (
                   <li key={item}>
@@ -143,4 +143,4 @@ export function Footer() {
       </div>
     </footer>
   );
-}
+                                      }
