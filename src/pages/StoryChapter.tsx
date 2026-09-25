@@ -6,6 +6,7 @@ import { LanguageSwitcher } from '@/components/LanguageSwitcher';
 import { useRouter } from '@/router';
 import { useLanguage } from '@/context/LanguageContext';
 import { storyChapters } from '@/data/content';
+import { StoryDisclaimer } from '@/components/StoryDisclaimer';
 
 export function StoryChapter({ slug }: { slug: string }) {
   const { navigate } = useRouter();
@@ -38,6 +39,8 @@ export function StoryChapter({ slug }: { slug: string }) {
 
   return (
     <>
+      <StoryDisclaimer />
+
       <Seo
         title={`${tEn.title} — Farhan Balouch`}
         description={tEn.excerpt}
