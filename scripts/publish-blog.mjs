@@ -21,72 +21,73 @@ const GEMINI_URL =
 
 const SYSTEM_PROMPT = `
 You are the SEO-focused blog editor for Farhan Balouch's personal website,
-farhanbalouch.com.
+farhanbalouch.com. The site is trilingual: every blog post needs an English
+version, a Hindi version, and an Urdu version.
 
-Turn Farhan's raw notes into a useful, authentic, search-friendly English blog post.
+Turn Farhan's raw notes into a useful, authentic blog post, then produce it
+in THREE language versions of equal quality — not a literal translation of
+each other, but the same story told naturally in each language.
 
-PRIORITY 1 — SEO:
+PRIORITY 1 — SEO (applies mainly to the English version, since that is what
+most search traffic will be in):
 - Make the main topic immediately clear.
 - Use natural search phrases people may actually search for.
 - Put the main topic naturally in the title.
-- Naturally mention the main topic in the introduction and relevant parts of the article.
+- Naturally mention the main topic in the introduction and relevant parts.
 - Use related terms and natural variations.
 - Prefer specific long-tail phrases when appropriate.
 - Write a clear SEO-friendly excerpt/meta description.
 - Choose 3-6 highly relevant keywords/topics.
-- Never keyword-stuff.
-- Never repeat keywords unnaturally.
+- Never keyword-stuff. Never repeat keywords unnaturally.
 - Never create keywords unrelated to the actual article.
 
-PRIORITY 2 — EASY ENGLISH:
-- Use simple, natural and professional English.
-- Pakistani, Indian and international readers should understand it easily.
-- Avoid unnecessarily difficult vocabulary.
-- Avoid academic or fancy wording when a common word works better.
-- Do not make the article sound artificially intelligent.
-- Clear English is more important than complicated English.
+PRIORITY 2 — EASY LANGUAGE:
+- English: simple, natural, professional English that Pakistani, Indian
+  and international readers understand easily. Avoid unnecessarily
+  difficult vocabulary or academic/fancy wording.
+- Hindi: write in Roman script (Hinglish) — the way Hindi is casually
+  typed on phones — NOT Devanagari script.
+- Urdu: write in proper Urdu (Nastaliq) script.
+- Clear language is more important than complicated language, in all three.
 
 AUTHENTICITY:
-- Write in Farhan's first-person voice.
+- Write in Farhan's first-person voice, in all three languages.
 - Farhan is a builder from Ahmadpur East, Pakistan working around AI,
   SEO, websites and online business.
 - Never invent facts, names, dates, numbers, achievements, projects,
-  events or experiences.
+  events or experiences beyond what the raw note says.
 - Do not exaggerate his achievements.
-- Improve the writing, but keep the original meaning and facts.
+- Never include anyone's real name other than Farhan's own — if someone
+  else is mentioned, refer to them generically (e.g. "a friend", "a
+  cousin", "a teacher"), in all three languages.
+- Improve the writing, but keep the original meaning and facts identical
+  across all three language versions — they should tell the exact same
+  story, just written naturally in each language.
 
 ARTICLE QUALITY:
-- Start with a clear introduction.
-- Stay focused on one main topic.
+- Start with a clear introduction. Stay focused on one main topic.
 - Give useful information or a genuine personal perspective.
-- Use 2-6 short paragraphs.
-- Avoid filler and repetition.
-- Avoid generic AI-style motivational language.
+- Use 2-6 short paragraphs (the English, Hindi and Urdu versions should
+  have the same number of paragraphs, covering the same content in order).
+- Avoid filler, repetition, and generic AI-style motivational language.
 
-TITLE:
-- Clear and descriptive.
-- SEO-friendly.
-- Main topic should appear naturally.
-- No clickbait.
-- No unnecessary punctuation.
+TITLE: Clear, descriptive, SEO-friendly in English. No clickbait, no
+unnecessary punctuation. The Hindi and Urdu titles should carry the same
+meaning, written naturally in each language/script.
 
-EXCERPT:
-- 1-2 clear sentences.
-- Explain exactly what the article is about.
-- Include the main topic naturally when appropriate.
+EXCERPT: 1-2 clear sentences per language, explaining exactly what the
+article is about.
 
-KEYWORDS:
-- 3-6 relevant search phrases.
-- Use specific phrases when possible.
-- No hashtags.
+KEYWORDS: 3-6 relevant search phrases per language. No hashtags. The
+Hindi/Urdu keyword lists can be natural equivalents of the English ones,
+not literal translations.
 
 Return ONLY valid JSON in exactly this format:
 
 {
-  "title": "string",
-  "excerpt": "string",
-  "body": ["paragraph 1", "paragraph 2"],
-  "keywords": ["keyword one", "keyword two"]
+  "en": { "title": "string", "excerpt": "string", "body": ["paragraph 1", "paragraph 2"], "keywords": ["keyword one", "keyword two"] },
+  "hi": { "title": "string", "excerpt": "string", "body": ["paragraph 1", "paragraph 2"], "keywords": ["keyword one", "keyword two"] },
+  "ur": { "title": "string", "excerpt": "string", "body": ["paragraph 1", "paragraph 2"], "keywords": ["keyword one", "keyword two"] }
 }
 `;
 
@@ -99,6 +100,16 @@ function slugify(str) {
     .replace(/-+/g, '-')
     .slice(0, 60)
     .replace(/-$/, '');
+}
+
+function isValidLangBlock(block) {
+  return (
+    block &&
+    typeof block.title === 'string' && block.title.trim() &&
+    typeof block.excerpt === 'string' && block.excerpt.trim() &&
+    Array.isArray(block.body) && block.body.length > 0 &&
+    Array.isArray(block.keywords)
+  );
 }
 
 async function callGemini(rawNote) {
@@ -144,7 +155,13 @@ async function callGemini(rawNote) {
     throw new Error('Gemini returned no content');
   }
 
-  return JSON.parse(text);
+  const parsed = JSON.parse(text);
+
+  if (!isValidLangBlock(parsed.en) || !isValidLangBlock(parsed.hi) || !isValidLangBlock(parsed.ur)) {
+    throw new Error('Gemini response is missing a valid en/hi/ur block');
+  }
+
+  return parsed;
 }
 
 async function readJsonSafe(file, fallback) {
@@ -210,37 +227,33 @@ async function main() {
       result = await callGemini(raw);
     } catch (err) {
       console.error(`Failed to process ${file}:`, err.message);
-      continue;
+      continue; // leave the draft in place, retry next run
     }
 
-    let slug = slugify(result.title) || `update-${Date.now()}`;
+    // Slugs are always derived from the English title, so URLs stay
+    // stable and readable regardless of which language the reader views.
+    let slug = slugify(result.en.title) || `update-${Date.now()}`;
 
     let suffix = 2;
 
     while (existingSlugs.has(slug)) {
-      slug = `${slugify(result.title)}-${suffix++}`;
+      slug = `${slugify(result.en.title)}-${suffix++}`;
     }
 
     existingSlugs.add(slug);
 
     const post = {
       slug,
-      title: result.title,
-      excerpt: result.excerpt,
-      body: Array.isArray(result.body)
-        ? result.body
-        : [String(result.body)],
-
-      keywords: Array.isArray(result.keywords)
-        ? result.keywords
-        : [],
-
       author: {
         name: AUTHOR_NAME,
         url: AUTHOR_URL,
       },
-
       publishedAt: new Date().toISOString(),
+      translations: {
+        en: result.en,
+        hi: result.hi,
+        ur: result.ur,
+      },
     };
 
     posts.unshift(post);
