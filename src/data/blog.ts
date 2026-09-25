@@ -4,21 +4,29 @@
 
 import blogPostsData from './blog-posts.json';
 
-export type BlogPost = {
-  slug: string;
+export type BlogLanguage = 'en' | 'hi' | 'ur';
+
+export type BlogTranslation = {
   title: string;
   excerpt: string;
   body: string[];
   keywords: string[];
+};
+
+export type BlogPost = {
+  slug: string;
+  author: { name: string; url: string };
   publishedAt: string; // ISO date-time, added automatically
+  translations: Record<BlogLanguage, BlogTranslation>;
 };
 
 export const blogPosts: BlogPost[] = (blogPostsData as BlogPost[])
   .slice()
   .sort((a, b) => new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime());
 
-export function formatBlogDate(iso: string): string {
-  return new Date(iso).toLocaleDateString('en-US', {
+export function formatBlogDate(iso: string, language: BlogLanguage = 'en'): string {
+  const locale = language === 'ur' || language === 'hi' ? 'en-GB' : 'en-US';
+  return new Date(iso).toLocaleDateString(locale, {
     year: 'numeric',
     month: 'long',
     day: 'numeric',
