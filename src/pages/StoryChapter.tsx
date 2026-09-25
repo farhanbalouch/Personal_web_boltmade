@@ -1,9 +1,8 @@
 import { useState } from 'react';
-import { ArrowLeft, ArrowRight, BookOpen, Sparkles } from 'lucide-react';
+import { ArrowLeft, ArrowRight, BookOpen, Sparkles, ArrowUpRight } from 'lucide-react';
 import { Seo } from '@/components/Seo';
 import { Reveal } from '@/components/Reveal';
 import { LanguageSwitcher } from '@/components/LanguageSwitcher';
-import { StoryDisclaimer } from '@/components/StoryDisclaimer';
 import { useRouter } from '@/router';
 import { useLanguage } from '@/context/LanguageContext';
 import { storyChapters } from '@/data/content';
@@ -38,10 +37,8 @@ export function StoryChapter({ slug }: { slug: string }) {
   const tEn = chapter.translations.en; // SEO always uses English
 
   return (
-  <>
-    <StoryDisclaimer />
-
-    <Seo
+    <>
+      <Seo
         title={`${tEn.title} — Farhan Balouch`}
         description={tEn.excerpt}
         path={`/story/${chapter.slug}`}
@@ -117,6 +114,44 @@ export function StoryChapter({ slug }: { slug: string }) {
               </div>
             </div>
           </Reveal>
+
+          {/* Author section — glowing signature, same treatment as blog posts */}
+          <Reveal delay={180 + t.paragraphs.length * 60}>
+            <div dir="ltr" className="mt-10 pt-8 border-t border-border">
+              <div className="relative overflow-hidden rounded-2xl border border-gold/20 bg-bg-soft/60 p-6 sm:p-8">
+                <div className="absolute -top-20 -right-20 w-40 h-40 rounded-full bg-gold/10 blur-3xl animate-pulse-slow pointer-events-none" />
+                <div className="absolute -bottom-20 -left-20 w-40 h-40 rounded-full bg-teal/10 blur-3xl animate-pulse-slow pointer-events-none" />
+
+                <div className="relative">
+                  <p className="text-xs uppercase tracking-[0.25em] text-text-muted mb-3">
+                    Written by
+                  </p>
+
+                  <h2 className="font-display text-2xl sm:text-3xl mb-2 bg-gradient-to-r from-gold via-amber-300 to-gold bg-[length:200%_auto] bg-clip-text text-transparent animate-shimmer">
+                    Farhan Balouch
+                  </h2>
+
+                  <p className="text-sm text-text-muted mb-5">
+                    AI · SEO · Online Business
+                  </p>
+
+                  <p className="text-sm text-text-muted leading-relaxed max-w-xl mb-6">
+                    This chapter is part of Farhan Balouch's ongoing personal story —
+                    from Ahmadpur East to AI, SEO, and online business.
+                  </p>
+
+                  <button
+                    onClick={() => navigate('/about')}
+                    className="inline-flex items-center gap-2 text-sm font-medium text-gold hover:text-text transition-colors"
+                  >
+                    <Sparkles className="w-4 h-4" />
+                    Learn more about Farhan
+                    <ArrowUpRight className="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
+            </div>
+          </Reveal>
         </div>
       </article>
 
@@ -155,4 +190,3 @@ export function StoryChapter({ slug }: { slug: string }) {
     </>
   );
 }
-
