@@ -47,7 +47,7 @@ export function StoryChapter({ slug }: { slug: string }) {
           description={tEn.excerpt}
           path={`/story/${chapter.slug}`}
         />
-        <StoryGateOverlay onComplete={() => setGateOpen(false)} seconds={5} />
+        <StoryGateOverlay onComplete={() => setGateOpen(false)} seconds={7} />
       </>
     );
   }
