@@ -506,4 +506,71 @@ h1, h2, h3, h4, .font-display {
     }
   }
 }
+.story-gate-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.88);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+
+.story-gate-box {
+  background: #111;
+  color: #fff;
+  padding: 24px;
+  border-radius: 14px;
+  max-width: 440px;
+  width: 90%;
+  box-shadow: 0 0 24px rgba(0, 0, 0, 0.6);
+}
+
+.story-gate-top-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.story-gate-controls {
+  display: flex;
+  gap: 8px;
+}
+
+.story-gate-btn {
+  background: #2a2a2a;
+  color: #fff;
+  border: none;
+  padding: 6px 10px;
+  border-radius: 8px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.story-gate-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.story-gate-countdown {
+  font-size: 22px;
+  font-weight: 700;
+  min-width: 28px;
+  text-align: right;
+}
+
+.story-gate-content {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+}
+
+.story-gate-text {
+  font-size: 15px;
+  line-height: 1.5;
+  margin: 0;
+                   }
   
