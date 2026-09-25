@@ -13,6 +13,11 @@
 // never touches title, subtitle, excerpt or moral, so those stay exactly
 // as written.
 //
+// blog-posts.json ALSO uses a nested schema now:
+//   { slug, author, publishedAt, translations: { en: {...}, hi: {...}, ur: {...} } }
+// so this script reads post.translations.en.title / post.translations.en.body
+// (never a flat post.title / post.body).
+//
 // This script only edits files — it does NOT commit or push, and it
 // does NOT touch main directly. The GitHub Action
 // (.github/workflows/story-merge.yml) opens a Pull Request with the
@@ -87,7 +92,7 @@ async function callGemini(chapters, phases, post) {
     {
       phases,
       chapters: chapterSummaries,
-      blogPost: { title: post.title, body: post.body },
+      blogPost: { title: post.translations.en.title, body: post.translations.en.body },
     },
     null,
     2
@@ -168,21 +173,21 @@ async function main() {
     processed.add(post.slug);
 
     if (!result.chapterPart) {
-      summaryLines.push(`- **${post.title}** — no matching chapter found, skipped.\n`);
+      summaryLines.push(`- **${post.translations.en.title}** — no matching chapter found, skipped.\n`);
       continue;
     }
 
     const chapter = chapters.find((c) => c.part === result.chapterPart);
     if (!chapter) {
       summaryLines.push(
-        `- **${post.title}** — AI suggested chapter part ${result.chapterPart}, but no such chapter exists. Skipped — please check manually.\n`
+        `- **${post.translations.en.title}** — AI suggested chapter part ${result.chapterPart}, but no such chapter exists. Skipped — please check manually.\n`
       );
       continue;
     }
 
     if (!isValidTriParagraph(result.paragraph)) {
       summaryLines.push(
-        `- **${post.title}** — AI suggested chapter ${chapter.part}, but did not return valid en/hi/ur text. Skipped — please check manually.\n`
+        `- **${post.translations.en.title}** — AI suggested chapter ${chapter.part}, but did not return valid en/hi/ur text. Skipped — please check manually.\n`
       );
       continue;
     }
@@ -193,7 +198,7 @@ async function main() {
     changed = true;
 
     summaryLines.push(
-      `- **${post.title}** → Chapter ${chapter.part}: "${chapter.translations.en.title}"\n` +
+      `- **${post.translations.en.title}** → Chapter ${chapter.part}: "${chapter.translations.en.title}"\n` +
         `  - Reason: ${result.reasoning}\n` +
         `  - Added (EN): "${result.paragraph.en}"\n` +
         `  - Added (HI): "${result.paragraph.hi}"\n` +
