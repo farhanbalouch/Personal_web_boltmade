@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef } from 'react';
-import { AlertCircle, Pause, Play } from 'lucide-react';
+import { AlertTriangle, Pause, Play } from 'lucide-react';
 
 interface StoryGateOverlayProps {
   onComplete: () => void;
@@ -56,21 +56,35 @@ export function StoryGateOverlay({ onComplete, seconds = 5 }: StoryGateOverlayPr
             </button>
           </div>
 
-          <div className="story-gate-countdown">{timeLeft}</div>
+          <div className={`story-gate-countdown ${paused ? 'story-gate-countdown-paused' : ''}`}>
+            {timeLeft}
+          </div>
         </div>
 
-        <div className="story-gate-content">
-          <span className="story-gate-alert">
-            <AlertCircle size={20} />
-          </span>
-          <p className="story-gate-text">
-            This story is AI-generated and creatively edited. Some scenes,
-            details, or dialogues may not be 100% real. Please double-confirm
-            with the site owner, Farhan Balouch, before treating any part of
-            it as fact.
-          </p>
+        <div className="story-gate-icon-wrap">
+          <AlertTriangle className="story-gate-icon" size={44} strokeWidth={2.2} />
+        </div>
+
+        <p className="story-gate-heading">AI-GENERATED CONTENT WARNING</p>
+
+        <p className="story-gate-text">
+          This story is AI-generated and creatively edited. Some scenes,
+          details, or dialogues may <span className="story-gate-highlight">NOT be 100% real</span>.
+          Please double-confirm with the site owner,{' '}
+          <span className="story-gate-highlight">Farhan Balouch</span>, before
+          treating any part of it as fact.
+        </p>
+
+        <div className="story-gate-progress-track">
+          <div
+            className="story-gate-progress-fill"
+            style={{
+              width: `${(timeLeft / seconds) * 100}%`,
+              transition: paused ? 'none' : 'width 1s linear',
+            }}
+          />
         </div>
       </div>
     </div>
   );
-}
+      }
