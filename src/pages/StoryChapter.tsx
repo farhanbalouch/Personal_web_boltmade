@@ -6,6 +6,7 @@ import { LanguageSwitcher } from '@/components/LanguageSwitcher';
 import { useRouter } from '@/router';
 import { useLanguage } from '@/context/LanguageContext';
 import { storyChapters } from '@/data/content';
+import { StoryGateOverlay } from './StoryGateOverlay';
 import { StoryDisclaimer } from '@/components/StoryDisclaimer';
 
 export function StoryChapter({ slug }: { slug: string }) {
@@ -14,6 +15,7 @@ export function StoryChapter({ slug }: { slug: string }) {
   const isUrdu = language === 'ur';
   const chapter = storyChapters.find((c) => c.slug === slug);
   const [showSummary, setShowSummary] = useState(false);
+  const [gateOpen, setGateOpen] = useState(true);
 
   if (!chapter) {
     return (
@@ -36,6 +38,19 @@ export function StoryChapter({ slug }: { slug: string }) {
   const next = storyChapters[chapter.part] || null;
   const t = chapter.translations[language];
   const tEn = chapter.translations.en; // SEO always uses English
+
+  if (gateOpen) {
+    return (
+      <>
+        <Seo
+          title={`${tEn.title} — Farhan Balouch`}
+          description={tEn.excerpt}
+          path={`/story/${chapter.slug}`}
+        />
+        <StoryGateOverlay onComplete={() => setGateOpen(false)} seconds={5} />
+      </>
+    );
+  }
 
   return (
     <>
@@ -102,9 +117,6 @@ export function StoryChapter({ slug }: { slug: string }) {
             ))}
           </div>
 
-          {/* Moral / takeaway — always shown in English, for SEO and because
-              it reads as the writer's own reflection regardless of the
-              reading language selected. */}
           <Reveal delay={140 + t.paragraphs.length * 60}>
             <div
               dir="ltr"
@@ -118,7 +130,6 @@ export function StoryChapter({ slug }: { slug: string }) {
             </div>
           </Reveal>
 
-          {/* Author section — glowing signature, same treatment as blog posts */}
           <Reveal delay={180 + t.paragraphs.length * 60}>
             <div dir="ltr" className="mt-10 pt-8 border-t border-border">
               <div className="relative overflow-hidden rounded-2xl border border-gold/20 bg-bg-soft/60 p-6 sm:p-8">
@@ -158,7 +169,6 @@ export function StoryChapter({ slug }: { slug: string }) {
         </div>
       </article>
 
-      {/* Prev / Next nav */}
       <nav className="max-w-2xl mx-auto px-5 sm:px-8 pb-20">
         <div className="grid gap-4 sm:grid-cols-2 border-t border-border/50 pt-8">
           {prev ? (
@@ -192,4 +202,4 @@ export function StoryChapter({ slug }: { slug: string }) {
       </nav>
     </>
   );
-}
+          }
