@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Mail, Check } from 'lucide-react';
 
-const FORMSPREE_URL = 'https://formspree.io/f/YOUR_FORM_ID'; // <-- yahan apna ID daalo
+const FORMSPREE_URL = 'https://formspree.io/f/maendpbk'; // <-- yahan apna ID daalo
 
 export function SubscribeFooter() {
   const [email, setEmail] = useState('');
