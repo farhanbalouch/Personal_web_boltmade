@@ -659,3 +659,187 @@ h1, h2, h3, h4, .font-display {
   .story-gate-text { font-size: 13.5px; }
   .story-gate-countdown { font-size: 22px; }
         }
+
+/* ===== Subscribe Footer ===== */
+.subscribe-footer {
+  max-width: 420px;
+  margin: 0 auto;
+  text-align: center;
+  padding: 20px 0;
+}
+
+.subscribe-footer-title {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 12px;
+  color: inherit;
+}
+
+.subscribe-footer-form {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.subscribe-footer-form input {
+  flex: 1;
+  min-width: 180px;
+  padding: 10px 14px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.05);
+  color: inherit;
+  font-size: 14px;
+}
+
+.subscribe-footer-form input:focus {
+  outline: none;
+  border-color: #d4af37;
+}
+
+.subscribe-footer-form button {
+  padding: 10px 18px;
+  border-radius: 8px;
+  border: none;
+  background: #d4af37;
+  color: #111;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.subscribe-footer-form button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.subscribe-footer-msg {
+  margin-top: 10px;
+  font-size: 13px;
+  color: #4ade80;
+}
+
+.subscribe-footer-msg.error {
+  color: #f87171;
+}
+
+/* ===== Notify Popup ===== */
+.notify-popup {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  left: 20px;
+  max-width: 340px;
+  margin-left: auto;
+  background: #151515;
+  color: #fff;
+  border: 1px solid rgba(212, 175, 55, 0.4);
+  border-radius: 14px;
+  padding: 18px 18px 16px;
+  z-index: 9998;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5);
+  animation: notifyPopupSlideIn 0.35s ease-out;
+}
+
+@keyframes notifyPopupSlideIn {
+  from { transform: translateY(20px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+.notify-popup-close {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: transparent;
+  border: none;
+  color: #999;
+  cursor: pointer;
+}
+
+.notify-popup-close:hover { color: #fff; }
+
+.notify-popup-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: rgba(212, 175, 55, 0.15);
+  color: #d4af37;
+  margin-bottom: 10px;
+}
+
+.notify-popup-text {
+  font-size: 14px;
+  line-height: 1.5;
+  margin: 0 0 14px;
+  color: #ddd;
+}
+
+.notify-popup-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.notify-popup-allow {
+  background: #d4af37;
+  color: #111;
+  border: none;
+  padding: 10px;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.notify-popup-never {
+  background: transparent;
+  color: #999;
+  border: none;
+  padding: 4px;
+  font-size: 12.5px;
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+/* ===== WhatsApp Opt-in ===== */
+.whatsapp-optin-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: #25d366;
+  color: #fff;
+  padding: 10px 18px;
+  border-radius: 999px;
+  font-weight: 600;
+  font-size: 14px;
+  text-decoration: none;
+  transition: opacity 0.15s ease;
+}
+
+.whatsapp-optin-btn:hover {
+  opacity: 0.9;
+}
+
+@media (max-width: 480px) {
+  .notify-popup {
+    left: 12px;
+    right: 12px;
+    bottom: 12px;
+    max-width: none;
+  }
+  .subscribe-footer-form {
+    flex-direction: column;
+  }
+  .subscribe-footer-form input,
+  .subscribe-footer-form button {
+    width: 100%;
+  }
+  }
