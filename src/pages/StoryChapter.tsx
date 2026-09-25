@@ -202,4 +202,4 @@ export function StoryChapter({ slug }: { slug: string }) {
       </nav>
     </>
   );
-          }
+}
