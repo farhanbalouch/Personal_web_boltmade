@@ -23,6 +23,20 @@ export default {
       spacing: {
         '18': '4.5rem',
       },
+      keyframes: {
+        shimmer: {
+          '0%': { backgroundPosition: '0% 50%' },
+          '100%': { backgroundPosition: '200% 50%' },
+        },
+        'pulse-slow': {
+          '0%, 100%': { opacity: '0.5', transform: 'scale(1)' },
+          '50%': { opacity: '0.9', transform: 'scale(1.08)' },
+        },
+      },
+      animation: {
+        shimmer: 'shimmer 3.5s linear infinite',
+        'pulse-slow': 'pulse-slow 4s ease-in-out infinite',
+      },
     },
   },
   plugins: [],
