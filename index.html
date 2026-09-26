@@ -7,6 +7,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="theme-color" content="#0a0e17" />
 
+    <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
+<script>
+  window.OneSignalDeferred = window.OneSignalDeferred || [];
+  OneSignalDeferred.push(async function(OneSignal) {
+    await OneSignal.init({
+      appId: "724f058f-edba-4c5a-b0dc-17d9a442eda8",
+    });
+  });
+</script>
+
+
     <!-- Title / description (per-page overrides come from Seo.tsx) -->
     <title data-default>Farhan Balouch — Official Website | AI, SEO &amp; Online Business</title>
     <meta name="description" content="Farhan Balouch — official website. From Ahmadpur East, Pakistan to AI, SEO and online business. Read his story, explore his projects (Nexus AI, Rawi, Farhan Deals, Hack AI) and meet Rawi, his AI storyteller." />
