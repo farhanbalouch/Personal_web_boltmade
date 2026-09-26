@@ -10,6 +10,7 @@ import { Contact } from '@/pages/Contact';
 import { CinematicIntro } from '@/components/CinematicIntro';
 import { Blog } from '@/pages/Blog';
 import { BlogPost } from '@/pages/BlogPost';
+import { NotifyPopup } from '@/components/NotifyPopup';
 import { LanguageProvider } from '@/context/LanguageContext';
 function Routes() {
   const { route } = useRouter();
@@ -32,6 +33,7 @@ function Routes() {
       <Navbar />
       <main className="flex-1">{page}</main>
      <Footer />
+      <NotifyPopup />
       </div>
   );
 }
