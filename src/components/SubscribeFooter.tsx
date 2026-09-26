@@ -3,6 +3,12 @@ import { Mail, Check } from 'lucide-react';
 
 const FORMSPREE_URL = 'https://formspree.io/f/maendpbk'; // <-- yahan apna ID daalo
 
+function withOneSignal(fn: (OneSignal: any) => void) {
+  if (typeof window === 'undefined') return;
+  (window as any).OneSignalDeferred = (window as any).OneSignalDeferred || [];
+  (window as any).OneSignalDeferred.push(fn);
+}
+
 export function SubscribeFooter() {
   const [email, setEmail] = useState('');
   const [status, setStatus] = useState<'idle' | 'loading' | 'done' | 'error'>('idle');
@@ -13,11 +19,20 @@ export function SubscribeFooter() {
     setStatus('loading');
 
     try {
+      // 1) Formspree — keeps sending you an email copy of every signup,
+      //    same as before, so you still see it land in your inbox.
       const res = await fetch(FORMSPREE_URL, {
         method: 'POST',
         headers: { Accept: 'application/json', 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, source: 'blog-subscribe-footer' }),
       });
+
+      // 2) OneSignal — this is the part that actually lets us broadcast
+      //    "new post is live" emails later, since Formspree alone can't.
+      withOneSignal((OneSignal) => {
+        OneSignal.User.addEmail(email);
+      });
+
       if (res.ok) {
         setStatus('done');
         setEmail('');
