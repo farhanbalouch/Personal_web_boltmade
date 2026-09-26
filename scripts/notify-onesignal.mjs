@@ -32,8 +32,6 @@ async function sendOneSignal(body) {
   const data = await res.json().catch(() => ({}));
 
   if (!res.ok) {
-    // Don't throw — a failed notification should never fail the whole
-    // publish workflow. Just log it so it shows up in the Action's logs.
     console.error('OneSignal error:', res.status, JSON.stringify(data));
     return null;
   }
@@ -46,4 +44,35 @@ async function sendPush(title, message, url) {
   return sendOneSignal({
     included_segments: ['Subscribed Users'],
     headings: { en: title },
-    contents: { en: messa
+    contents: { en: message },
+    url,
+  });
+}
+
+async function sendEmail(title, message, url) {
+  return sendOneSignal({
+    included_segments: ['Subscribed Users'],
+    channel_for_external_user_ids: 'email',
+    email_subject: title,
+    email_body: `<p>${message}</p><p><a href="${url}">${url}</a></p>`,
+  });
+}
+
+async function main() {
+  const [title, message, url] = process.argv.slice(2);
+
+  if (!title || !message || !url) {
+    console.log('Usage: node scripts/notify-onesignal.mjs "<title>" "<message>" "<url>"');
+    console.log('Nothing to send — missing arguments.');
+    return;
+  }
+
+  console.log(`Notifying subscribers: "${title}" -> ${url}`);
+
+  await sendPush(title, message, url);
+  await sendEmail(title, message, url);
+}
+
+main().catch((err) => {
+  console.error('notify-onesignal.mjs failed:', err);
+});
