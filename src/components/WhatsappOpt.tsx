@@ -1,13 +1,26 @@
 import { useEffect, useState, useRef } from 'react';
-import { BellRing, X } from 'lucide-react';
+import { MessageCircle, X } from 'lucide-react';
 
-const DELAYS = [5, 60, 120, 180]; // seconds: 5s, then 1min, 2min, 3min
+const DELAYS = [15, 90, 150]; // seconds — offset from NotifyPopup's timings so they don't both appear together
 
-export function NotifyPopup() {
+// IMPORTANT: this is your WhatsApp Business number, in international
+// format with no leading + or spaces (e.g. 923093244171 for +92 309 3244171).
+const WHATSAPP_NUMBER = '923093244171';
+
+// Meta only allows a business to message someone AFTER that person has
+// messaged the business first (or clicked a "click to chat" link like this
+// one). So this button doesn't need any API token at all — it just opens
+// WhatsApp with a pre-filled message. Once they hit send, they've opted in,
+// and your WhatsApp Business number can reply to / notify them going forward.
+const WHATSAPP_LINK = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(
+  'Notify me about new blog posts and story updates 🙂'
+)}`;
+
+export function WhatsappOpt() {
   const [visible, setVisible] = useState(false);
   const [stepIndex, setStepIndex] = useState(0);
   const dismissedForever = useRef(
-    typeof window !== 'undefined' && localStorage.getItem('notify_dismissed') === '1'
+    typeof window !== 'undefined' && localStorage.getItem('whatsapp_optin_dismissed') === '1'
   );
 
   useEffect(() => {
@@ -23,22 +36,18 @@ export function NotifyPopup() {
 
   const handleClose = () => {
     setVisible(false);
-    setStepIndex((i) => i + 1); // next delay ke liye schedule ho jayega
+    setStepIndex((i) => i + 1);
   };
 
-  const handleAllow = async () => {
-    if ('Notification' in window) {
-      const permission = await Notification.requestPermission();
-      if (permission === 'granted') {
-        localStorage.setItem('notify_dismissed', '1');
-        dismissedForever.current = true;
-      }
-    }
+  const handleOptIn = () => {
+    window.open(WHATSAPP_LINK, '_blank', 'noopener,noreferrer');
+    localStorage.setItem('whatsapp_optin_dismissed', '1');
+    dismissedForever.current = true;
     setVisible(false);
   };
 
   const handleNeverShow = () => {
-    localStorage.setItem('notify_dismissed', '1');
+    localStorage.setItem('whatsapp_optin_dismissed', '1');
     dismissedForever.current = true;
     setVisible(false);
   };
@@ -46,19 +55,19 @@ export function NotifyPopup() {
   if (!visible) return null;
 
   return (
-    <div className="notify-popup">
+    <div className="notify-popup whatsapp-optin-popup">
       <button className="notify-popup-close" onClick={handleClose} aria-label="Close">
         <X size={16} />
       </button>
-      <div className="notify-popup-icon">
-        <BellRing size={22} />
+      <div className="notify-popup-icon whatsapp-optin-icon">
+        <MessageCircle size={22} />
       </div>
       <p className="notify-popup-text">
-        Get notified the moment a new blog post drops. No spam, ever.
+        Prefer WhatsApp? Get new blog posts and story updates sent straight to your chat.
       </p>
       <div className="notify-popup-actions">
-        <button className="notify-popup-allow" onClick={handleAllow}>
-          Allow Notifications
+        <button className="notify-popup-allow whatsapp-optin-btn" onClick={handleOptIn}>
+          Notify me on WhatsApp
         </button>
         <button className="notify-popup-never" onClick={handleNeverShow}>
           Don't show again
