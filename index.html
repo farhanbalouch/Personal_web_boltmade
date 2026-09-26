@@ -7,18 +7,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="theme-color" content="#0a0e17" />
 
-    <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
-<script>
-  window.OneSignalDeferred = window.OneSignalDeferred || [];
-  OneSignalDeferred.push(async function(OneSignal) {
-    await OneSignal.init({
-      appId: "724f058f-edba-4c5a-b0dc-17d9a442eda8",
-    });
-  });
-</script>
-
-
-    <!-- Title / description (per-page overrides come from Seo.tsx) -->
+    <!-- Title / description -->
     <title data-default>Farhan Balouch — Official Website | AI, SEO &amp; Online Business</title>
     <meta name="description" content="Farhan Balouch — official website. From Ahmadpur East, Pakistan to AI, SEO and online business. Read his story, explore his projects (Nexus AI, Rawi, Farhan Deals, Hack AI) and meet Rawi, his AI storyteller." />
     <meta name="author" content="Farhan Balouch" />
@@ -43,11 +32,7 @@
     <meta name="twitter:description" content="From Ahmadpur East to the world of AI, SEO and online business." />
     <meta name="twitter:image" content="https://farhanbalouch.com/og-image.jpg" />
 
-    <!--
-      Structured data (static, so Google sees it in the very first HTML — no JavaScript needed).
-      Jab tumhare personal social profiles (LinkedIn, X, Instagram...) ban jayen to unke links
-      "sameAs" list mein Person ke andar add kar dena.
-    -->
+    <!-- Structured data -->
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
@@ -118,25 +103,19 @@
     }
     </script>
 
-    <!-- Fonts: Fraunces (display serif) + Inter (sans body) -->
+    <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@300;400;500;600;700&family=Noto+Nastaliq+Urdu:wght@400;600;700&display=swap" rel="stylesheet" />
 
-    <!--
-      OneSignal (push notifications + email broadcast for new blog posts /
-      story updates). App ID is public/safe — it's not a secret, it just
-      tells the browser which OneSignal app to connect to. The REST API
-      key (used to SEND notifications) lives only in GitHub Secrets and is
-      never exposed here.
-    -->
+    <!-- OneSignal Integration -->
     <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
     <script>
       window.OneSignalDeferred = window.OneSignalDeferred || [];
       OneSignalDeferred.push(async function (OneSignal) {
         await OneSignal.init({
           appId: "724f058f-edba-4c5a-b0dc-17d9a442eda8",
-          notifyButton: { enable: false }, // we use our own custom NotifyPopup UI instead
+          notifyButton: { enable: false },
           allowLocalhostAsSecureOrigin: true,
         });
       });
@@ -144,7 +123,6 @@
   </head>
   <body>
     <div id="root"></div>
-    <!-- Crawlers / no-JS visitors ke liye basic content (React load hote hi replace ho jata hai) -->
     <noscript>
       <h1>Farhan Balouch</h1>
       <p>Farhan Balouch — developer and entrepreneur from Ahmadpur East, Pakistan, building in AI, SEO and online business.</p>
