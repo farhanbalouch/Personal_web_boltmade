@@ -111,6 +111,25 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@300;400;500;600;700&family=Noto+Nastaliq+Urdu:wght@400;600;700&display=swap" rel="stylesheet" />
+
+    <!--
+      OneSignal (push notifications + email broadcast for new blog posts /
+      story updates). App ID is public/safe — it's not a secret, it just
+      tells the browser which OneSignal app to connect to. The REST API
+      key (used to SEND notifications) lives only in GitHub Secrets and is
+      never exposed here.
+    -->
+    <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
+    <script>
+      window.OneSignalDeferred = window.OneSignalDeferred || [];
+      OneSignalDeferred.push(async function (OneSignal) {
+        await OneSignal.init({
+          appId: "724f058f-edba-4c5a-b0dc-17d9a442eda8",
+          notifyButton: { enable: false }, // we use our own custom NotifyPopup UI instead
+          allowLocalhostAsSecureOrigin: true,
+        });
+      });
+    </script>
   </head>
   <body>
     <div id="root"></div>
