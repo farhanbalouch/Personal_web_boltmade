@@ -210,6 +210,7 @@ async function main() {
 
   const posts = await readJsonSafe(BLOG_JSON, []);
   const existingSlugs = new Set(posts.map((p) => p.slug));
+  const publishedThisRun = [];
 
   let sitemap = await readFile(SITEMAP, 'utf8').catch(() => null);
 
@@ -257,6 +258,10 @@ async function main() {
     };
 
     posts.unshift(post);
+    publishedThisRun.push({
+      title: post.translations.en.title,
+      url: `${SITE_URL}/blog/${slug}`,
+    });
 
     if (sitemap) {
       sitemap = addSitemapUrl(
@@ -281,6 +286,13 @@ async function main() {
   if (sitemap) {
     await writeFile(SITEMAP, sitemap);
   }
+
+  // The GitHub Action reads this to know what to notify subscribers about —
+  // written every run (even if empty) so a stale file never gets reused.
+  await writeFile(
+    path.join(ROOT, 'content/last-published.json'),
+    JSON.stringify(publishedThisRun, null, 2) + '\n'
+  );
 
   console.log('Done.');
 }
