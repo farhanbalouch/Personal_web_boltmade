@@ -1,0 +1,36 @@
+name: Notify subscribers of story updates
+
+# Fires only when the story file actually changes ON main — which only
+# happens after you review and merge the "Story update" Pull Request that
+# story-merge.yml opens. So this never fires on a mere PR being opened,
+# only once you've approved the change.
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'src/data/story-chapters.json'
+
+permissions:
+  contents: read
+
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Notify subscribers (push + email)
+        env:
+          ONESIGNAL_APP_ID: ${{ secrets.ONESIGNAL_APP_ID }}
+          ONESIGNAL_REST_API_KEY: ${{ secrets.ONESIGNAL_REST_API_KEY }}
+        run: |
+          node scripts/notify-onesignal.mjs \
+            "The story just got a new chapter" \
+            "Farhan's story has been updated with new chapters — go read the latest." \
+            "https://farhanbalouch.com/story"
