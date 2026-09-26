@@ -1,5 +1,60 @@
 [
   {
+    "slug": "testing-my-custom-notification-system-today",
+    "author": {
+      "name": "Farhan Balouch",
+      "url": "https://farhanbalouch.com/about"
+    },
+    "publishedAt": "2026-09-26T16:23:32.087Z",
+    "translations": {
+      "en": {
+        "title": "Testing My Custom Notification System Today",
+        "excerpt": "I share an update on the first comprehensive test of my new custom notification system, designed to keep my online projects running smoothly and efficiently.",
+        "body": [
+          "As a builder focused on AI, SEO, and online ventures, keeping my websites and projects running smoothly is paramount. That's why I've been working on a new custom notification system to ensure I stay updated on critical events. Today marks an important milestone: the first comprehensive test of this system.",
+          "I spent the day rigorously checking its functionality, from message delivery speed to reliability across different scenarios. The goal is to provide timely alerts for everything from website performance issues to new user interactions. I'm pleased with the initial results and the groundwork it lays for more efficient management of my online presence."
+        ],
+        "keywords": [
+          "notification system testing",
+          "custom web notifications",
+          "website development updates",
+          "Farhan Balouch tech",
+          "online business tools"
+        ]
+      },
+      "hi": {
+        "title": "Aaj Maine Apne Naye Notification System Ka Test Kiya",
+        "excerpt": "Main apne naye custom notification system ke pehle test ke baare mein update de raha hoon, jise maine apne online projects ko behtar chalane ke liye banaya hai.",
+        "body": [
+          "AI, SEO aur online business par kaam karne wale ek builder ke taur par, mere liye apni websites aur projects ko sahi tarah se chalana bahut zaroori hai. Isliye main ek naye custom notification system par kaam kar raha tha, taaki mujhe sab zaroori updates time par milte rahein. Aaj is system ka pehla poora test tha, jo ek important milestone hai.",
+          "Maine poora din iski functionality check ki, jaise ki message kitni jaldi deliver hota hai aur alag-alag situations mein kitna reliable hai. Iska maqsad hai website performance issues se lekar naye user interactions tak, sabki timely alerts dena. Main pehle results se khush hoon aur yeh mere online presence ko aur behtar manage karne mein madad karega."
+        ],
+        "keywords": [
+          "notification system test",
+          "custom notifications",
+          "website updates",
+          "Farhan Balouch blog",
+          "online business tools"
+        ]
+      },
+      "ur": {
+        "title": "آج میں نے اپنے نئے نوٹیفکیشن سسٹم کا ٹیسٹ کیا",
+        "excerpt": "میں اپنے نئے کسٹم نوٹیفکیشن سسٹم کے پہلے جامع ٹیسٹ کے بارے میں ایک اپڈیٹ شیئر کر رہا ہوں، جسے میں نے اپنے آن لائن پروجیکٹس کو بہتر اور مؤثر طریقے سے چلانے کے لیے ڈیزائن کیا ہے۔",
+        "body": [
+          "ایک بلڈر کے طور پر جو AI، SEO، اور آن لائن کاروبار پر توجہ دیتا ہے، میری ویب سائٹس اور پروجیکٹس کو آسانی سے چلانا انتہائی اہم ہے۔ یہی وجہ ہے کہ میں ایک نئے کسٹم نوٹیفکیشن سسٹم پر کام کر رہا تھا تاکہ مجھے اہم واقعات کے بارے میں بروقت اپڈیٹس ملتی رہیں۔ آج اس سسٹم کا پہلا مکمل ٹیسٹ تھا، جو ایک اہم سنگ میل ہے۔",
+          "میں نے پورا دن اس کی کارکردگی کو سختی سے جانچا، پیغام کی ڈیلیوری کی رفتار سے لے کر مختلف حالات میں اس کی قابل اعتمادی تک۔ اس کا مقصد ویب سائٹ کی کارکردگی کے مسائل سے لے کر نئے صارف کے تعاملات تک ہر چیز کے لیے بروقت الرٹس فراہم کرنا ہے۔ میں ابتدائی نتائج سے مطمئن ہوں اور یہ میرے آن لائن وجود کے زیادہ مؤثر انتظام کے لیے بنیاد فراہم کرتا ہے۔"
+        ],
+        "keywords": [
+          "نوٹیفکیشن سسٹم ٹیسٹ",
+          "کسٹم ویب نوٹیفکیشنز",
+          "ویب سائٹ اپڈیٹس",
+          "فرحان بلوچ ٹیکنالوجی",
+          "آن لائن کاروباری ٹولز"
+        ]
+      }
+    }
+  },
+  {
     "slug": "why-i-built-my-personal-website-my-journey-and-learnings",
     "author": {
       "name": "Farhan Balouch",
@@ -353,4 +408,4 @@
       }
     }
   }
-        ]
+]
