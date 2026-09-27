@@ -3,8 +3,6 @@ import { BellRing, X } from 'lucide-react';
 
 const DELAYS = [5, 60, 120, 180]; // seconds: 5s, then 1min, 2min, 3min
 
-// OneSignal loads asynchronously via the script tag in index.html. This
-// helper waits for window.OneSignalDeferred to be ready before we touch it.
 function withOneSignal(fn: (OneSignal: any) => void) {
   if (typeof window === 'undefined') return;
   (window as any).OneSignalDeferred = (window as any).OneSignalDeferred || [];
@@ -21,35 +19,50 @@ export function NotifyPopup() {
   useEffect(() => {
     if (dismissedForever.current) return;
 
-    // If they already granted browser permission some other way (or are
-    // already subscribed), don't bother showing the popup at all.
-    if (typeof window !== 'undefined' && 'Notification' in window && Notification.permission === 'granted') {
-      localStorage.setItem('notify_dismissed', '1');
-      dismissedForever.current = true;
-      return;
+    // IMPORTANT: we check OneSignal's OWN record of whether this browser
+    // is a push subscriber — NOT the raw browser Notification.permission.
+    // A browser can have permission "granted" (e.g. from an earlier test,
+    // or a different site) while OneSignal still has no subscription for
+    // it at all. Checking the wrong thing was the bug that caused pushes
+    // to silently never register.
+    withOneSignal((OneSignal) => {
+      const alreadySubscribed = OneSignal.User?.PushSubscription?.optedIn;
+      if (alreadySubscribed) {
+        localStorage.setItem('notify_dismissed', '1');
+        dismissedForever.current = true;
+        return;
+      }
+      scheduleNext();
+    });
+
+    function scheduleNext() {
+      if (stepIndex >= DELAYS.length) return;
+      const timer = setTimeout(() => setVisible(true), DELAYS[stepIndex] * 1000);
+      return () => clearTimeout(timer);
     }
 
-    if (stepIndex >= DELAYS.length) return;
-
-    const timer = setTimeout(() => {
-      setVisible(true);
-    }, DELAYS[stepIndex] * 1000);
-
-    return () => clearTimeout(timer);
+    scheduleNext();
   }, [stepIndex]);
 
   const handleClose = () => {
     setVisible(false);
-    setStepIndex((i) => i + 1); // next delay ke liye schedule ho jayega
+    setStepIndex((i) => i + 1);
   };
 
   const handleAllow = () => {
     withOneSignal(async (OneSignal) => {
       try {
-        // This is the real subscribe step: it registers the service
-        // worker, asks for browser permission, AND tells OneSignal to
-        // remember this browser as a subscriber it can push to later.
+        // requestPermission() asks the browser AND, if granted, creates
+        // the actual OneSignal push subscription (registers the service
+        // worker + stores the subscription server-side).
         await OneSignal.Notifications.requestPermission();
+
+        // Extra safety: explicitly opt in too, in case permission was
+        // already granted at the browser level from before (so
+        // requestPermission() alone might not re-trigger subscription).
+        if (OneSignal.User?.PushSubscription && !OneSignal.User.PushSubscription.optedIn) {
+          await OneSignal.User.PushSubscription.optIn();
+        }
       } catch (err) {
         console.error('OneSignal subscribe failed:', err);
       }
