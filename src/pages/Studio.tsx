@@ -1,3 +1,6 @@
+import { StudioInstall } from "@/components/StudioInstall";
+import { setupStudioPwa } from "@/lib/studioPwa";
+import { parseStudioResponse } from "@/lib/studio-response";
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
   ArrowUpRight,
@@ -62,18 +65,13 @@ async function api(body?: object): Promise<any> {
     body
       ? {
           method: "POST",
+          cache: "no-store",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(body),
         }
       : { cache: "no-store" },
   );
-  const data = await r.json();
-  if (!r.ok)
-    throw Object.assign(
-      new Error(data.error || "Could not connect to Studio."),
-      { status: r.status },
-    );
-  return data;
+  return parseStudioResponse(r);
 }
 const labels: Record<Kind, string> = {
   blog: "Blog post",
@@ -116,6 +114,9 @@ export function Studio() {
   }, []);
   useEffect(() => {
     document.title = "Farhan Studio · Your publishing desk";
+    setupStudioPwa().catch(() => {
+      /* Online editing remains available if app installation is unsupported. */
+    });
     const robots = document.createElement("meta");
     robots.name = "robots";
     robots.content = "noindex, nofollow";
@@ -185,6 +186,9 @@ export function Studio() {
         <a href="/" className="studio-wordmark">
           FB<span>STUDIO</span>
         </a>
+        <div className="studio-login-install">
+          <StudioInstall />
+        </div>
         <div className="studio-login-grid">
           <section>
             <span className="studio-eyebrow">A little space for big ideas</span>
@@ -335,6 +339,7 @@ export function Studio() {
       </aside>
       <div className="studio-main">
         <header>
+          <StudioInstall />
           <span>
             <span className="studio-dot" /> Personal publishing space
           </span>

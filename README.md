@@ -159,3 +159,17 @@ connectivity. No email broadcasting is promised by this browser push flow.
 owner-only access, CSRF rejection, encrypted-cookie tampering, input validation,
 stable URLs on edits, and multilingual biography updates. Never test broadcasts
 to all subscribers merely to check configuration.
+
+## Install Farhan Studio as a PWA
+
+Open https://farhanbalouch.com/admin/ directly in Chrome or Edge, then use
+**Install Studio app** or the browser's **Install Farhan Studio** command.
+The manifest uses standalone display, its own 192/512px icons, and the
+/admin/ launch scope. This is app installation rather than Create shortcut.
+On iPhone, use Safari's Add to Home Screen with Open as Web App.
+
+The separate /admin/sw.js worker caches only the app shell and static assets.
+It never caches API responses, tokens, or publish requests, and it does not
+replace the public website's OneSignal root worker. Login and publishing
+require connectivity. Non-JSON security/proxy responses are now reported with
+the HTTP status and a readable recovery message instead of a JSON syntax error.

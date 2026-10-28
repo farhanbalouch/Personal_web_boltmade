@@ -686,3 +686,100 @@
   font-size: 10px !important;
   padding: 8px;
 }
+.studio-login-install {
+  position: absolute;
+  right: 6vw;
+  top: 40px;
+}
+.studio-install {
+  position: relative;
+}
+.studio-install-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 14px;
+  border: 1px solid #cad5bd;
+  border-radius: 9px;
+  background: #eaf0e1;
+  color: #395b49;
+  font-size: 11px !important;
+}
+.studio-install > p {
+  max-width: 260px;
+  font-size: 10px;
+}
+.studio-install-help {
+  position: absolute;
+  z-index: 90;
+  top: 45px;
+  right: 0;
+  width: min(345px, calc(100vw - 40px));
+  padding: 26px;
+  background: #fffefa;
+  color: #25352e;
+  border: 1px solid #d6decf;
+  border-radius: 14px;
+  box-shadow: 0 20px 65px #25352e25;
+}
+.studio-install-help h2 {
+  font-size: 24px;
+  margin: 17px 0;
+}
+.studio-install-help p {
+  font-size: 12px;
+  margin: 12px 0;
+}
+.studio-install-help ol {
+  font-size: 11px;
+  padding-left: 17px;
+  list-style: decimal;
+  line-height: 1.9;
+}
+.studio-install-help small {
+  font-size: 10px;
+  color: #89947e;
+  line-height: 1.7;
+  display: block;
+}
+.studio-install-close {
+  position: absolute;
+  right: 12px;
+  top: 12px;
+  padding: 5px;
+}
+@media (max-width: 800px) {
+  .studio-login-install {
+    top: 26px;
+    right: 24px;
+  }
+  .studio-install-button {
+    font-size: 10px !important;
+    padding: 9px;
+  }
+  .studio-main > header {
+    gap: 12px;
+  }
+  .studio-main > header > span {
+    display: none;
+  }
+  .studio-main .studio-install-help {
+    left: 0;
+    right: auto;
+  }
+}
+@media (display-mode: standalone) {
+  .studio {
+    min-height: 100dvh;
+  }
+  .studio-install-button {
+    display: none;
+  }
+  .studio-login-install {
+    display: none;
+  }
+  .studio-main > header > .studio-install {
+    display: none;
+  }
+}

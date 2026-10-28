@@ -21,7 +21,7 @@ function Routes() {
   const { route } = useRouter();
   const path = route.path;
 
-  if (path === "/admin")
+  if (path === "/admin" || path === "/admin/")
     return (
       <Suspense
         fallback={

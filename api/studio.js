@@ -106,6 +106,7 @@ export function validateRequest(body) {
 }
 export default async function handler(req, res) {
   res.setHeader("Cache-Control", "no-store");
+  res.setHeader("X-Farhan-Studio", "api-v2");
   res.setHeader("X-Content-Type-Options", "nosniff");
   const reply = (status, body) => res.status(status).json(body);
   try {
