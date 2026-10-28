@@ -168,3 +168,60 @@ test("biography edits preserve chapter position, subtitle and moral", () => {
   assert.equal(edited.translations.hi.subtitle, "Keep subtitle");
   assert.deepEqual(edited.translations.en.paragraphs, ["en paragraph"]);
 });
+
+test("login removes clipboard whitespace before verifying and sealing a token", async () => {
+  const original = globalThis.fetch;
+  const seen = [];
+  globalThis.fetch = async (url, options) => {
+    seen.push(options.headers.Authorization);
+    return new Response(
+      JSON.stringify(
+        url.endsWith("/user")
+          ? { login: "muhammadfarhan138223-cmyk" }
+          : { permissions: { push: true } },
+      ),
+    );
+  };
+  try {
+    const r = await request({
+      method: "POST",
+      headers: {
+        host: "farhanbalouch.com",
+        origin: "https://farhanbalouch.com",
+        "content-type": "application/json",
+      },
+      body: { action: "login", token: "  github_pat_test_valid_value\n  " },
+    });
+    assert.equal(r.code, 200);
+    assert.ok(seen.every((h) => h === "Bearer github_pat_test_valid_value"));
+    const cookie = r.headers["Set-Cookie"].split(";")[0].split("=")[1];
+    assert.equal(unseal(cookie), "github_pat_test_valid_value");
+  } finally {
+    globalThis.fetch = original;
+  }
+});
+test("a rejected GitHub token is distinguished from missing repository access", async () => {
+  const original = globalThis.fetch;
+  try {
+    for (const status of [401, 403, 404]) {
+      globalThis.fetch = async () => new Response("{}", { status });
+      const r = await request({
+        method: "POST",
+        headers: {
+          host: "farhanbalouch.com",
+          origin: "https://farhanbalouch.com",
+          "content-type": "application/json",
+        },
+        body: { action: "login", token: "github_pat_invalid_test_value" },
+      });
+      assert.equal(r.code, status === 401 ? 401 : 403);
+      assert.equal(r.headers["Set-Cookie"], undefined);
+      assert.ok(
+        r.body.error.includes(status === 401 ? "rejected" : "access") ||
+          r.body.error.includes("denied"),
+      );
+    }
+  } finally {
+    globalThis.fetch = original;
+  }
+});

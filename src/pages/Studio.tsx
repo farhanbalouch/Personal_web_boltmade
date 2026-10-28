@@ -213,7 +213,10 @@ export function Studio() {
             onSubmit={(e) => {
               e.preventDefault();
               action(async () => {
-                await api({ action: "login", token });
+                await api({
+                  action: "login",
+                  token: token.replace(/\s+/g, ""),
+                });
                 setToken("");
                 await load();
               });
@@ -238,6 +241,11 @@ export function Studio() {
               required
               placeholder="github_pat_…"
             />
+            <p className="studio-token-hint">
+              Paste the full generated <code>github_pat_…</code> value, not the
+              name you gave the token. Spaces and line breaks are removed
+              automatically.
+            </p>
             <button className="studio-primary" disabled={busy}>
               {busy ? "Connecting…" : "Open my Studio"}
               <ArrowUpRight size={18} />

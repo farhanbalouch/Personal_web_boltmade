@@ -115,10 +115,13 @@
       window.farhanPushReady = new Promise((resolve, reject) => {
         OneSignalDeferred.push(async function (OneSignal) {
           try {
+            if (location.pathname === '/admin' || location.pathname.startsWith('/admin/')) throw new Error('Push prompts are disabled inside Studio.');
             if (location.hostname !== 'farhanbalouch.com') throw new Error('Notifications are available on farhanbalouch.com.');
             await OneSignal.init({
               appId: '724f058f-edba-4c5a-b0dc-17d9a442eda8',
               notifyButton: { enable: false },
+              promptOptions: { slidedown: { prompts: [{ type: 'push', autoPrompt: false }] } },
+              welcomeNotification: { disable: true },
               serviceWorkerPath: '/OneSignalSDKWorker.js',
               serviceWorkerParam: { scope: '/' },
             });

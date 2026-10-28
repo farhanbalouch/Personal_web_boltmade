@@ -783,3 +783,9 @@
     display: none;
   }
 }
+
+.studio-login-card .studio-token-hint {
+  font-size: 10px;
+  line-height: 1.7;
+  margin-top: 9px;
+}
