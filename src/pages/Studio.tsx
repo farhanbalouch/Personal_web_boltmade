@@ -124,7 +124,11 @@ export function Studio() {
     return () => robots.remove();
   }, [load]);
   useEffect(() => {
-    localStorage.setItem("studio-note", JSON.stringify(draft));
+    try {
+      localStorage.setItem("studio-note", JSON.stringify(draft));
+    } catch {
+      /* Repository draft saving remains available when device storage is full. */
+    }
   }, [draft]);
   useEffect(() => {
     if (auth !== "ready") return;
@@ -334,7 +338,19 @@ export function Studio() {
           <span>
             <span className="studio-dot" /> Personal publishing space
           </span>
-          <span className="studio-avatar">F</span>
+          <button
+            type="button"
+            className="studio-session-exit"
+            disabled={busy}
+            onClick={() =>
+              action(async () => {
+                await api({ action: "logout" });
+                setAuth("login");
+              })
+            }
+          >
+            <LogOut size={15} /> Sign out
+          </button>
         </header>
         <main>
           <div className="studio-page-title">

@@ -677,3 +677,12 @@
     letter-spacing: 1.5px;
   }
 }
+
+.studio-session-exit {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  color: #72806a;
+  font-size: 10px !important;
+  padding: 8px;
+}

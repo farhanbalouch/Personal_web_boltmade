@@ -30,6 +30,8 @@ export function NotificationButton() {
         await sdk.User.PushSubscription.optOut();
         setEnabled(false);
         localStorage.removeItem("push_allowed");
+        localStorage.setItem("notify_dismissed", "1");
+        window.dispatchEvent(new Event("push-status"));
         setMessage("Notifications turned off.");
       } else {
         await allowNotifications();
