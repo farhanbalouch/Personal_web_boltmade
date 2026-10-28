@@ -54,10 +54,10 @@ export function Blog() {
                     {formatBlogDate(post.publishedAt)}
                   </div>
                   <h2 className="font-display text-xl sm:text-2xl mb-2 group-hover:text-gold transition-colors">
-                    {post.title}
+                    {post.translations.en.title}
                   </h2>
                   <p className="text-sm text-text-muted leading-relaxed line-clamp-2 mb-4">
-                    {post.excerpt}
+                    {post.translations.en.excerpt}
                   </p>
                   <span className="inline-flex items-center gap-1.5 text-sm text-gold opacity-0 group-hover:opacity-100 transition-opacity">
                     Read post
@@ -72,3 +72,4 @@ export function Blog() {
     </>
   );
 }
+

@@ -57,6 +57,7 @@ export type Project = {
   status: 'live' | 'coming-soon' | 'placeholder';
   icon: 'bot' | 'book' | 'store' | 'shield' | 'film';
   spotlight?: boolean;
+  showcase?: boolean;
 };
 
 export const projects: Project[] = [
@@ -118,18 +119,12 @@ export const projects: Project[] = [
     icon: 'shield',
   },
   {
-    slug: 'movie-hub',
-    title: 'Movie Hub',
-    category: 'Coming Soon',
-    tagline: 'A home for cinema lovers \u2014 the next big project.',
-    description:
-      'Movie Hub is being built for cinema lovers: streaming movies, short videos like TikTok, an X-style feed, and a Cinephile AI chatbot \u2014 all in one place.',
-    features: ['Streaming movies', 'Shorts like TikTok', 'X-style feed', 'Cinephile AI chatbot'],
-    link: null,
-    displayUrl: null,
-    cta: 'Coming soon',
-    status: 'coming-soon',
-    icon: 'film',
+    slug: 'movie-hub', title: 'Movie Hub', category: 'Streaming · Shorts · AI',
+    tagline: 'Watch, download and discover movies — with Shorts, a social feed and an AI assistant.',
+    description: 'Movie Hub is a movie streaming and downloading website. Watch and download movies, scroll Cinephile Shorts (short videos like YouTube Shorts and TikTok), post on an X-style feed, and let the Movie Hub Assistant recommend films for your mood.',
+    features: ['Stream movies', 'Download movies', 'Cinephile Shorts', 'X Feed', 'AI assistant & smart search'],
+    link: 'https://moviehub.farhanbalouch.com', displayUrl: 'moviehub.farhanbalouch.com',
+    cta: 'Watch on Movie Hub', status: 'live', icon: 'film', showcase: true,
   },
 ];
 
@@ -169,3 +164,7 @@ export type StoryChapter = {
 
 export const phases = phasesData as Phase[];
 export const storyChapters = storyChaptersData as StoryChapter[];
+
+
+export const movieHubFeatures=[{icon:"play",title:"Stream & Download Movies",body:"Watch movies online in your browser, or download them and watch later — one place for both."},{icon:"shorts",title:"Cinephile Shorts",body:"Short vertical videos like YouTube Shorts and TikTok. Anyone can upload publicly, with views, likes, comments and downloads."},{icon:"feed",title:"X Feed",body:"An X (Twitter)-style feed: write public posts, like and share them, and put up stories."},{icon:"bot",title:"Movie Hub Assistant",body:"A sticky chatbot button that chats with you and recommends movies based on your mood."},{icon:"search",title:"AI-Powered Search",body:"No exact match? The AI search still suggests great movies, so you never hit a dead end."}] as const;
+export const movieHubWords=["watch movies","download movies","scroll Cinephile Shorts","post on the X Feed","chat with an AI"];

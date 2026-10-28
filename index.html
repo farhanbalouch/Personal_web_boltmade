@@ -112,13 +112,21 @@
     <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
     <script>
       window.OneSignalDeferred = window.OneSignalDeferred || [];
-      OneSignalDeferred.push(async function (OneSignal) {
-        await OneSignal.init({
-          appId: "724f058f-edba-4c5a-b0dc-17d9a442eda8",
-          notifyButton: { enable: false },
-          allowLocalhostAsSecureOrigin: true,
+      window.farhanPushReady = new Promise((resolve, reject) => {
+        OneSignalDeferred.push(async function (OneSignal) {
+          try {
+            if (location.hostname !== 'farhanbalouch.com') throw new Error('Notifications are available on farhanbalouch.com.');
+            await OneSignal.init({
+              appId: '724f058f-edba-4c5a-b0dc-17d9a442eda8',
+              notifyButton: { enable: false },
+              serviceWorkerPath: '/OneSignalSDKWorker.js',
+              serviceWorkerParam: { scope: '/' },
+            });
+            resolve(OneSignal);
+          } catch (err) { reject(err); }
         });
       });
+      window.farhanPushReady.catch(() => {});
     </script>
   </head>
   <body>
@@ -138,3 +146,4 @@
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
+

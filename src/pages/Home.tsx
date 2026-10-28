@@ -6,6 +6,7 @@ import { Reveal } from '@/components/Reveal';
 import { useRouter } from '@/router';
 import { highlights, SITE } from '@/data/content';
 import { RawiSpotlight } from '@/components/RawiSpotlight';
+import { MovieHubSpotlight } from '@/components/MovieHubSpotlight';
 import { FeaturedProjects } from '@/components/FeaturedProjects';
 
 const iconMap = { compass: Compass, heart: Heart, rocket: Rocket };
@@ -472,7 +473,7 @@ export function Home() {
 
         <div className="grid gap-6 md:grid-cols-3">
           {highlights.map((h, i) => {
-            const Icon = iconMap[h.icon];
+            const Icon = iconMap[h.icon as keyof typeof iconMap];
             const accent = i === 0 ? 'text-teal' : i === 1 ? 'text-gold' : 'text-teal-soft';
             return (
               <Reveal key={h.title} delay={i * 120}>
@@ -490,7 +491,9 @@ export function Home() {
       </section>
 
       <RawiSpotlight />
+      <MovieHubSpotlight showAllProjectsButton />
    <FeaturedProjects />
     </>
   );
 }
+

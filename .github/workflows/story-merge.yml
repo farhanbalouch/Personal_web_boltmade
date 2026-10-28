@@ -1,50 +1,55 @@
-name: Merge blog posts into story (review required)
-
-# Runs every Sunday at 18:00 UTC (~11pm PKT), plus you can trigger it
-# manually any time from the Actions tab ("Run workflow").
+name: Weekly biography update
 on:
   schedule:
     - cron: '0 18 * * 0'
   workflow_dispatch: {}
-
 permissions:
   contents: write
-  pull-requests: write
-
+concurrency:
+  group: farhan-content-publishing
+  cancel-in-progress: false
 jobs:
   merge-story:
     runs-on: ubuntu-latest
+    timeout-minutes: 25
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Setup Node
-        uses: actions/setup-node@v4
+      - uses: actions/checkout@v4
         with:
-          node-version: 20
-
-      - name: Classify blog posts into story chapters
+          ref: main
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Add relevant blog details to biography
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
         run: node scripts/merge-story.mjs
-
-      - name: Read summary
-        id: summary
+      - name: Prepare notification receipt
         run: |
-          {
-            echo 'body<<EOF'
-            cat content/last-merge-summary.md
-            echo EOF
-          } >> "$GITHUB_OUTPUT"
-
-      - name: Open Pull Request for review
-        uses: peter-evans/create-pull-request@v6
-        with:
-          commit-message: 'chore(story): proposed updates from recent blog posts'
-          branch: story-update-bot
-          delete-branch: true
-          title: 'Story update: review AI-suggested chapter additions'
-          body: ${{ steps.summary.outputs.body }}
-          add-paths: |
-            src/data/story-chapters.json
-            content/story-merge-state.json
+          node --input-type=module -e '
+            import {execFileSync} from "node:child_process";
+            import {readFileSync,writeFileSync} from "node:fs";
+            const changed=execFileSync("git",["diff","--name-only","src/data/story-chapters.json"],{encoding:"utf8"}).trim();
+            const id="weekly-"+process.env.GITHUB_RUN_ID;
+            if(changed){
+              const receipts=JSON.parse(readFileSync("public/publish-receipts.json","utf8"));
+              receipts.push(id);writeFileSync("public/publish-receipts.json",JSON.stringify(receipts.slice(-500),null,2)+"\n");
+            }
+            writeFileSync("content/weekly-notifications.json",JSON.stringify(changed?[{id,title:"A new page in my story",message:"My biography has been updated with details from recent blogs.",url:"https://farhanbalouch.com/story"}]:[]));
+          '
+      - name: Publish biography update
+        run: |
+          git config user.name "Farhan Studio"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add src/data/story-chapters.json content public/publish-receipts.json
+          if ! git diff --cached --quiet; then
+            git commit -m "Update biography from recent blog posts"
+            git pull --rebase origin main
+            git push
+          fi
+      - name: Notify after deployment
+        env:
+          ONESIGNAL_APP_ID: ${{ secrets.ONESIGNAL_APP_ID }}
+          ONESIGNAL_REST_API_KEY: ${{ secrets.ONESIGNAL_REST_API_KEY }}
+        run: node scripts/wait-for-live.mjs content/weekly-notifications.json
+      - name: Report any failed AI classifications
+        run: test "$(cat content/weekly-failed.txt)" = "0"

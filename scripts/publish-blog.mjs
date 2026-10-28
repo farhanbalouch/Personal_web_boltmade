@@ -14,7 +14,7 @@ const SITE_URL = 'https://farhanbalouch.com';
 const AUTHOR_NAME = 'Farhan Balouch';
 const AUTHOR_URL = `${SITE_URL}/about`;
 
-const GEMINI_MODEL = 'gemini-2.5-flash';
+const GEMINI_MODEL = process.env.GEMINI_MODEL || 'gemini-2.5-flash';
 
 const GEMINI_URL =
   `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent`;
@@ -107,12 +107,12 @@ function isValidLangBlock(block) {
     block &&
     typeof block.title === 'string' && block.title.trim() &&
     typeof block.excerpt === 'string' && block.excerpt.trim() &&
-    Array.isArray(block.body) && block.body.length > 0 &&
+    Array.isArray(block.body) && block.body.length > 0 && block.body.every(p => typeof p === 'string' && p.trim()) &&
     Array.isArray(block.keywords)
   );
 }
 
-async function callGemini(rawNote) {
+export async function callGemini(rawNote) {
   const apiKey = process.env.GEMINI_API_KEY;
 
   if (!apiKey) {
@@ -124,6 +124,7 @@ async function callGemini(rawNote) {
     headers: {
       'Content-Type': 'application/json',
     },
+    signal: AbortSignal.timeout(120000),
     body: JSON.stringify({
       systemInstruction: {
         parts: [{ text: SYSTEM_PROMPT }],
@@ -142,8 +143,7 @@ async function callGemini(rawNote) {
   });
 
   if (!res.ok) {
-    const text = await res.text().catch(() => '');
-    throw new Error(`Gemini error ${res.status}: ${text}`);
+    throw new Error(`Gemini request failed (${res.status}). Check API quota and GEMINI_API_KEY.`);
   }
 
   const data = await res.json();
@@ -188,6 +188,7 @@ function addSitemapUrl(xml, url) {
 }
 
 async function main() {
+  await writeFile(path.join(ROOT, 'content/last-published.json'), '[]\n');
   await mkdir(PUBLISHED_DIR, { recursive: true });
 
   let files;
@@ -297,7 +298,8 @@ async function main() {
   console.log('Done.');
 }
 
-main().catch((err) => {
+if (process.argv[1]?.endsWith('publish-blog.mjs')) main().catch((err) => {
   console.error(err);
   process.exit(1);
 });
+

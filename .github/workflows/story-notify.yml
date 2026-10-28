@@ -1,36 +1,27 @@
-name: Notify subscribers of story updates
-
-# Fires only when the story file actually changes ON main — which only
-# happens after you review and merge the "Story update" Pull Request that
-# story-merge.yml opens. So this never fires on a mere PR being opened,
-# only once you've approved the change.
+name: Notify direct story and project updates
 on:
   push:
     branches: [main]
     paths:
       - 'src/data/story-chapters.json'
-
+      - 'src/data/stories.json'
+      - 'src/data/content.tsx'
 permissions:
   contents: read
-
 jobs:
   notify:
+    # Automated publishing has its own delivery step and idempotency key.
+    if: github.actor != 'github-actions[bot]' && !startsWith(github.event.head_commit.message, 'Studio integration:')
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Setup Node
-        uses: actions/setup-node@v4
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
-          node-version: 20
-
-      - name: Notify subscribers (push + email)
+          node-version: 22
+      - name: Notify after the update is live
         env:
           ONESIGNAL_APP_ID: ${{ secrets.ONESIGNAL_APP_ID }}
           ONESIGNAL_REST_API_KEY: ${{ secrets.ONESIGNAL_REST_API_KEY }}
-        run: |
-          node scripts/notify-onesignal.mjs \
-            "The story just got a new chapter" \
-            "Farhan's story has been updated with new chapters — go read the latest." \
-            "https://farhanbalouch.com/story"
+          UPDATE_PATH: /work
+        run: node scripts/notify-manual-update.mjs

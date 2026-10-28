@@ -80,7 +80,7 @@ export function ProjectCard({ project: p }: { project: Project }) {
 /** Home page ka "Featured Projects" section (Rawi alag spotlight card mein hai, isliye yahan nahi). */
 export function FeaturedProjects() {
   const { navigate } = useRouter();
-  const list = projects.filter((p) => !p.spotlight);
+  const list = projects.filter((p) => !p.spotlight && !p.showcase);
 
   return (
     <section className="py-20 sm:py-24 max-w-6xl mx-auto px-5 sm:px-8" aria-labelledby="featured-projects">
@@ -123,4 +123,5 @@ export function FeaturedProjects() {
     </section>
   );
 }
+
 

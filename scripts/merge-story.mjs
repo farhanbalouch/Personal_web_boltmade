@@ -36,7 +36,7 @@ const PHASES_JSON = path.join(ROOT, 'src/data/phases.json');
 const STATE_JSON = path.join(ROOT, 'content/story-merge-state.json');
 const SUMMARY_MD = path.join(ROOT, 'content/last-merge-summary.md');
 
-const GEMINI_MODEL = 'gemini-2.5-flash';
+const GEMINI_MODEL = process.env.GEMINI_MODEL || 'gemini-2.5-flash';
 const GEMINI_URL = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent`;
 
 const SYSTEM_PROMPT = `You are helping organize Farhan Balouch's autobiography into chapters.
@@ -101,6 +101,7 @@ async function callGemini(chapters, phases, post) {
   const res = await fetch(`${GEMINI_URL}?key=${apiKey}`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
+    signal: AbortSignal.timeout(120000),
     body: JSON.stringify({
       systemInstruction: { parts: [{ text: SYSTEM_PROMPT }] },
       contents: [{ role: 'user', parts: [{ text: userContent }] }],
@@ -112,8 +113,7 @@ async function callGemini(chapters, phases, post) {
   });
 
   if (!res.ok) {
-    const text = await res.text().catch(() => '');
-    throw new Error(`Gemini error ${res.status}: ${text}`);
+    throw new Error(`Gemini request failed (${res.status}). Check API quota and GEMINI_API_KEY.`);
   }
 
   const data = await res.json();
@@ -149,6 +149,7 @@ async function main() {
   const newPosts = posts.filter((p) => !processed.has(p.slug));
 
   if (newPosts.length === 0) {
+    await writeFile(path.join(ROOT, 'content/weekly-failed.txt'), '0');
     console.log('No new blog posts to consider for the story.');
     await writeFile(SUMMARY_MD, '_No new blog posts since the last check — nothing to review._\n');
     return;
@@ -159,6 +160,7 @@ async function main() {
     'Please review each suggested change below before merging.\n',
   ];
   let changed = false;
+  let failures = 0;
 
   for (const post of newPosts) {
     console.log(`Considering blog post: ${post.slug}`);
@@ -166,13 +168,13 @@ async function main() {
     try {
       result = await callGemini(chapters, phases, post);
     } catch (err) {
+      failures++;
       console.error(`  Failed to classify ${post.slug}:`, err.message);
       continue; // try again next run
     }
 
-    processed.add(post.slug);
-
     if (!result.chapterPart) {
+      processed.add(post.slug);
       summaryLines.push(`- **${post.translations.en.title}** — no matching chapter found, skipped.\n`);
       continue;
     }
@@ -192,6 +194,8 @@ async function main() {
       continue;
     }
 
+    processed.add(post.slug);
+    if (chapter.translations.en.paragraphs.includes(result.paragraph.en)) continue;
     chapter.translations.en.paragraphs.push(result.paragraph.en);
     chapter.translations.hi.paragraphs.push(result.paragraph.hi);
     chapter.translations.ur.paragraphs.push(result.paragraph.ur);
@@ -212,13 +216,15 @@ async function main() {
 
   if (changed) {
     await writeFile(CHAPTERS_JSON, JSON.stringify(chapters, null, 2) + '\n');
-    console.log('Story chapters updated — a Pull Request will be opened for review.');
+    console.log('Story chapters prepared for automatic publication.');
   } else {
     console.log('No chapters changed this run.');
   }
+  await writeFile(path.join(ROOT, 'content/weekly-failed.txt'), String(failures));
 }
 
 main().catch((err) => {
   console.error(err);
   process.exit(1);
 });
+

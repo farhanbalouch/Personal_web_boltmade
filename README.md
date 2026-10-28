@@ -98,3 +98,64 @@ npm run dev      # start dev server
 npm run build    # production build → dist/
 npm run typecheck # type checking
 ```
+
+
+## Farhan Studio
+
+Open **https://farhanbalouch.com/admin**. This is a separate owner-only publishing
+workspace within the existing website and Vercel project. Public updates appear
+at **/stories**; the longer biography remains at **/story**.
+
+### One-time connection per browser
+
+Create a fine-grained GitHub personal access token for **only this repository**,
+with **Contents: Read and write** and **Actions: Read and write**. Paste it into
+Studio's connection form, never into chat or repository files. Studio verifies
+the exact owner account and encrypts the token into a Secure, HttpOnly,
+SameSite=Strict cookie. Sessions last up to 30 days; token expiry or revocation
+can end them earlier. Sign out to remove the cookie. Saved draft text remains
+on this device for recovery; repository drafts are private and not bundled into
+the public website. `ADMIN_SESSION_SECRET` must be set in Vercel; rotate it to
+invalidate all sessions.
+
+### Daily publishing
+
+- Write in English, Roman Urdu/Hinglish or Urdu, or import a `.txt` / `.md` file.
+- Choose a blog, public story, project announcement or existing biography chapter.
+- Save privately, or publish with AI. A publish request goes to GitHub Actions,
+  which uses the existing `GEMINI_API_KEY` secret to edit and translate it.
+- Edits keep the original address and publication date. Biography chapter edits
+  preserve its position, subtitle and moral.
+- Activity reports AI results, deployment progress and failed workflows. Recover
+  a failed note from Activity to retry without opening source files.
+- A project announcement appears in the Stories feed; portfolio card source is
+  still managed in `src/data/content.tsx`.
+
+Every Sunday at 18:00 UTC (11pm Pakistan), the weekly workflow appends relevant
+new blog details to existing biography chapters. It publishes automatically
+instead of creating review PRs. It does not invent new facts. You can also run it
+from Studio's biography page.
+
+### Browser notifications
+
+Visitors choose **Allow notifications** and then allow the browser permission.
+No email signup or account is required. They can turn notifications off from the
+same footer control. If browser permission was denied, they must allow it again
+in their browser's site settings. Web push must be enabled in the OneSignal app
+for the exact HTTPS origin `https://farhanbalouch.com`; the app ID in `index.html`
+is public. `public/OneSignalSDKWorker.js` must remain available as JavaScript.
+
+GitHub Actions requires `ONESIGNAL_REST_API_KEY`; `ONESIGNAL_APP_ID` is optional
+and must match the public app ID when set. The integration check workflow makes
+read-only provider requests, never a test broadcast. Publishing waits for its
+receipt on the production domain before sending a push. Idempotency keys prevent
+duplicate delivery when that step retries. Provider acceptance is recorded in
+workflow logs; device delivery still depends on browser/OS permission and
+connectivity. No email broadcasting is promised by this browser push flow.
+
+### Verification
+
+`npm test`, `npm run typecheck`, and `npm run build`. The automated tests cover
+owner-only access, CSRF rejection, encrypted-cookie tampering, input validation,
+stable URLs on edits, and multilingual biography updates. Never test broadcasts
+to all subscribers merely to check configuration.

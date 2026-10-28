@@ -1,6 +1,7 @@
 import { MessageSquare } from 'lucide-react';
 import { Seo } from '@/components/Seo';
 import { Reveal } from '@/components/Reveal';
+import { MovieHubSpotlight } from '@/components/MovieHubSpotlight';
 import { ProjectCard } from '@/components/FeaturedProjects';
 import { useRouter } from '@/router';
 import { projects, SITE } from '@/data/content';
@@ -28,7 +29,7 @@ export function Work() {
     <>
       <Seo
         title="Projects & Portfolio — Farhan Balouch"
-        description="Projects by Farhan Balouch: Nexus AI (AI chatbot & coding assistant), Rawi (AI storyteller), Farhan Deals (e-commerce store), Hack AI (cybersecurity AI) and Movie Hub (coming soon)."
+        description="Projects by Farhan Balouch: Nexus AI (AI chatbot & coding assistant), Rawi (AI storyteller), Farhan Deals (e-commerce store), Hack AI (cybersecurity AI) and Movie Hub (live)."
         path="/work"
         ogImage={SITE.ogImage}
       />
@@ -55,9 +56,10 @@ export function Work() {
         </Reveal>
       </section>
 
+      <MovieHubSpotlight />
       <section className="py-12 max-w-5xl mx-auto px-5 sm:px-8">
         <div className="grid gap-6 sm:grid-cols-2">
-          {projects.map((p, i) => (
+          {projects.filter(p => !p.showcase).map((p, i) => (
             <Reveal key={p.slug} delay={i * 90}>
               <ProjectCard project={p} />
             </Reveal>
@@ -86,3 +88,4 @@ export function Work() {
     </>
   );
 }
+

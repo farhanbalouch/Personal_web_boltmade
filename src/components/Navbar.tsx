@@ -6,6 +6,7 @@ const links = [
   { href: '/', label: 'Home' },
   { href: '/about', label: 'About' },
   { href: '/blog', label: 'Blog' },
+  { href: '/stories', label: 'Stories' },
   { href: '/work', label: 'Work' },
   { href: '/story', label: 'My Story' },
   { href: '/contact', label: 'Contact' },
@@ -114,3 +115,4 @@ export function Navbar() {
     </>
   );
 }
+

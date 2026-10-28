@@ -1,60 +1,54 @@
-name: Publish blog draft
-
-# Runs whenever a file is added/changed under content/drafts/.
+name: Publish legacy blog drafts
 on:
   push:
     branches: [main]
-    paths:
-      - 'content/drafts/**'
+    paths: ['content/drafts/**']
   workflow_dispatch: {}
-
 permissions:
   contents: write
-
+concurrency:
+  group: farhan-content-publishing
+  cancel-in-progress: false
 jobs:
   publish:
     runs-on: ubuntu-latest
-
+    timeout-minutes: 25
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Setup Node
-        uses: actions/setup-node@v4
+      - uses: actions/checkout@v4
         with:
-          node-version: 20
-
+          ref: main
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
       - name: Publish new drafts
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
         run: node scripts/publish-blog.mjs
-
+      - name: Prepare delivery receipts
+        run: |
+          node --input-type=module -e '
+            import {readFileSync,writeFileSync} from "node:fs";
+            const posts=JSON.parse(readFileSync("content/last-published.json","utf8"));
+            const notes=posts.map((p,i)=>({...p,id:"blog-"+process.env.GITHUB_RUN_ID+"-"+i,message:"New post: "+p.title}));
+            const receipts=JSON.parse(readFileSync("public/publish-receipts.json","utf8"));
+            receipts.push(...notes.map(n=>n.id));
+            writeFileSync("public/publish-receipts.json",JSON.stringify(receipts.slice(-500),null,2)+"\n");
+            writeFileSync("content/blog-notifications.json",JSON.stringify(notes,null,2)+"\n");
+          '
+      - name: Update sitemap
+        run: node scripts/build-sitemap.mjs
       - name: Commit and push
         run: |
-          git config user.name "muhammadfarhan138223-cmyk"
-          git config user.email "Muhammadfarhan138223@gmail.com"
-          git add content/drafts content/published-drafts content/last-published.json src/data/blog-posts.json public/sitemap.xml
-
-          if git diff --cached --quiet; then
-            echo "Nothing to commit."
-          else
-            git commit -m "chore(blog): auto-publish new post(s)"
+          git config user.name "Farhan Studio"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add content src/data/blog-posts.json public
+          if ! git diff --cached --quiet; then
+            git commit -m "Publish new blog posts"
+            git pull --rebase origin main
             git push
           fi
-
-      - name: Notify subscribers (push + email)
+      - name: Notify after deployment
         env:
           ONESIGNAL_APP_ID: ${{ secrets.ONESIGNAL_APP_ID }}
           ONESIGNAL_REST_API_KEY: ${{ secrets.ONESIGNAL_REST_API_KEY }}
-        run: |
-          node -e '
-            const posts = require("./content/last-published.json");
-            const { execSync } = require("child_process");
-            for (const p of posts) {
-              console.log("Notifying for:", p.title);
-              execSync(
-                `node scripts/notify-onesignal.mjs ${JSON.stringify(p.title)} ${JSON.stringify("New post: " + p.title)} ${JSON.stringify(p.url)}`,
-                { stdio: "inherit" }
-              );
-            }
-          '
+        run: node scripts/wait-for-live.mjs content/blog-notifications.json
