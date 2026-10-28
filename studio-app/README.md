@@ -1,0 +1,44 @@
+# Farhan Studio
+
+A dedicated password-protected admin app for farhanbalouch.com, in the same GitHub repository. Deploy this folder as its own Vercel project. Public content and AI workflows remain in the repository root on main.
+
+## Vercel setup
+
+- Git repository: muhammadfarhan138223-cmyk/Personal_web_boltmade
+- Production branch: main
+- Root Directory: studio-app
+- Framework: Vite; build: npm run build; output: dist; Node 22+
+- Open the deployment URL (it redirects to /admin/). Add any HTTPS custom domain in this project's Settings → Domains. No source edits are needed.
+
+Set these **server-only** environment variables for Production (and Preview if testing previews), then redeploy:
+
+| Variable | Value |
+| --- | --- |
+| ADMIN_PASSWORD | Your one owner password, at least 16 characters, at most 256. Use a long unique passphrase. |
+| STUDIO_GITHUB_TOKEN | The full existing fine-grained token for Personal_web_boltmade. Resource owner muhammadfarhan138223-cmyk; Contents and Actions: read/write. |
+| ADMIN_SESSION_SECRET | A random secret of at least 32 characters. |
+
+Never prefix these with VITE_; never commit secret values. Add them directly to Vercel. Missing/weak configuration fails closed with a setup message. The public app contains neither password nor GitHub credentials. GitHub Actions' existing GEMINI_API_KEY and OneSignal secrets remain in GitHub; no copying is needed.
+
+## Access and mobile
+
+Every fresh page/app opening starts at password verification, even if a session cookie exists. Use the same password on phone and desktop. A five-minute background period locks the UI when returning; local drafts stay on this device. The API validates encrypted HttpOnly, Secure, SameSite=Strict owner-session cookies on every data/write request, with an eight-hour expiry. Cookies contain no GitHub token. Rotating password, token, or session secret invalidates earlier sessions. Wrong passwords, legacy token login, other GitHub owners and cross-origin submissions cannot publish.
+
+Login verifies the password with a constant-time digest comparison, then confirms the configured GitHub token belongs to the exact website owner and can read the private content. A bounded per-instance five-attempt/ten-minute limiter reduces repeated guesses; counters are not shared across Vercel instances. For stronger distributed limits, set a Vercel Firewall rate-limit rule on POST /api/studio. Use a strong unique password rather than relying on the instance limiter.
+
+Choose Install Studio app in Chrome/Edge, or Safari → Share → Add to Home Screen. This is a standalone PWA with its own navy/gold icon and /admin/ scope. It caches the app shell, never API data, login requests or publish requests. Internet is required for login and publishing.
+
+## Publishing
+
+Write or import text; save a private draft or publish with AI. The API writes to the ORIGINAL repository's main branch. Existing GitHub workflows translate/publish and update farhanbalouch.com. Public links and production receipts intentionally use farhanbalouch.com; adding a Studio custom domain doesn't move the public website. Project announcements appear in Stories. Biography edits preserve chapters; the weekly workflow is unchanged.
+
+The original /admin/ in the public root app keeps its existing GitHub-token connection. Use this dedicated project's URL or custom domain for the new password app.
+
+## Development and verification
+
+npm install
+npm run typecheck
+npm test
+npm run build
+
+Tests cover session tampering/expiry/rotation, exact-owner authorization, wrong passwords and legacy PAT rejection, CSRF, missing configuration, throttling and standalone PWA assets. They use mock credentials only; real publishing needs the configured server token. Never test notifications by broadcasting to all visitors.
