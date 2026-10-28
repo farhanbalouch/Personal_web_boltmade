@@ -53,43 +53,64 @@ async function github(token, path, options = {}) {
     signal: AbortSignal.timeout(20000),
   });
   if (!r.ok) {
+    const stage =
+      path === "/user"
+        ? "GitHub account verification"
+        : path.includes("/actions/")
+          ? "Actions activity access"
+          : path.includes("/contents/")
+            ? "Website content access"
+            : "Repository access";
+    const requestId = r.headers.get("x-github-request-id");
+    console.warn(
+      "Studio GitHub request failed",
+      JSON.stringify({ stage, status: r.status, requestId }),
+    );
+    let message;
     if (r.status === 401)
-      throw fail(
-        401,
-        "GitHub rejected this token. Paste the complete generated token (not its name). It may be incomplete, expired or revoked.",
-      );
-    if (r.status === 403)
-      throw fail(
-        403,
-        "GitHub denied access. Select Personal_web_boltmade and allow Contents and Actions: Read and write on this token.",
-      );
-    if (r.status === 404)
-      throw fail(
-        403,
-        "The token cannot access Personal_web_boltmade. Edit its selected repositories in GitHub and include this repository.",
-      );
-    throw fail(
-      502,
-      `GitHub is temporarily unavailable (HTTP ${r.status}). Please retry later.`,
+      message =
+        "GitHub rejected this token during " +
+        stage +
+        ". It may be incomplete, expired or revoked.";
+    else if (stage === "Actions activity access")
+      message =
+        "Your account is connected, but GitHub denied Actions activity (HTTP " +
+        r.status +
+        "). Enable Actions: Read and write for this token.";
+    else if (stage === "Website content access")
+      message =
+        "Your GitHub account was verified, but GitHub denied the website content file (HTTP " +
+        r.status +
+        "). Check Resource owner: muhammadfarhan138223-cmyk, selected repository: Personal_web_boltmade, and Contents: Read and write.";
+    else
+      message =
+        stage +
+        " failed (HTTP " +
+        r.status +
+        "). This does not by itself prove that you selected the wrong repository.";
+    throw Object.assign(
+      fail(
+        r.status === 401
+          ? 401
+          : r.status === 403 || r.status === 404
+            ? 403
+            : 502,
+        message,
+      ),
+      { githubStatus: r.status, stage, requestId },
     );
   }
   return r.status === 204 ? null : r.json();
 }
 const repo = (path) => `/repos/${REPO}${path}`;
 async function read(token, path, fallback) {
-  const r = await fetch(
-    `https://api.github.com${repo(`/contents/${path}?ref=main`)}`,
-    {
-      headers: {
-        Authorization: `Bearer ${token}`,
-        Accept: "application/vnd.github+json",
-      },
-      signal: AbortSignal.timeout(20000),
-    },
-  );
-  if (r.status === 404 && fallback !== undefined) return fallback;
-  if (!r.ok) throw fail(502, "Could not load website content from GitHub.");
-  const file = await r.json();
+  let file;
+  try {
+    file = await github(token, repo(`/contents/${path}?ref=main`));
+  } catch (err) {
+    if (err.githubStatus === 404 && fallback !== undefined) return fallback;
+    throw err;
+  }
   return Array.isArray(file)
     ? file
     : JSON.parse(Buffer.from(file.content, "base64").toString("utf8"));
@@ -163,11 +184,13 @@ export default async function handler(req, res) {
           403,
           "This token belongs to a different GitHub account. Use the account that owns this website.",
         );
-      const repository = await github(loginToken, repo(""));
-      if (!repository.permissions?.push)
+      // Authorize the exact owner against the private data the app actually uses.
+      // Repository metadata's permissions.push is not a token capability check.
+      const content = await read(loginToken, "src/data/blog-posts.json");
+      if (!Array.isArray(content))
         throw fail(
-          403,
-          "Your token is valid, but it needs Contents: Read and write for Personal_web_boltmade.",
+          502,
+          "The website blog data did not have the expected format.",
         );
       res.setHeader(
         "Set-Cookie",
@@ -180,13 +203,18 @@ export default async function handler(req, res) {
     );
     const token = unseal(cookies[COOKIE]);
     if (req.method === "GET") {
+      const warnings = [];
       const [blogs, stories, chapters, drafts, runs, results, liveIds] =
         await Promise.all([
           read(token, "src/data/blog-posts.json"),
           read(token, "src/data/stories.json", []),
           read(token, "src/data/story-chapters.json"),
           read(token, "content/studio-drafts", []),
-          github(token, repo("/actions/runs?per_page=12")),
+          github(token, repo("/actions/runs?per_page=12")).catch((err) => {
+            if (err.status === 401) throw err;
+            warnings.push(err.message);
+            return { workflow_runs: [] };
+          }),
           read(token, "content/studio-results.json", []),
           fetch("https://farhanbalouch.com/publish-receipts.json", {
             cache: "no-store",
@@ -201,6 +229,7 @@ export default async function handler(req, res) {
         chapters,
         results,
         liveIds,
+        warnings,
         drafts: drafts
           .filter((d) => d.name.endsWith(".json"))
           .map((d) => ({ name: d.name, path: d.path })),

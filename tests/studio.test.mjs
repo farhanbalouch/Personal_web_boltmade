@@ -98,7 +98,7 @@ test("a non-owner cannot create an authenticated session", async () => {
       JSON.stringify(
         url.endsWith("/user")
           ? { login: "someone-else" }
-          : { permissions: { push: true } },
+          : { content: Buffer.from("[]").toString("base64") },
       ),
     );
   try {
@@ -178,7 +178,7 @@ test("login removes clipboard whitespace before verifying and sealing a token", 
       JSON.stringify(
         url.endsWith("/user")
           ? { login: "muhammadfarhan138223-cmyk" }
-          : { permissions: { push: true } },
+          : { content: Buffer.from("[]").toString("base64") },
       ),
     );
   };
@@ -216,12 +216,23 @@ test("a rejected GitHub token is distinguished from missing repository access", 
       });
       assert.equal(r.code, status === 401 ? 401 : 403);
       assert.equal(r.headers["Set-Cookie"], undefined);
-      assert.ok(
-        r.body.error.includes(status === 401 ? "rejected" : "access") ||
-          r.body.error.includes("denied"),
-      );
+      assert.ok(r.body.error.includes(status === 401 ? "rejected" : "HTTP"));
     }
   } finally {
     globalThis.fetch = original;
   }
+});
+
+test('missing Actions permission does not lock an authenticated owner out of the content dashboard',async()=>{
+ const original=globalThis.fetch;
+ globalThis.fetch=async url=>{
+  if(url.includes('/actions/runs'))return new Response('{}',{status:403});
+  if(url.includes('publish-receipts.json'))return new Response('[]');
+  if(url.includes('studio-drafts')||url.includes('studio-results.json'))return new Response('{}',{status:404});
+  return new Response(JSON.stringify({content:Buffer.from('[]').toString('base64')}));
+ };
+ try{
+  const r=await request({method:'GET',headers:{cookie:'__Host-farhan-studio='+seal('github_pat_mock_owner_token')}});
+  assert.equal(r.code,200);assert.deepEqual(r.body.blogs,[]);assert.deepEqual(r.body.runs,[]);assert.ok(r.body.warnings[0].includes('Actions'));
+ }finally{globalThis.fetch=original;}
 });

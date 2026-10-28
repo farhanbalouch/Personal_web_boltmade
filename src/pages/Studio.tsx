@@ -44,6 +44,7 @@ type StudioResult = {
   error?: string;
 };
 type Content = {
+  warnings?: string[];
   results: StudioResult[];
   liveIds: string[];
   blogs: BlogPost[];
@@ -366,6 +367,11 @@ export function Studio() {
           </button>
         </header>
         <main>
+          {content?.warnings?.map((warning) => (
+            <p className="studio-success" role="status" key={warning}>
+              {warning}
+            </p>
+          ))}
           <div className="studio-page-title">
             <div>
               <p className="studio-eyebrow">MAKE SOMETHING WORTH SHARING</p>
