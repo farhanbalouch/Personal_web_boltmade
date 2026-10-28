@@ -39,7 +39,7 @@ jobs:
       - name: Publish biography update
         run: |
           git config user.name "Farhan Studio"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git config user.email "Muhammadfarhan138223@gmail.com"
           git add src/data/story-chapters.json content public/publish-receipts.json
           if ! git diff --cached --quiet; then
             git commit -m "Update biography from recent blog posts"
