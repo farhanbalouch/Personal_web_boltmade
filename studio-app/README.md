@@ -26,7 +26,7 @@ Every fresh page/app opening starts at password verification, even if a session 
 
 Login verifies the password with a constant-time digest comparison, then confirms the configured GitHub token belongs to the exact website owner and can read the private content. A bounded per-instance five-attempt/ten-minute limiter reduces repeated guesses; counters are not shared across Vercel instances. For stronger distributed limits, set a Vercel Firewall rate-limit rule on POST /api/studio. Use a strong unique password rather than relying on the instance limiter.
 
-Choose Install Studio app in Chrome/Edge, or Safari → Share → Add to Home Screen. This is a standalone PWA with its own navy/gold icon and /admin/ scope. It caches the app shell, never API data, login requests or publish requests. Internet is required for login and publishing.
+Choose Install Studio app in Chrome/Edge, or Safari → Share → Add to Home Screen. This is a standalone PWA with its own navy/gold icon and whole-origin scope. It caches the app shell, never API data, login requests or publish requests. Internet is required for login and publishing.
 
 ## Publishing
 
@@ -42,3 +42,9 @@ npm test
 npm run build
 
 Tests cover session tampering/expiry/rotation, exact-owner authorization, wrong passwords and legacy PAT rejection, CSRF, missing configuration, throttling and standalone PWA assets. They use mock credentials only; real publishing needs the configured server token. Never test notifications by broadcasting to all visitors.
+
+## Android installation
+
+The dedicated app uses /manifest.webmanifest and /sw.js with scope /, retaining /admin/ as its stable app ID. The original portfolio app and push worker on farhanbalouch.com are unaffected. Old Studio /admin/ worker registrations are retired after the root worker is ready. The root worker precaches the document and its first-load JS/CSS for an offline login shell, never private API responses.
+
+Use one origin consistently (the chosen custom domain), in a regular Android Chrome tab. The in-app install button invokes the native beforeinstallprompt flow when offered; its fallback explains installation and does not create shortcuts. A WebAPK and a Chrome shortcut are different OS installations; removing/replacing an old home-screen shortcut is a device action. Chrome/GMS support, WebAPK service availability, device policy and launcher behavior can affect the final icon/install. Website code cannot guarantee removal of a browser badge on every Android device. If Chrome only offers a shortcut, check Chrome/Google Play services or try Samsung Internet on a Samsung device. No claim of a native APK download is made.

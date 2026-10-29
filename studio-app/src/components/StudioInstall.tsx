@@ -8,6 +8,7 @@ export function StudioInstall() {
     [message, setMessage] = useState("");
   useEffect(() => {
     const ready = () => setAvailable(installAvailable());
+    ready();
     const done = () => {
       setIsApp(true);
       setHelp(false);
@@ -29,7 +30,7 @@ export function StudioInstall() {
       setAvailable(false);
       setMessage(
         accepted
-          ? "Installation accepted. Open Farhan Studio from your apps."
+          ? "Installation requested. Let Chrome finish, then open Farhan Studio from your phone’s app list."
           : "You can install later from Chrome’s Install app menu.",
       );
     } catch {
@@ -47,7 +48,7 @@ export function StudioInstall() {
         className="studio-install-button"
       >
         {isApp ? <Check size={16} /> : <Download size={16} />}
-        {isApp ? "Studio app" : "Install Studio app"}
+        {isApp ? "Studio app" : available ? "Install Studio app" : "App installation"}
       </button>
       {message && <p role="status">{message}</p>}
       {help && (
@@ -66,32 +67,22 @@ export function StudioInstall() {
             <X size={16} />
           </button>
           <Smartphone size={24} />
-          <h2>Your own Studio app.</h2>
+          <h2>Install the Studio app</h2>
           <p>
             Open <strong>{window.location.host}/admin/</strong> directly in Chrome or
             Edge.
           </p>
-          <ol>
-            <li>
-              Choose <strong>Install Farhan Studio</strong> from the address bar
-              or browser menu.
-            </li>
-            <li>
-              Confirm <strong>Install</strong>.
-            </li>
-            <li>
-              Launch <strong>Farhan Studio</strong> from your phone or
-              computer’s apps.
-            </li>
-          </ol>
-          <p>
-            Use <strong>Install app</strong>, not “Create shortcut”. On iPhone:
-            Safari → Share → Add to Home Screen → Open as Web App.
+          <p role="status">
+            {available ? "Chrome is ready to install the app." : "This browser has not offered its app-install prompt in this tab yet."}
           </p>
-          <small>
-            If the install option has not appeared yet, reload this page once.
-            Internet is needed to sign in and publish.
-          </small>
+          {available && <button type="button" className="studio-primary" onClick={install}>Install Studio app</button>}
+          <ol>
+            <li>Open this address in a normal <strong>Chrome</strong> tab on Android, outside WhatsApp or another app’s browser.</li>
+            <li>Wait for the page to finish loading, then use <strong>Install Studio app</strong> here or Chrome’s <strong>Install app</strong> menu.</li>
+            <li>If Chrome only offers <strong>Create shortcut</strong>, cancel it. A shortcut keeps the browser badge.</li>
+          </ol>
+          <p>On Android, app installation needs a supported browser and device services. Update Chrome and Google Play services if it keeps offering only a shortcut. Samsung phones can also install supported web apps through Samsung Internet.</p>
+          <small>Already installed? Open Studio from your app list. An old shortcut does not turn into an installed app automatically. On iPhone: Safari → Share → Add to Home Screen → Open as Web App. Login and publishing need internet.</small>
         </div>
       )}
     </div>
