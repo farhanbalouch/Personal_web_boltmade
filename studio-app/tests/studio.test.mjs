@@ -233,3 +233,25 @@ test("logout deletes the server cookie", async () => {
   assert.equal(r.code, 200);
   assert.match(r.headers["Set-Cookie"], /Max-Age=0/);
 });
+
+test("only an authenticated owner can upload a photo", async () => {
+ const r = await request({method: "POST", headers: loginHeaders, body: {action: "upload-image", data: "not-an-image"}});
+ assert.equal(r.code,401);
+});
+test("an authenticated upload writes only a validated image into the original repository", async () => {
+ const original = globalThis.fetch, calls=[];
+ globalThis.fetch=async (url, options={})=>{
+  calls.push({url,options});
+  return new Response("{}",{status: options.method === "PUT" ? 201 : 404});
+ };
+ try {
+  const r=await request({method:"POST",headers:{...loginHeaders,cookie:"__Host-farhan-studio="+seal()},body:{action:"upload-image",data:"UklGRjwAAABXRUJQVlA4IDAAAADQAQCdASoCAAIAAUAmJaACdLoB+AADsAD+97Qf/5rt812+a7f812/+Smv8bcdgAAA="}});
+  assert.equal(r.code,200);assert.match(r.body.src,/^\/media\/studio\/[a-f0-9]{32}\.webp$/);
+  const put=calls.find(c=>c.options.method==="PUT");assert.ok(put);
+  assert.ok(put.url.startsWith("https://api.github.com/repos/muhammadfarhan138223-cmyk/Personal_web_boltmade/contents/public/media/studio/"));
+  assert.equal(JSON.parse(put.options.body).branch,"main");
+  assert.equal(JSON.stringify(r.body).includes(process.env.STUDIO_GITHUB_TOKEN),false);
+  const bad=await request({method:"POST",headers:{...loginHeaders,cookie:"__Host-farhan-studio="+seal()},body:{action:"upload-image",data:Buffer.from("<svg onload=alert(1) />").toString("base64")}});
+  assert.equal(bad.code,400);assert.equal(calls.length,2);
+ }finally{globalThis.fetch=original;}
+});

@@ -82,6 +82,7 @@ export function StoryHub() {
                         </div>
 
                         <article className={`card-glow rounded-xl border border-border bg-bg-card p-5 sm:p-6 ${isUrdu ? 'font-urdu' : ''}`}>
+                          {ch.images?.[0] && <img src={ch.images[0].src} alt={ch.images[0].alt} width={ch.images[0].width} height={ch.images[0].height} loading="lazy" className="w-full h-44 object-cover rounded-lg mb-5" />}
                           <p className="text-xs text-teal font-medium uppercase tracking-wide mb-2">{ch.period}</p>
                           <h2 className="font-display text-lg sm:text-xl mb-1.5 group-hover:text-gold transition-colors leading-snug">
                             {t.title}
@@ -105,3 +106,4 @@ export function StoryHub() {
     </>
   );
 }
+

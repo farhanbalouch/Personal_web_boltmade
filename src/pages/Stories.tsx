@@ -1,3 +1,4 @@
+import { ContentPhotos } from "@/components/ContentPhotos";
 import { ArrowLeft, ArrowRight, BookOpen, Sparkles } from "lucide-react";
 import { Seo } from "@/components/Seo";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
@@ -22,6 +23,7 @@ export function Stories({ slug }: { slug?: string }) {
           "Fresh stories, project updates and moments from Farhan Balouch’s journey."
         }
         path={slug ? `/stories/${slug}` : "/stories"}
+        ogImage={story?.images?.[0] ? `https://farhanbalouch.com${story.images[0].src}` : undefined}
       />
       <p className="text-xs text-teal tracking-[0.25em] uppercase mb-5">
         Notes from the journey
@@ -47,11 +49,13 @@ export function Stories({ slug }: { slug?: string }) {
               <p className="text-text-muted text-xs mb-10">
                 {formatBlogDate(story.publishedAt, language)}
               </p>
+              <ContentPhotos images={story.images} mode="cover" />
               {t.body.map((p, i) => (
                 <p key={i} className="text-text-muted leading-[2] mb-6">
                   {p}
                 </p>
               ))}
+              <ContentPhotos images={story.images} mode="gallery" />
             </article>
           ) : (
             <h1 className="font-display text-4xl">Story not found</h1>
@@ -79,6 +83,7 @@ export function Stories({ slug }: { slug?: string }) {
                 className="card-glow rounded-2xl border border-border bg-bg-card p-7 group"
                 dir={language === "ur" ? "rtl" : "ltr"}
               >
+                {s.images?.[0] && <img src={s.images[0].src} alt={s.images[0].alt} width={s.images[0].width} height={s.images[0].height} loading="lazy" className="w-full h-48 object-cover rounded-xl mb-6" />}
                 <div className="flex justify-between items-center text-teal text-xs mb-7">
                   <Sparkles size={19} />
                   <span>{formatBlogDate(s.publishedAt, language)}</span>

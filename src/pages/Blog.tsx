@@ -49,6 +49,7 @@ export function Blog() {
                   onClick={() => navigate(`/blog/${post.slug}`)}
                   className="group w-full text-left card-glow rounded-2xl border border-border bg-bg-card p-6 sm:p-7"
                 >
+                  {post.images?.[0] && <img src={post.images[0].src} alt={post.images[0].alt} width={post.images[0].width} height={post.images[0].height} loading="lazy" className="w-full h-56 object-cover rounded-xl mb-6" />}
                   <div className="flex items-center gap-2 text-xs text-teal font-medium uppercase tracking-wide mb-3">
                     <CalendarDays className="w-3.5 h-3.5" />
                     {formatBlogDate(post.publishedAt)}

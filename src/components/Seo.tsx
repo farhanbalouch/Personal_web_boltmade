@@ -8,7 +8,7 @@ type SeoProps = {
 };
 
 const SITE_URL = 'https://farhanbalouch.com';
-const DEFAULT_OG_IMAGE = `${SITE_URL}/og-image.jpg`;
+const DEFAULT_OG_IMAGE = `${SITE_URL}/og-image.png`;
 
 /** Lightweight per-page SEO: <title>, meta description, OG/Twitter tags, canonical link. */
 export function Seo({ title, description, path = '/', ogImage = DEFAULT_OG_IMAGE }: SeoProps) {
@@ -53,4 +53,5 @@ export function Seo({ title, description, path = '/', ogImage = DEFAULT_OG_IMAGE
 
   return null;
 }
+
 

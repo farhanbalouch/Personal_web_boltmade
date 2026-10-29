@@ -1,3 +1,4 @@
+import { ContentPhotos } from "@/components/ContentPhotos";
 import { ArrowLeft, CalendarDays, Newspaper, ArrowUpRight, Sparkles } from 'lucide-react';
 import { Seo } from '@/components/Seo';
 import { Reveal } from '@/components/Reveal';
@@ -56,6 +57,7 @@ export function BlogPost({ slug }: { slug: string }) {
     description: tEn.excerpt,
     datePublished: post.publishedAt,
     dateModified: post.publishedAt,
+    ...(post.images?.length ? { image: post.images.map((photo) => `${SITE.url}${photo.src}`) } : {}),
 
     author: {
       '@type': 'Person',
@@ -83,6 +85,7 @@ export function BlogPost({ slug }: { slug: string }) {
         title={`${tEn.title} — Farhan Balouch`}
         description={tEn.excerpt}
         path={`/blog/${post.slug}`}
+        ogImage={post.images?.[0] ? `${SITE.url}${post.images[0].src}` : undefined}
       />
 
       <script
@@ -124,6 +127,8 @@ export function BlogPost({ slug }: { slug: string }) {
             </h1>
           </Reveal>
 
+          <ContentPhotos images={post.images} mode="cover" />
+
           {/* Article */}
           <div className="space-y-6">
             {t.body.map((p, i) => (
@@ -134,6 +139,8 @@ export function BlogPost({ slug }: { slug: string }) {
               </Reveal>
             ))}
           </div>
+
+          <ContentPhotos images={post.images} mode="gallery" />
 
           {/* Keywords */}
           {t.keywords.length > 0 && (
@@ -194,3 +201,4 @@ export function BlogPost({ slug }: { slug: string }) {
     </>
   );
 }
+

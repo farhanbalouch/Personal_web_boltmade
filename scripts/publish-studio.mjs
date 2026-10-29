@@ -1,3 +1,4 @@
+import { validateImages } from "../studio-app/server/images.js";
 import {
   readFile,
   writeFile,
@@ -36,10 +37,13 @@ export function buildItem(
     throw new Error(
       "The original item no longer exists. Refresh Studio before editing.",
     );
+  const images = validateImages(request.images);
+  const media = images === undefined ? {} : { images };
   if (request.kind === "chapter") {
     if (!existing) throw new Error("Choose an existing biography chapter.");
     return {
       ...existing,
+      ...media,
       translations: Object.fromEntries(
         ["en", "hi", "ur"].map((lang) => [
           lang,
@@ -67,6 +71,7 @@ export function buildItem(
     slug = `${base}-${n++}`;
   return {
     ...existing,
+    ...media,
     slug,
     author: { name: "Farhan Balouch", url: `${SITE}/about` },
     publishedAt: existing?.publishedAt || now,

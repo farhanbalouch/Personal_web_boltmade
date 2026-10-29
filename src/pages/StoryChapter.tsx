@@ -1,3 +1,4 @@
+import { ContentPhotos } from "@/components/ContentPhotos";
 import { useState } from 'react';
 import { ArrowLeft, ArrowRight, BookOpen, Sparkles, ArrowUpRight } from 'lucide-react';
 import { Seo } from '@/components/Seo';
@@ -46,6 +47,7 @@ export function StoryChapter({ slug }: { slug: string }) {
           title={`${tEn.title} — Farhan Balouch`}
           description={tEn.excerpt}
           path={`/story/${chapter.slug}`}
+          ogImage={chapter.images?.[0] ? `https://farhanbalouch.com${chapter.images[0].src}` : undefined}
         />
         <StoryGateOverlay onComplete={() => setGateOpen(false)} seconds={7} />
       </>
@@ -60,6 +62,7 @@ export function StoryChapter({ slug }: { slug: string }) {
         title={`${tEn.title} — Farhan Balouch`}
         description={tEn.excerpt}
         path={`/story/${chapter.slug}`}
+          ogImage={chapter.images?.[0] ? `https://farhanbalouch.com${chapter.images[0].src}` : undefined}
       />
 
       <article className={`pt-32 pb-16 max-w-2xl mx-auto px-5 sm:px-8 ${isUrdu ? 'font-urdu' : ''}`}>
@@ -109,6 +112,8 @@ export function StoryChapter({ slug }: { slug: string }) {
             <p className="text-lg text-text-muted/80 mb-10">{t.subtitle}</p>
           </Reveal>
 
+          <ContentPhotos images={chapter.images} mode="cover" />
+
           <div className="space-y-6">
             {t.paragraphs.map((p, i) => (
               <Reveal key={i} delay={120 + i * 60}>
@@ -116,6 +121,8 @@ export function StoryChapter({ slug }: { slug: string }) {
               </Reveal>
             ))}
           </div>
+
+          <ContentPhotos images={chapter.images} mode="gallery" />
 
           <Reveal delay={140 + t.paragraphs.length * 60}>
             <div
@@ -203,3 +210,4 @@ export function StoryChapter({ slug }: { slug: string }) {
     </>
   );
 }
+

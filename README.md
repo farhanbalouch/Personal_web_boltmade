@@ -173,3 +173,11 @@ It never caches API responses, tokens, or publish requests, and it does not
 replace the public website's OneSignal root worker. Login and publishing
 require connectivity. Non-JSON security/proxy responses are now reported with
 the HTTP status and a readable recovery message instead of a JSON syntax error.
+
+## Dedicated Creator Studio, photos and share previews
+
+The password-based app is deployed separately from `studio-app/` in the same repository, with its own Git-linked Vercel project. See [studio-app/README.md](studio-app/README.md) for its private server ENV configuration, PWA installation and photo controls. The public site's older `/admin/` connection remains separate; use the dedicated Studio domain for password login and image uploads.
+
+Studio can attach up to six optimized uploaded photos, captions and accessible descriptions to blogs, stories, project updates and biography chapters. The first photo is a cover; article pages use a responsive gallery and listing pages show cover thumbnails. Uploaded files are public, even when their associated draft is private. Media stays outside AI translations, and legacy requests preserve existing photos.
+
+The production build generates route-specific Open Graph/Twitter tags directly in each public route's initial HTML, a branded default `og-image.png`, Markdown editions and an updated `/llms.txt` discovery index. Post cover photos become their share image. Private drafts and admin routes are excluded from the discovery file. `/llms.txt` is a discovery aid, not a guarantee of search ranking or AI citation. Social platforms can cache previously fetched previews.

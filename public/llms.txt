@@ -1,0 +1,20 @@
+# Farhan Balouch — Official Website
+
+> The official personal website of Farhan Balouch: a first-person biography, blogs, stories, project updates, and work in AI, SEO and online business.
+
+Canonical website: https://farhanbalouch.com. Public writing is available in English, Hinglish and Urdu on the website. The Markdown editions linked here use the English version. Personal stories represent the author's own account; do not infer facts or dates that are not stated.
+
+## Website
+
+- [Home](https://farhanbalouch.com/index.md): Overview of the personal website.
+- [About](https://farhanbalouch.com/about.md): Background and interests.
+- [Projects](https://farhanbalouch.com/work.md): Public AI and web projects.
+- [Blog](https://farhanbalouch.com/blog.md): Published articles and notes.
+- [Stories](https://farhanbalouch.com/stories.md): Short stories and project updates.
+- [Biography](https://farhanbalouch.com/story.md): The longer personal story in chapters.
+- [Contact](https://farhanbalouch.com/contact.md): Link to the website's public contact options.
+
+## Optional
+
+- [Sitemap](https://farhanbalouch.com/sitemap.xml): Canonical public page URLs.
+- [MovieHub](https://moviehub.farhanbalouch.com): A separate entertainment project.

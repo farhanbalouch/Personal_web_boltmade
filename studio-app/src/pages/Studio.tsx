@@ -1,3 +1,4 @@
+import { StudioPhotos } from "@/components/StudioPhotos";
 import { StudioInstall } from "@/components/StudioInstall";
 import { setupStudioPwa } from "@/lib/studioPwa";
 import { parseStudioResponse } from "@/lib/studio-response";
@@ -21,11 +22,12 @@ import {
   Eye,
   EyeOff,
 } from "lucide-react";
-import type { BlogPost } from "@/data/blog";
+import type { BlogPost, ContentImage } from "@/data/blog";
 import type { StoryChapter } from "@/data/content";
 import "./studio.css";
 type Kind = "blog" | "story" | "chapter" | "project";
 type Draft = {
+  images?: ContentImage[];
   id: string;
   kind: Kind;
   raw: string;
@@ -63,6 +65,7 @@ const empty = (): Draft => ({
   raw: "",
   slug: "",
   notify: true,
+  images: [],
 });
 async function api(body?: object): Promise<any> {
   const r = await fetch(
@@ -99,12 +102,14 @@ export function Studio() {
       return empty();
     }
   });
+  const [photoBusy, setPhotoBusy] = useState(false);
   const [busy, setBusy] = useState(false),
     [message, setMessage] = useState(""),
     [error, setError] = useState("");
   const [query, setQuery] = useState(""),
     [preview, setPreview] = useState<BlogPost | null>(null),
     [lang, setLang] = useState<"en" | "hi" | "ur">("en");
+  const working = busy || photoBusy;
   const file = useRef<HTMLInputElement>(null);
   const unlocked = useRef(false);
   const sessionGeneration = useRef(0);
@@ -131,6 +136,9 @@ export function Studio() {
   }, []);
   useEffect(() => {
     document.title = "Farhan Studio · Your publishing desk";
+    let ogUrl = document.querySelector('meta[property="og:url"]');
+    if (!ogUrl) { ogUrl = document.createElement("meta"); ogUrl.setAttribute("property", "og:url"); document.head.appendChild(ogUrl); }
+    ogUrl.setAttribute("content", location.origin + "/admin/");
     setupStudioPwa().catch(() => {
       /* Online editing remains available if app installation is unsupported. */
     });
@@ -199,6 +207,7 @@ export function Studio() {
       raw,
       slug: post.slug,
       notify: false,
+      images: post.images || [],
     });
     setPreview(null);
     setTab("write");
@@ -270,7 +279,7 @@ export function Studio() {
                 {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
               </button>
             </div>
-            <button className="studio-primary" disabled={busy}>
+            <button className="studio-primary" disabled={working}>
               {busy ? "Verifying…" : "Unlock my Studio"}<ArrowUpRight size={18} />
             </button>
             {error && (
@@ -308,6 +317,7 @@ export function Studio() {
           ].map(({ id, label, icon: Icon }) => (
             <button
               key={id}
+              disabled={working}
               className={tab === id ? "active" : ""}
               onClick={() => {
                 setTab(id);
@@ -325,6 +335,7 @@ export function Studio() {
             View website <ArrowUpRight size={16} />
           </a>
           <button
+            disabled={working}
             onClick={() =>
               action(async () => {
                 await api({ action: "logout" });
@@ -345,7 +356,7 @@ export function Studio() {
           <button
             type="button"
             className="studio-session-exit"
-            disabled={busy}
+            disabled={working}
             onClick={() =>
               action(async () => {
                 await api({ action: "logout" });
@@ -385,6 +396,7 @@ export function Studio() {
             {tab !== "write" && (
               <button
                 className="studio-primary"
+                disabled={working}
                 onClick={() => {
                   setDraft(empty());
                   setTab("write");
@@ -424,6 +436,7 @@ export function Studio() {
                 </div>
                 <label htmlFor="studio-kind">What are you sharing?</label>
                 <select
+                  disabled={working}
                   id="studio-kind"
                   value={draft.kind}
                   onChange={(e) =>
@@ -495,6 +508,8 @@ export function Studio() {
                   />
                   <span>Draft restored on this device</span>
                 </div>
+                <StudioPhotos images={draft.images || []} onChange={(images) => input({ images })}
+                  disabled={working} onBusy={setPhotoBusy} upload={(data) => api({ action: "upload-image", data })} />
               </section>
               <aside className="studio-publish">
                 <div className="studio-icon">
@@ -540,7 +555,8 @@ export function Studio() {
                 <button
                   className="studio-primary"
                   disabled={
-                    busy ||
+                    working ||
+                    (draft.images || []).some((image) => !image.alt.trim()) ||
                     draft.raw.trim().length < 10 ||
                     (draft.kind === "chapter" && !draft.slug)
                   }
@@ -551,7 +567,7 @@ export function Studio() {
                 </button>
                 <button
                   className="studio-secondary"
-                  disabled={busy || draft.raw.trim().length < 10}
+                  disabled={working || draft.raw.trim().length < 10 || (draft.images || []).some((image) => !image.alt.trim())}
                   onClick={() => publish("save")}
                 >
                   <Save size={16} />
@@ -587,6 +603,7 @@ export function Studio() {
                   </div>
                   <div dir={lang === "ur" ? "rtl" : "ltr"}>
                     <h2>{preview.translations[lang].title}</h2>
+                    {!!preview.images?.length && <div className="studio-reading-photos">{preview.images.map((photo) => <figure key={photo.src}><img src={`https://farhanbalouch.com${photo.src}`} alt={photo.alt} width={photo.width} height={photo.height} loading="lazy" />{photo.caption && <figcaption>{photo.caption}</figcaption>}</figure>)}</div>}
                     {preview.translations[lang].body.map((p, i) => (
                       <p key={i}>{p}</p>
                     ))}
@@ -668,7 +685,7 @@ export function Studio() {
                 </p>
                 <button
                   className="studio-secondary"
-                  disabled={busy}
+                  disabled={working}
                   onClick={() =>
                     action(async () => {
                       const result = await api({ action: "weekly" });

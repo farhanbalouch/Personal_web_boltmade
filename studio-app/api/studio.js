@@ -1,3 +1,4 @@
+import { validateImages, validateUpload } from "../server/images.js";
 import {
   createCipheriv,
   createDecipheriv,
@@ -166,6 +167,7 @@ export function validateRequest(body) {
     slug,
     notify: body.notify === true,
     createdAt: new Date().toISOString(),
+    ...(body.images !== undefined ? { images: validateImages(body.images) } : {}),
   };
 }
 export default async function handler(req, res) {
@@ -184,7 +186,7 @@ export default async function handler(req, res) {
       throw fail(403, "Use Studio from this website.");
     let body =
       typeof req.body === "string" ? JSON.parse(req.body) : req.body || {};
-    if (JSON.stringify(body).length > 60000)
+    if (JSON.stringify(body).length > (body.action === "upload-image" ? 2900000 : 60000))
       throw fail(413, "This note is too large.");
     if (req.method === "POST" && body.action === "logout") {
       res.setHeader(
@@ -264,6 +266,19 @@ export default async function handler(req, res) {
           createdAt: r.created_at,
         })),
       });
+    }
+    if (body.action === "upload-image") {
+      const image = validateUpload(body);
+      const previous = await fetch(`https://api.github.com${repo(`/contents/${image.path}?ref=main`)}`, {
+        headers: { Authorization: `Bearer ${token}` }, signal: AbortSignal.timeout(15000),
+      });
+      if (!previous.ok && previous.status !== 404) throw fail(502, "Could not check photo upload status.");
+      if (!previous.ok) await github(token, repo(`/contents/${image.path}`), {
+        method: "PUT", body: JSON.stringify({
+          message: "Upload Studio photo", branch: "main", content: image.buffer.toString("base64"),
+        }),
+      });
+      return reply(200, { src: image.src });
     }
     if (body.action === "draft" || body.action === "failed") {
       if (!/^[a-f0-9-]{36}\.json$/.test(body.name || ""))

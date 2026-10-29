@@ -1,3 +1,4 @@
+import type { ContentImage } from "./blog";
 export type Language = 'en' | 'hi' | 'ur';
 
 export type ChapterTranslation = {
@@ -9,6 +10,7 @@ export type ChapterTranslation = {
 };
 
 export type StoryChapter = {
+  images?: ContentImage[];
   slug: string;
   part: number;
   period: string;

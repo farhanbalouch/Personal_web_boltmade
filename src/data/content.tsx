@@ -1,3 +1,4 @@
+import type { ContentImage } from "./blog";
 // Central data file for the site. Pure data + type re-exports only — no JSX/components here.
 //
 // Story chapters, phases and blog posts now live in JSON files
@@ -156,6 +157,7 @@ export type ChapterTranslation = {
 };
 
 export type StoryChapter = {
+  images?: ContentImage[];
   slug: string;
   part: number;
   period: string;
