@@ -3,13 +3,25 @@ export interface StudioInstallEvent extends Event {
   userChoice: Promise<{ outcome: "accepted" | "dismissed" }>;
 }
 let pending: StudioInstallEvent | null = null;
+let promptState = "not-offered";
+let browserReportedInstall = false;
+let workerError: string | null = null;
+const events: string[] = [];
+function record(event: string) {
+  events.push(event);
+  if (events.length > 12) events.shift();
+}
 window.addEventListener("beforeinstallprompt", (event) => {
   event.preventDefault();
   pending = event as StudioInstallEvent;
+  promptState = "available";
+  record("browser offered install prompt");
   window.dispatchEvent(new Event("studio-install-ready"));
 });
 window.addEventListener("appinstalled", () => {
   pending = null;
+  browserReportedInstall = true;
+  record("browser fired appinstalled (Android package not independently verified)");
   window.dispatchEvent(new Event("studio-installed"));
 });
 export function installed() {
@@ -21,14 +33,35 @@ export function installed() {
 export function installAvailable() {
   return !!pending;
 }
+export function installState() {
+  return { promptState, browserReportedInstall, workerError, events: [...events] };
+}
 export async function promptInstall() {
   const event = pending;
   if (!event) return false;
   pending = null;
-  await event.prompt();
-  return (await event.userChoice).outcome === "accepted";
+  try {
+    await event.prompt();
+    promptState = (await event.userChoice).outcome;
+    record(`install prompt ${promptState}`);
+    return promptState === "accepted";
+  } catch (error) {
+    promptState = "error";
+    record("install prompt failed");
+    throw error;
+  }
 }
-export async function setupStudioPwa() {
+let setup: Promise<ServiceWorkerRegistration | null> | null = null;
+export function setupStudioPwa() {
+  if (!setup) setup = registerStudioWorker().catch((error) => {
+    workerError = error instanceof Error ? error.message : "Worker setup failed";
+    record("service worker setup failed");
+    setup = null;
+    throw error;
+  });
+  return setup;
+}
+async function registerStudioWorker() {
   if (!document.querySelector('link[rel="manifest"]')) {
     const link = document.createElement("link");
     link.rel = "manifest";
@@ -91,6 +124,8 @@ export async function setupStudioPwa() {
       await old.unregister();
   }
   registration.active?.postMessage({ type: "STUDIO_CLAIM" });
+  workerError = null;
+  record("service worker activated");
   window.dispatchEvent(new Event("studio-worker-ready"));
   return registration;
 }

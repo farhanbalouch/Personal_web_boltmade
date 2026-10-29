@@ -253,3 +253,25 @@
 .studio-reading-photos img { display: block; width: 100%; height: auto; max-height: 540px; object-fit: contain; background: #0b1423; border-radius: 13px; }
 .studio-reading-photos figcaption { font-size: 11px; color: #a8bdd5; text-align: center; margin-top: 9px; }
 @media (max-width: 600px) { .studio-photo-list > article { grid-template-columns: 1fr; } .studio-photo-preview img { height: 185px; object-fit: contain; } .studio-photo-fields input { font-size: 16px; } }
+
+/* A native modal keeps installation diagnostics visible and scrollable on phones. */
+.studio-install-dialog { position: fixed; inset: 0; margin: auto; box-sizing: border-box; width: min(620px, calc(100vw - 24px)); max-height: calc(100dvh - 32px); overflow: auto; border: 1px solid #516078; border-radius: 20px; padding: 25px; background: #101f34; color: #e4edf8; font: inherit; box-shadow: 0 24px 90px #0009; }
+.studio-install-dialog::backdrop { background: #030914cc; }
+.studio-install-dialog h2 { font-size: 24px; margin: 12px 0; }
+.studio-install-dialog p { font-size: 13px; line-height: 1.65; margin: 12px 0; }
+.studio-install-dialog small, .studio-install-note { color: #afc4dc; font-size: 11px; line-height: 1.6; }
+.studio-install-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 16px; }
+.studio-install-dialog button:disabled { opacity: .6; }
+.studio-install-results { margin: 18px 0; font-size: 12px; }
+.studio-install-results > div { display: grid; grid-template-columns: minmax(100px, 1fr) minmax(0, 2fr); gap: 12px; padding: 11px 0; border-bottom: 1px solid #53657b55; }
+.studio-install-results dt { font-weight: 600; color: #c3d2e4; }
+.studio-install-results dd { margin: 0; overflow-wrap: anywhere; }
+.studio-install-results [data-result="pass"] { color: #99e6d1; }
+.studio-install-results [data-result="fail"] { color: #ffb2ad; }
+.studio-install-results [data-result="warning"] { color: #f4d284; }
+.studio-install-summary { border-left: 3px solid #e8b14b; padding-left: 12px; }
+.studio-install-dialog summary { cursor: pointer; font-size: 13px; padding: 8px 0; }
+.studio-install-dialog textarea { width: 100%; box-sizing: border-box; resize: vertical; background: #081221; color: #c8d8eb; border: 1px solid #516078; padding: 10px; font: 11px/1.5 monospace; }
+.studio-install-dialog code { overflow-wrap: anywhere; color: #f4d284; }
+.studio-install-message { font-size: 11px; max-width: 300px; line-height: 1.5; }
+@media (max-width: 500px) { .studio-install-dialog { padding: 21px 16px; } .studio-install-results > div { grid-template-columns: 1fr; gap: 4px; } }
