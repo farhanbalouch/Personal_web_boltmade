@@ -1,3 +1,4 @@
+import { SiteGuide } from "@/components/SiteGuide";
 import { lazy, Suspense } from "react";
 const Studio = lazy(() =>
   import("@/pages/Studio").then((m) => ({ default: m.Studio })),
@@ -56,6 +57,7 @@ function Routes() {
       <main className="flex-1">{page}</main>
       <Footer />
       <NotifyPopup />
+      <SiteGuide />
     </div>
   );
 }
