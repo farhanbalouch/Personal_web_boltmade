@@ -8,9 +8,9 @@ export default async function handler(req,res){
  const body=req.body||{};
  if(typeof body.message!=='string'||!body.message.trim()||body.message.length>800)return res.status(400).json({error:'Ask a question up to 800 characters.'});
  try{
-  const response=await fetch('https://rawi.farhanbalouch.com/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:body.message,mode:'quick',page:typeof body.page==='string'?body.page.slice(0,200):'/',language:body.language}),signal:AbortSignal.timeout(55000)});
+  const response=await fetch('https://balouch-ai.vercel.app/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:body.message,mode:'quick',page:typeof body.page==='string'?body.page.slice(0,200):'/',language:body.language}),signal:AbortSignal.timeout(55000)});
   const data=await response.json();
   if(!response.ok)return res.status(503).json({error:'The AI guide is busy. Try again in a moment.'});
   return res.status(200).json({reply:data.reply,sources:data.sources||[],indexedAt:data.indexedAt,verifiedExcerpt:data.verifiedExcerpt===true});
- }catch{return res.status(503).json({error:'The AI guide could not connect. Please try again.'});}
+ }catch(error){console.warn('Site guide connection failed',error?.name,error?.cause?.code||'');return res.status(503).json({error:'The AI guide could not connect. Please try again.'});}
 }
