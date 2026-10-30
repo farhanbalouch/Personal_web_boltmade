@@ -1,5 +1,12 @@
 [
   {
+    "id": "a210103e-678d-4fd5-98e7-27362d260b63",
+    "status": "failed",
+    "title": "# Ek Khirki, Ek Masoom Bacha Aur Society Ki 5 Karwi Haqeeqatein",
+    "error": "Gemini request failed (503). Check API quota and GEMINI_API_KEY.",
+    "createdAt": "2026-10-30T20:01:22.813Z"
+  },
+  {
     "status": "prepared",
     "id": "ac9aeda7-ccf6-4083-b807-de1e236ee791",
     "title": "My New Admin Panel: Streamlining Content and Launching Movie Hub",
