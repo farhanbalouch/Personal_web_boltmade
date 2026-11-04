@@ -32,6 +32,8 @@ Choose Install Studio app in Chrome/Edge, or Safari → Share → Add to Home Sc
 
 Write or import text; save a private draft or publish with AI. The API writes to the ORIGINAL repository's main branch. Existing GitHub workflows translate/publish and update farhanbalouch.com. Public links and production receipts intentionally use farhanbalouch.com; adding a Studio custom domain doesn't move the public website. Project announcements appear in Stories. Biography edits preserve chapters; the weekly workflow is unchanged.
 
+**New draft** starts a separate note and keeps the previous note on this device. The editor automatically stores each draft and remembers the last active one in browser storage. Use **Save private draft** to save a copy in the private GitHub repository and open it on another device from **Saved drafts**. **Update saved draft** updates that note, and **Save as new draft** creates a separate cloud copy. Cloud saves use the loaded version to prevent a stale device from overwriting more recent edits.
+
 The original /admin/ in the public root app keeps its existing GitHub-token connection. Use this dedicated project's URL or custom domain for the new password app.
 
 ## Development and verification

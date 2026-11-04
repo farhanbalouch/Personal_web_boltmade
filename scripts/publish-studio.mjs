@@ -1,4 +1,5 @@
 import { validateImages } from "../studio-app/server/images.js";
+import { createHash } from "node:crypto";
 import {
   readFile,
   writeFile,
@@ -24,6 +25,21 @@ const read = async (p, fallback) => {
   }
 };
 const save = (p, value) => writeFile(p, JSON.stringify(value, null, 2) + "\n");
+
+async function removePublishedDraft(request) {
+  if (request.draftRevision === null) return;
+  const path = `content/studio-drafts/${request.id}.json`;
+  try {
+    if (request.draftRevision !== undefined) {
+      const file = await readFile(path);
+      const revision = createHash("sha1").update(`blob ${file.length}\0`).update(file).digest("hex");
+      if (revision !== request.draftRevision) return;
+    }
+    await unlink(path);
+  } catch (err) {
+    if (err.code !== "ENOENT") throw err;
+  }
+}
 export function buildItem(
   request,
   translations,
@@ -152,9 +168,7 @@ async function main() {
         `content/requests/${file}`,
         `content/processed-requests/${file}`,
       );
-      await unlink(`content/studio-drafts/${request.id}.json`).catch((err) => {
-        if (err.code !== "ENOENT") throw err;
-      });
+      await removePublishedDraft(request);
       console.log("Prepared:", request.kind, item.slug);
     } catch (err) {
       failed = true;

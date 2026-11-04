@@ -296,3 +296,7 @@
 .studio-photo-source { display: block; max-width: 230px; max-height: 140px; margin-top: 8px; }
 .studio-photo-review-actions .studio-photo-add { width: auto; }
 @media (max-width: 600px) { .studio-photo-fields textarea, .studio-photo-fields select { font-size: 16px; } }
+
+.studio-draft-actions { display: grid; justify-items: start; gap: 9px; }
+.studio-draft-actions > button:disabled { opacity: .5; }
+.studio-content-list h2, .studio-paper-top span:first-child { overflow-wrap: anywhere; }

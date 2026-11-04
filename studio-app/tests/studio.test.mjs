@@ -319,3 +319,43 @@ test("generation and reference edits produce previews without uploading or publi
   assert.equal(limited.code, 429);
   assert.match(limited.body.error, /free usage limit/);
 });
+
+test("separate drafts round trip, and a stale device cannot overwrite a newer cloud copy", async (t) => {
+  const headers = { ...loginHeaders, cookie: "__Host-farhan-studio=" + seal() };
+  const post = body => request({ method: "POST", headers, body });
+  const files = new Map();
+  let writes = 0;
+  t.mock.method(globalThis, "fetch", async (url, options = {}) => {
+    const path = new URL(url).pathname;
+    assert.match(path, /\/contents\/content\/studio-drafts\/[a-f0-9-]{36}\.json$/);
+    const current = files.get(path);
+    if (options.method !== "PUT") return Response.json(current || {}, { status: current ? 200 : 404 });
+    const { sha, content } = JSON.parse(options.body);
+    if (sha !== current?.sha) return Response.json({}, { status: 409 });
+    const file = { content, sha: String(++writes).padStart(40, "0") };
+    files.set(path, file);
+    return Response.json({ content: file }, { status: current ? 200 : 201 });
+  });
+
+  const base = { id: randomUUID(), kind: "blog", raw: "First blog draft\n\n", slug: "", notify: false };
+  const next = { ...base, id: randomUUID(), kind: "story", raw: "Short" };
+  const first = await post({ action: "save", ...base });
+  assert.equal(first.code, 202);
+  assert.equal((await post({ action: "save", ...next })).code, 202);
+  const laptop = (await post({ action: "draft", name: base.id + ".json" })).body;
+  assert.equal(laptop.raw, base.raw);
+  assert.equal(laptop.revision, first.body.revision);
+
+  const phone = await post({ action: "save", ...laptop, raw: "A newer version from the phone" });
+  assert.equal(phone.code, 202);
+  const stale = await post({ action: "save", ...laptop, raw: "An older version from the laptop" });
+  assert.equal(stale.code, 409);
+  assert.match(stale.body.error, /Save as new draft/);
+  assert.equal((await post({ action: "save", ...base, raw: "Blind overwrite" })).code, 409);
+  assert.equal(writes, 3);
+  assert.equal((await post({ action: "draft", name: base.id + ".json" })).body.raw, "A newer version from the phone");
+  assert.equal((await post({ action: "draft", name: next.id + ".json" })).body.raw, "Short");
+  const retry = await post({ action: "save", ...laptop, raw: "A newer version from the phone" });
+  assert.equal(retry.body.revision, phone.body.revision);
+  assert.equal(writes, 3);
+});

@@ -1,7 +1,9 @@
 import { StudioPhotos } from "@/components/StudioPhotos";
+import { StudioDrafts } from "@/components/StudioDrafts";
 import { StudioInstall } from "@/components/StudioInstall";
 import { setupStudioPwa } from "@/lib/studioPwa";
 import { parseStudioResponse } from "@/lib/studio-response";
+import { draftTitle, emptyDraft, forgetDraft, hasDraftContent, listDeviceDrafts, rememberDraft, restoreActiveDraft, type CloudDraft, type Draft, type Kind } from "@/lib/studio-drafts";
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
   ArrowUpRight,
@@ -22,18 +24,9 @@ import {
   Eye,
   EyeOff,
 } from "lucide-react";
-import type { BlogPost, ContentImage } from "@/data/blog";
+import type { BlogPost } from "@/data/blog";
 import type { StoryChapter } from "@/data/content";
 import "./studio.css";
-type Kind = "blog" | "story" | "chapter" | "project";
-type Draft = {
-  images?: ContentImage[];
-  id: string;
-  kind: Kind;
-  raw: string;
-  slug: string;
-  notify: boolean;
-};
 type Run = {
   id: number;
   title: string;
@@ -57,17 +50,9 @@ type Content = {
   blogs: BlogPost[];
   stories: BlogPost[];
   chapters: StoryChapter[];
-  drafts: { name: string }[];
+  drafts: CloudDraft[];
   runs: Run[];
 };
-const empty = (): Draft => ({
-  id: crypto.randomUUID(),
-  kind: "blog",
-  raw: "",
-  slug: "",
-  notify: true,
-  images: [],
-});
 async function api(body?: object): Promise<any> {
   const r = await fetch(
     "/api/studio",
@@ -82,6 +67,7 @@ async function api(body?: object): Promise<any> {
   );
   return parseStudioResponse(r);
 }
+const loadDraft = (name: string): Promise<Draft> => api({ action: "draft", name });
 const labels: Record<Kind, string> = {
   blog: "Blog post",
   story: "Public story",
@@ -94,15 +80,10 @@ export function Studio() {
   const [showPassword, setShowPassword] = useState(false);
   const [content, setContent] = useState<Content | null>(null),
     [tab, setTab] = useState("write");
-  const [draft, setDraft] = useState<Draft>(() => {
-    try {
-      return (
-        JSON.parse(localStorage.getItem("studio-note") || "null") || empty()
-      );
-    } catch {
-      return empty();
-    }
-  });
+  const [draft, setDraft] = useState(restoreActiveDraft);
+  const [deviceSaved, setDeviceSaved] = useState(true);
+  const cloudRevision = content?.drafts.find(note => note.name === draft.id + ".json")?.sha;
+  const cloudDraft = Boolean(draft.revision || cloudRevision);
   const [photoBusy, setPhotoBusy] = useState(false);
   const [busy, setBusy] = useState(false),
     [message, setMessage] = useState(""),
@@ -150,12 +131,17 @@ export function Studio() {
     return () => robots.remove();
   }, []);
   useEffect(() => {
-    try {
-      localStorage.setItem("studio-note", JSON.stringify(draft));
-    } catch {
-      /* Repository draft saving remains available when device storage is full. */
-    }
+    setDeviceSaved(rememberDraft(draft));
   }, [draft]);
+  useEffect(() => {
+    const { id, revision, dirty } = draft;
+    if (auth !== "ready" || dirty || !revision || !cloudRevision || revision === cloudRevision) return;
+    let active = true;
+    loadDraft(id + ".json").then(note => {
+      if (active) setDraft(current => current.id === id && current.revision === revision && !current.dirty ? note : current);
+    }).catch(() => { /* Keep the device copy while the cloud version is unreachable. */ });
+    return () => { active = false; };
+  }, [auth, draft, cloudRevision]);
   useEffect(() => {
     if (auth !== "ready") return;
     const timer = setInterval(load, 20000);
@@ -200,7 +186,14 @@ export function Studio() {
       setBusy(false);
     }
   }
+  function keepDeviceDraft() {
+    return !hasDraftContent(draft) || (draft.revision && !draft.dirty) || rememberDraft(draft);
+  }
   function edit(post: BlogPost | StoryChapter, kind: Kind) {
+    if (!keepDeviceDraft()) {
+      setError("This device cannot store your changes. Save the current draft to the cloud first.");
+      return;
+    }
     const t = post.translations.en;
     const raw = `${t.title}\n\n${"body" in t ? t.body.join("\n\n") : t.paragraphs.join("\n\n")}`;
     setDraft({
@@ -210,23 +203,55 @@ export function Studio() {
       slug: post.slug,
       notify: false,
       images: post.images || [],
+      dirty: true,
+      updatedAt: new Date().toISOString(),
     });
     setPreview(null);
     setTab("write");
     setMessage("Editing the existing item. Its public URL will stay the same.");
   }
-  const publish = (mode: "save" | "publish") =>
+  function newDraft() {
+    if (!keepDeviceDraft()) {
+      setError("This device cannot store your changes. Save the current draft to the cloud first.");
+      return;
+    }
+    setDraft(emptyDraft());
+    setTab("write");
+    setError("");
+    setMessage("");
+  }
+  function openDraft(id: string, device?: Draft) {
+    void action(async () => {
+      if (!keepDeviceDraft())
+        throw new Error("Save the current draft to the cloud before switching.");
+      const next = device ?? await loadDraft(id + ".json");
+      if (!device) {
+        const local = listDeviceDrafts().find(note => note.id === id && note.dirty);
+        if (local && !rememberDraft({ ...local, id: crypto.randomUUID(), revision: undefined, createdAt: undefined }))
+          throw new Error("Could not keep your device edits. Open them and save as a new draft first.");
+      }
+      setDraft(next);
+      setTab("write");
+      setMessage(device ? "Device changes restored." : "Cloud draft opened.");
+    });
+  }
+  const publish = (mode: "save" | "publish", copy = false) =>
     action(async () => {
-      const result = await api({ action: mode, ...draft });
+      const note = copy ? { ...draft, id: crypto.randomUUID(), revision: undefined } : draft;
+      const result = await api({ action: mode, ...note });
       setMessage(result.message);
       if (mode === "publish") {
-        setDraft(empty());
+        forgetDraft(draft.id);
+        setDraft(emptyDraft());
         setTab("activity");
+      } else {
+        if (copy) forgetDraft(draft.id);
+        setDraft({ ...note, revision: result.revision, updatedAt: result.updatedAt, dirty: false });
       }
       await load();
     });
   const input = (value: Partial<Draft>) =>
-    setDraft((d) => ({ ...d, ...value }));
+    setDraft((d) => ({ ...d, ...value, dirty: true, updatedAt: new Date().toISOString() }));
   if (auth === "loading")
     return (
       <div className="studio studio-loading">
@@ -395,18 +420,9 @@ export function Studio() {
                   : "Everything you need, in one place."}
               </p>
             </div>
-            {tab !== "write" && (
-              <button
-                className="studio-primary"
-                disabled={working}
-                onClick={() => {
-                  setDraft(empty());
-                  setTab("write");
-                }}
-              >
-                <Plus size={17} /> New post
-              </button>
-            )}
+            <button type="button" className="studio-primary" disabled={working} onClick={newDraft}>
+              <Plus size={17} /> New draft
+            </button>
           </div>
           {tab === "write" && <div className="studio-stats">
             <div><span className="studio-stat-icon"><BookOpen size={20} /></span><strong>{content?.blogs.length || 0}<small>Published blogs</small></strong><span>YOUR PERSPECTIVE</span></div>
@@ -430,7 +446,7 @@ export function Studio() {
                 <div className="studio-paper-top">
                   <span>
                     <PenLine size={17} />
-                    {draft.slug ? "Editing published content" : "A fresh page"}
+                    {cloudDraft ? draftTitle(draft) : draft.slug ? "Editing published content" : "A fresh page"}
                   </span>
                   <span>
                     {draft.raw.trim().split(/\s+/).filter(Boolean).length} words
@@ -461,6 +477,7 @@ export function Studio() {
                     <select
                       id="studio-chapter"
                       value={draft.slug}
+                      disabled={working}
                       onChange={(e) => {
                         const ch = content?.chapters.find(
                           (c) => c.slug === e.target.value,
@@ -483,6 +500,7 @@ export function Studio() {
                 <textarea
                   id="studio-raw"
                   value={draft.raw}
+                  disabled={working}
                   maxLength={50000}
                   onChange={(e) => input({ raw: e.target.value })}
                   placeholder={
@@ -490,7 +508,7 @@ export function Studio() {
                   }
                 />
                 <div className="studio-paper-bottom">
-                  <button onClick={() => file.current?.click()}>
+                  <button type="button" disabled={working} onClick={() => file.current?.click()}>
                     <Upload size={16} /> Import text
                   </button>
                   <input
@@ -501,14 +519,16 @@ export function Studio() {
                     onChange={(e) => {
                       const selected = e.target.files?.[0];
                       if (selected && selected.size <= 200000)
-                        selected
-                          .text()
-                          .then((raw) => input({ raw: raw.slice(0, 50000) }));
+                        selected.text().then(raw => {
+                          setDraft(current => current.id === draft.id
+                            ? { ...current, raw: raw.slice(0, 50000), dirty: true, updatedAt: new Date().toISOString() }
+                            : current);
+                        });
                       else setError("Choose a text file smaller than 200 KB.");
                       e.target.value = "";
                     }}
                   />
-                  <span>Draft restored on this device</span>
+                  <span>{!deviceSaved ? "Device storage unavailable" : cloudDraft && !draft.dirty ? "Saved to cloud" : hasDraftContent(draft) ? "Changes kept on this device" : "Device autosave is on"}</span>
                 </div>
                 <StudioPhotos key={draft.id} images={draft.images || []} raw={draft.raw} aiReady={content?.imageAi === true}
                   onChange={(images) => input({ images })} disabled={working} onBusy={setPhotoBusy}
@@ -547,6 +567,7 @@ export function Studio() {
                   <input
                     type="checkbox"
                     checked={draft.notify}
+                    disabled={working}
                     onChange={(e) => input({ notify: e.target.checked })}
                   />
                   <span>
@@ -571,12 +592,17 @@ export function Studio() {
                 </button>
                 <button
                   className="studio-secondary"
-                  disabled={working || draft.raw.trim().length < 10 || (draft.images || []).some((image) => !image.alt.trim())}
+                  disabled={working || !hasDraftContent(draft) || (draft.images || []).some((image) => !image.alt.trim())}
                   onClick={() => publish("save")}
                 >
                   <Save size={16} />
-                  Save private draft
+                  {cloudDraft ? "Update saved draft" : "Save private draft"}
                 </button>
+                {cloudDraft && <button type="button" className="studio-secondary"
+                  disabled={working || !hasDraftContent(draft) || (draft.images || []).some(image => !image.alt.trim())}
+                  onClick={() => publish("save", true)}>
+                  <Plus size={16} /> Save as new draft
+                </button>}
                 <p className="studio-fine">
                   Publishing makes this content public. AI processing and
                   deployment usually take a few minutes.
@@ -651,33 +677,8 @@ export function Studio() {
               )}
             </>
           )}
-          {tab === "drafts" && (
-            <div className="studio-content-list">
-              {content?.drafts.map((d) => (
-                <article key={d.name}>
-                  <div>
-                    <span className="studio-tag">Private draft</span>
-                    <h2>Saved idea · {d.name.slice(0, 8)}</h2>
-                  </div>
-                  <button
-                    onClick={() =>
-                      action(async () => {
-                        setDraft(await api({ action: "draft", name: d.name }));
-                        setTab("write");
-                      })
-                    }
-                  >
-                    Continue writing <ArrowUpRight size={17} />
-                  </button>
-                </article>
-              ))}
-              {!content?.drafts.length && (
-                <div className="studio-empty">
-                  Your saved drafts will wait here until you’re ready.
-                </div>
-              )}
-            </div>
-          )}
+          {tab === "drafts" && <StudioDrafts cloud={content?.drafts ?? []} labels={labels}
+            disabled={working} loadDraft={loadDraft} open={openDraft} />}
           {tab === "biography" && (
             <>
               <div className="studio-paper studio-reading">
@@ -748,13 +749,15 @@ export function Studio() {
                   </div>
                   {result.status === "failed" ? (
                     <button
+                      disabled={working}
                       onClick={() =>
                         action(async () => {
+                          if (!keepDeviceDraft()) throw new Error("Save the current draft to the cloud before switching.");
                           const note = await api({
                             action: "failed",
                             name: result.id + ".json",
                           });
-                          setDraft({ ...note, id: crypto.randomUUID() });
+                          setDraft({ ...note, id: crypto.randomUUID(), revision: undefined, dirty: true });
                           setTab("write");
                         })
                       }

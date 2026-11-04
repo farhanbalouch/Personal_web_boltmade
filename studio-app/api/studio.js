@@ -144,36 +144,74 @@ async function read(token, path, fallback) {
     ? file
     : JSON.parse(Buffer.from(file.content, "base64").toString("utf8"));
 }
-export function validateRequest(body) {
+export function validateRequest(body, savingDraft = false) {
   const kind = body.kind;
   if (!["blog", "story", "chapter", "project"].includes(kind))
     throw fail(400, "Choose a valid content type.");
   if (
     typeof body.raw !== "string" ||
-    body.raw.trim().length < 10 ||
+    (savingDraft ? !body.raw.trim() && !body.images?.length : body.raw.trim().length < 10) ||
     body.raw.length > 50000
   )
-    throw fail(400, "Write between 10 and 50,000 characters.");
+    throw fail(400, savingDraft ? "Add some text or a photo to save a draft (50,000 characters maximum)." : "Write between 10 and 50,000 characters.");
   const slug = body.slug || "";
   if (slug && !/^[a-z0-9-]{1,100}$/.test(slug))
     throw fail(400, "Invalid content address.");
-  if (kind === "chapter" && !slug)
+  if (!savingDraft && kind === "chapter" && !slug)
     throw fail(400, "Select an existing biography chapter.");
   const id = body.id || randomUUID();
   if (!/^[a-f0-9-]{36}$/.test(id)) throw fail(400, "Invalid draft ID.");
   return {
     id,
     kind,
-    raw: body.raw.trim(),
+    raw: savingDraft ? body.raw : body.raw.trim(),
     slug,
     notify: body.notify === true,
     createdAt: new Date().toISOString(),
     ...(body.images !== undefined ? { images: validateImages(body.images) } : {}),
   };
 }
+const draftConflict = () => fail(409, "This draft has a different cloud version. Use Save as new draft to keep your changes separately, or reopen the cloud version from Saved drafts.");
+
+function draftFromFile(file) {
+  return JSON.parse(Buffer.from(file.content, "base64").toString("utf8"));
+}
+
+async function saveDraft(token, body) {
+  const draft = validateRequest(body, true);
+  const path = repo(`/contents/content/studio-drafts/${draft.id}.json`);
+  const current = await fetch(`https://api.github.com${path}?ref=main`, {
+    headers: { Authorization: `Bearer ${token}` }, signal: AbortSignal.timeout(15000),
+  });
+  if (!current.ok && current.status !== 404) throw fail(502, "Could not check draft status.");
+  const file = current.ok ? await current.json() : null;
+  const prior = file ? draftFromFile(file) : null;
+  const summary = ({ kind, raw, slug, notify, images }) => JSON.stringify([kind, raw, slug, notify, images ?? []]);
+  if (prior && summary(prior) === summary(draft)) {
+    return { id: draft.id, revision: file.sha, updatedAt: prior.updatedAt || prior.createdAt, message: "Draft saved to the cloud. Find it on any device in Saved drafts." };
+  }
+  if (file ? body.revision !== file.sha : body.revision !== undefined) throw draftConflict();
+
+  const updatedAt = draft.createdAt;
+  const note = { ...draft, createdAt: prior?.createdAt || updatedAt, updatedAt };
+  const saved = await github(token, path, {
+    method: "PUT",
+    body: JSON.stringify({
+      message: `Save draft: ${draft.kind}`,
+      content: Buffer.from(JSON.stringify(note, null, 2)).toString("base64"),
+      branch: "main",
+      ...(file ? { sha: file.sha } : {}),
+    }),
+  }).catch(err => {
+    if (err.githubStatus === 409 || err.githubStatus === 422) throw draftConflict();
+    throw err;
+  });
+  return { id: draft.id, revision: saved.content.sha, updatedAt, message: "Draft saved to the cloud. Find it on any device in Saved drafts." };
+}
+
 export default async function handler(req, res) {
   res.setHeader("Cache-Control", "no-store");
-  res.setHeader("X-Farhan-Studio", "api-v3");
+  res.setHeader("X-Farhan-Studio", "api-v4");
   res.setHeader("X-Content-Type-Options", "nosniff");
   const reply = (status, body) => res.status(status).json(body);
   try {
@@ -258,8 +296,8 @@ export default async function handler(req, res) {
         imageAi: imageAiConfigured(),
         warnings,
         drafts: drafts
-          .filter((d) => d.name.endsWith(".json"))
-          .map((d) => ({ name: d.name, path: d.path })),
+          .filter((d) => /^[a-f0-9-]{36}\.json$/.test(d.name))
+          .map((d) => ({ name: d.name, sha: d.sha })),
         runs: runs.workflow_runs.map((r) => ({
           id: r.id,
           title: r.display_title,
@@ -289,12 +327,13 @@ export default async function handler(req, res) {
     if (body.action === "draft" || body.action === "failed") {
       if (!/^[a-f0-9-]{36}\.json$/.test(body.name || ""))
         throw fail(400, "Invalid draft.");
+      if (body.action === "draft") {
+        const file = await github(token, repo(`/contents/content/studio-drafts/${body.name}?ref=main`));
+        return reply(200, { ...draftFromFile(file), revision: file.sha });
+      }
       return reply(
         200,
-        await read(
-          token,
-          `content/${body.action === "failed" ? "failed-requests" : "studio-drafts"}/${body.name}`,
-        ),
+        await read(token, `content/failed-requests/${body.name}`),
       );
     }
     if (body.action === "weekly") {
@@ -307,10 +346,12 @@ export default async function handler(req, res) {
         message: "Weekly biography update queued. Check Activity for progress.",
       });
     }
-    if (!["save", "publish"].includes(body.action))
+    if (body.action === "save") return reply(202, await saveDraft(token, body));
+    if (body.action !== "publish")
       throw fail(400, "Unknown Studio action.");
     const draft = validateRequest(body);
-    const path = `content/${body.action === "save" ? "studio-drafts" : "requests"}/${draft.id}.json`;
+    draft.draftRevision = /^[a-f0-9]{40}$/.test(body.revision || "") ? body.revision : null;
+    const path = `content/requests/${draft.id}.json`;
     const current = await fetch(
       `https://api.github.com${repo(`/contents/${path}?ref=main`)}`,
       {
@@ -324,7 +365,7 @@ export default async function handler(req, res) {
     await github(token, repo(`/contents/${path}`), {
       method: "PUT",
       body: JSON.stringify({
-        message: `${body.action === "save" ? "Save draft" : "Publish from Studio"}: ${draft.kind}`,
+        message: `Publish from Studio: ${draft.kind}`,
         content: Buffer.from(JSON.stringify(draft, null, 2)).toString("base64"),
         branch: "main",
         ...(prior ? { sha: prior.sha } : {}),
@@ -332,10 +373,7 @@ export default async function handler(req, res) {
     });
     return reply(202, {
       id: draft.id,
-      message:
-        body.action === "save"
-          ? "Draft saved privately. It is not published."
-          : "Queued for AI editing and translation. Activity will show publishing progress.",
+      message: "Queued for AI editing and translation. Activity will show publishing progress.",
     });
   } catch (err) {
     if (err.status === 429) res.setHeader("Retry-After", "600");
