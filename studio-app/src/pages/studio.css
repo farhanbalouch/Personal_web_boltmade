@@ -128,7 +128,7 @@
 .studio-content-list p { font-size: 12px; max-width: 650px; }
 .studio-content-list small { font-size: 10px; color: #95acc7; }
 .studio-content-list button, .studio-content-list a { display: inline-flex; align-items: center; gap: 8px; font-size: 11px; white-space: nowrap; color: var(--teal); }
-.studio-row-actions { display: flex; gap: 15px; }
+.studio-row-actions { display: flex; flex-wrap: wrap; gap: 15px; }
 .studio-tag { display: inline-block; border: 1px solid #5b654a; background: #3c422c; color: #ffdd95; border-radius: 6px; padding: 4px 8px; font-size: 8px; letter-spacing: 1px; text-transform: uppercase; }
 .studio-failed { background: #452a36; border-color: #8e5260; color: #ffc6c3; }
 .studio-search { max-width: 380px; margin-bottom: 22px; }

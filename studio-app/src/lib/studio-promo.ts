@@ -1,3 +1,6 @@
+import type { BlogPost } from '../data/blog';
+import { blogPromoScenes } from '../data/blog-promo-scenes';
+
 export type SocialPromo = { headline: string; subhead: string; caption: string; scene: string };
 export type PromoFormat = 'feed' | 'vertical';
 
@@ -19,6 +22,19 @@ export const promoFormats = {
 const navy = '#0a0e17';
 const teal = '#3fb5a4';
 const cream = '#fff4df';
+
+export const blogPromoUrl = (slug: string) => `https://farhanbalouch.com/blog/${slug}`;
+
+export function promoFromBlog(blog: BlogPost): SocialPromo {
+  const { title, excerpt } = blog.translations.en;
+  const brief = blogPromoScenes[blog.slug];
+  return {
+    headline: brief?.headline || title.slice(0, 90),
+    subhead: excerpt.slice(0, 150),
+    caption: `${title}\n\n${excerpt}`.slice(0, 600),
+    scene: brief?.scene || `Create a photorealistic editorial scene for “${title}”. Choose a focal subject grounded in this summary: ${excerpt.slice(0, 500)}`,
+  };
+}
 
 export function imagePrompt(settings: PromoSettings, finished: boolean) {
   const { ratio, width, height } = promoFormats[settings.format];

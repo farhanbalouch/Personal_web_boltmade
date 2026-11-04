@@ -10,6 +10,7 @@ type Props = {
   url?: string;
   published: boolean;
   imageAi: boolean;
+  initialLabel?: string;
   generateArtwork: (scene: string) => Promise<{ data: string; mime: string }>;
   close: () => void;
 };
@@ -24,9 +25,9 @@ const textFields = [
   { key: 'caption', label: 'Social caption', max: 600 },
 ] as const;
 
-function loadSettings(key: string, promo: SocialPromo): PromoSettings {
+function loadSettings(key: string, promo: SocialPromo, label: string): PromoSettings {
   const defaults: PromoSettings = {
-    ...promo, format: 'feed', label: 'NEW ON THE BLOG', callToAction: 'READ THE BLOG',
+    ...promo, format: 'feed', label, callToAction: 'READ THE BLOG',
     accent: '#e8b14b', showLogo: true, focalX: 50, focalY: 50,
   };
   try {
@@ -52,9 +53,9 @@ async function decodeImage(src: string) {
   return image;
 }
 
-export function StudioPromo({ id, promo, url, published, imageAi, generateArtwork, close }: Props) {
+export function StudioPromo({ id, promo, url, published, imageAi, initialLabel = 'NEW ON THE BLOG', generateArtwork, close }: Props) {
   const storageKey = 'studio-promo-v1:' + id;
-  const [settings, setSettings] = useState(() => loadSettings(storageKey, promo));
+  const [settings, setSettings] = useState(() => loadSettings(storageKey, promo, initialLabel));
   const [logo, setLogo] = useState<HTMLImageElement | null>(null);
   const [artwork, setArtwork] = useState<HTMLImageElement | null>(null);
   const [busy, setBusy] = useState(false);

@@ -27,7 +27,7 @@ import {
 } from "lucide-react";
 import type { BlogPost } from "@/data/blog";
 import type { StoryChapter } from "@/data/content";
-import type { SocialPromo } from "@/lib/studio-promo";
+import { blogPromoUrl, promoFromBlog, type SocialPromo } from "@/lib/studio-promo";
 import "./studio.css";
 type Run = {
   id: number;
@@ -88,8 +88,7 @@ export function Studio() {
   const cloudRevision = content?.drafts.find(note => note.name === draft.id + ".json")?.sha;
   const cloudDraft = Boolean(draft.revision || cloudRevision);
   const [photoBusy, setPhotoBusy] = useState(false);
-  const [promoId, setPromoId] = useState<string | null>(null);
-  const promoResult = content?.results.find(result => result.id === promoId);
+  const [promoUrl, setPromoUrl] = useState<string | null>(null);
   const [busy, setBusy] = useState(false),
     [message, setMessage] = useState(""),
     [error, setError] = useState("");
@@ -160,6 +159,7 @@ export function Studio() {
     setShowPassword(false);
     setContent(null);
     setPreview(null);
+    setPromoUrl(null);
     setQuery("");
     setPhotoBusy(false);
     setMessage("");
@@ -248,7 +248,7 @@ export function Studio() {
       if (mode === "publish") {
         forgetDraft(draft.id);
         setDraft(emptyDraft());
-        setPromoId(null);
+        setPromoUrl(null);
         setTab("activity");
       } else {
         if (copy) forgetDraft(draft.id);
@@ -327,6 +327,12 @@ export function Studio() {
       </div>
     );
   const total = (content?.blogs.length || 0) + (content?.stories.length || 0);
+  const blogUrls = new Set(content?.blogs.map(blog => blogPromoUrl(blog.slug)));
+  const promoBlog = content?.blogs.find(blog => blogPromoUrl(blog.slug) === promoUrl);
+  const matchingResults = content?.results.filter(result => result.url === promoUrl) || [];
+  const promoResult = matchingResults.find(result => result.socialPromo) || matchingResults[0];
+  const activePromo = promoResult?.socialPromo ?? (promoBlog && promoFromBlog(promoBlog));
+  const promoKey = promoResult?.socialPromo ? promoResult.id : promoUrl;
   const posts = [
     ...(content?.blogs || []).map((p) => ({ ...p, kind: "blog" as Kind })),
     ...(content?.stories || []).map((p) => ({ ...p, kind: "story" as Kind })),
@@ -355,6 +361,7 @@ export function Studio() {
               onClick={() => {
                 setTab(id);
                 setPreview(null);
+                setPromoUrl(null);
               }}
             >
               <Icon size={18} />
@@ -446,6 +453,18 @@ export function Studio() {
               {error}
             </p>
           )}
+          {(tab === "library" || tab === "activity") && activePromo && promoKey && <StudioPromo
+            key={promoKey}
+            id={promoKey}
+            promo={activePromo}
+            url={promoUrl ?? undefined}
+            published={!promoResult || Boolean(content?.liveIds?.includes(promoResult.id))}
+            imageAi={content?.imageAi === true}
+            initialLabel={promoResult?.socialPromo ? undefined : "FROM THE BLOG"}
+            generateArtwork={scene => api({ action: "image-preview", mode: "generate", topic: scene,
+              instructions: "Photorealistic background art only. Keep it free of any lettering or logos." })}
+            close={() => setPromoUrl(null)}
+          />}
           {tab === "write" && (
             <div className="studio-editor-grid">
               <section className="studio-paper">
@@ -658,6 +677,9 @@ export function Studio() {
                         </small>
                       </div>
                       <div className="studio-row-actions">
+                        {p.kind === "blog" && <button type="button" onClick={() => setPromoUrl(blogPromoUrl(p.slug))}>
+                          <Sparkles size={16} /> Social Promo
+                        </button>}
                         <button onClick={() => setPreview(p)}>Read</button>
                         <button onClick={() => edit(p, p.kind)}>
                           Edit <PenLine size={14} />
@@ -738,17 +760,6 @@ export function Studio() {
                 </p>
                 <button onClick={load}>Refresh activity</button>
               </div>
-              {promoResult?.socialPromo && <StudioPromo
-                key={promoResult.id}
-                id={promoResult.id}
-                promo={promoResult.socialPromo}
-                url={promoResult.url}
-                published={Boolean(content?.liveIds?.includes(promoResult.id))}
-                imageAi={content?.imageAi === true}
-                generateArtwork={scene => api({ action: "image-preview", mode: "generate", topic: scene,
-                  instructions: "Photorealistic background art only. Keep it free of any lettering or logos." })}
-                close={() => setPromoId(null)}
-              />}
               {content?.results?.map((result) => (
                 <article key={result.id}>
                   <div>
@@ -783,7 +794,7 @@ export function Studio() {
                     </button>
                   ) : (
                     <div className="studio-row-actions">
-                      {result.socialPromo && <button type="button" onClick={() => setPromoId(result.id)}>
+                      {result.url && (result.socialPromo || blogUrls.has(result.url)) && <button type="button" onClick={() => setPromoUrl(result.url ?? null)}>
                         <Sparkles size={16} /> Social Promo
                       </button>}
                       {result.url && <a href={result.url} target="_blank" rel="noreferrer">
