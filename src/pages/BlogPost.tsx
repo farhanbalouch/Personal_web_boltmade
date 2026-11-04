@@ -1,3 +1,5 @@
+import { ArticleIntro, ArticleReading } from '@/components/ArticleReading';
+import { articleSchema } from '@/lib/article-schema';
 import { ContentPhotos } from "@/components/ContentPhotos";
 import { ArrowLeft, CalendarDays, Newspaper, ArrowUpRight, Sparkles } from 'lucide-react';
 import { Seo } from '@/components/Seo';
@@ -47,55 +49,20 @@ export function BlogPost({ slug }: { slug: string }) {
   const t = post.translations[language];
   const tEn = post.translations.en; // SEO always uses English
 
-  const articleUrl = `${SITE.url}/blog/${post.slug}`;
-  const authorUrl = `${SITE.url}/about`;
-
-  const articleSchema = {
-    '@context': 'https://schema.org',
-    '@type': 'BlogPosting',
-    headline: tEn.title,
-    description: tEn.excerpt,
-    datePublished: post.publishedAt,
-    dateModified: post.publishedAt,
-    ...(post.images?.length ? { image: post.images.map((photo) => `${SITE.url}${photo.src}`) } : {}),
-
-    author: {
-      '@type': 'Person',
-      name: SITE.name,
-      url: authorUrl,
-    },
-
-    publisher: {
-      '@type': 'Person',
-      name: SITE.name,
-      url: authorUrl,
-    },
-
-    mainEntityOfPage: {
-      '@type': 'WebPage',
-      '@id': articleUrl,
-    },
-
-    keywords: tEn.keywords.join(', '),
-  };
-
   return (
     <>
       <Seo
         title={`${tEn.title} — Farhan Balouch`}
         description={tEn.excerpt}
         path={`/blog/${post.slug}`}
+        structuredData={articleSchema({
+          path: `/blog/${post.slug}`, headline: tEn.title, description: tEn.excerpt,
+          blog: true, publishedAt: post.publishedAt, updatedAt: post.updatedAt, images: post.images,
+        })}
         ogImage={post.images?.[0] ? `${SITE.url}${post.images[0].src}` : undefined}
       />
 
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{
-          __html: JSON.stringify(articleSchema),
-        }}
-      />
-
-      <article className={`pt-32 pb-16 max-w-2xl mx-auto px-5 sm:px-8 ${isUrdu ? 'font-urdu' : ''}`}>
+      <article className={`pt-32 pb-16 max-w-3xl mx-auto px-5 sm:px-8 ${isUrdu ? 'font-urdu' : ''}`}>
 
         {/* Back to blog + language switcher */}
         <Reveal>
@@ -111,7 +78,7 @@ export function BlogPost({ slug }: { slug: string }) {
           </div>
         </Reveal>
 
-        <div dir={isUrdu ? 'rtl' : 'ltr'}>
+        <div lang={language === "hi" ? "hi-Latn" : language} dir={isUrdu ? 'rtl' : 'ltr'}>
           {/* Date */}
           <Reveal delay={60}>
             <div className="flex items-center gap-2 text-sm text-teal font-medium uppercase tracking-wide mb-4">
@@ -127,24 +94,16 @@ export function BlogPost({ slug }: { slug: string }) {
             </h1>
           </Reveal>
 
+          <ArticleIntro translation={t} language={language} />
           <ContentPhotos images={post.images} mode="cover" />
 
-          {/* Article */}
-          <div className="space-y-6">
-            {t.body.map((p, i) => (
-              <Reveal key={i} delay={120 + i * 60}>
-                <p className="text-lg text-text-muted leading-[1.75]">
-                  {p}
-                </p>
-              </Reveal>
-            ))}
-          </div>
+          <ArticleReading slug={post.slug} translation={t} language={language} />
 
           <ContentPhotos images={post.images} mode="gallery" />
 
           {/* Keywords */}
           {t.keywords.length > 0 && (
-            <Reveal delay={120 + t.body.length * 60}>
+            <Reveal delay={120}>
               <div dir="ltr" className="mt-10 pt-6 border-t border-border/50 flex flex-wrap gap-2">
                 {t.keywords.map((k) => (
                   <span
@@ -159,7 +118,7 @@ export function BlogPost({ slug }: { slug: string }) {
           )}
 
           {/* Author section — glowing signature */}
-          <Reveal delay={180 + t.body.length * 60}>
+          <Reveal delay={180}>
             <div dir="ltr" className="mt-14 pt-8 border-t border-border">
               <div className="relative overflow-hidden rounded-2xl border border-gold/20 bg-bg-soft/60 p-6 sm:p-8">
                 <div className="absolute -top-20 -right-20 w-40 h-40 rounded-full bg-gold/10 blur-3xl animate-pulse-slow pointer-events-none" />

@@ -18,6 +18,15 @@ test('titles, captions and descriptions cannot break out of HTML metadata',()=>{
  assert.match(html,/A &amp; B/);
  assert.match(html,/og-image.png/);
 });
+test('the initial article HTML contains readable content and structured data',()=>{
+ const html=socialHtml(shell,{
+   path:'/blog/a-memory',title:'My memory',description:'A real memory',article:true,
+   renderedBody:'<article><h1>My memory</h1><p>I saved $20 for a book.</p></article>',
+   structuredData:JSON.stringify({'@type':'BlogPosting',headline:'My memory'}),
+ });
+ assert.match(html,/<div id="root"><article><h1>My memory<\/h1><p>I saved \$20 for a book\.<\/p>/);
+ assert.match(html,/<script id="article-structured-data" type="application\/ld\+json">\{"@type":"BlogPosting","headline":"My memory"\}<\/script>/);
+});
 test('LLM discovery contains published public writing rather than private drafts or admin pages',()=>{
  const text=llmsIndex('# Farhan Balouch',[{path:'/blog/hello',title:'Hello',description:'A public post',article:true},{path:'/admin',title:'Private',description:'Do not list'}]);
  assert.match(text,/https:\/\/farhanbalouch.com\/blog\/hello.md/);

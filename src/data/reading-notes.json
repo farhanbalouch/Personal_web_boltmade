@@ -1,0 +1,1186 @@
+{
+  "a-window-to-human-nature-lessons-on-fear-action-and-society": {
+    "sections": [
+      [
+        0,
+        "What we saw from the classroom",
+        "Classroom se humne kya dekha",
+        "کلاس روم سے ہم نے کیا دیکھا"
+      ],
+      [
+        2,
+        "The moment someone stepped in",
+        "Jab kisi ne aage barh kar qadam uthaya",
+        "جب کسی نے آگے بڑھ کر قدم اٹھایا"
+      ],
+      [
+        5,
+        "Why people hesitate to help",
+        "Log madad karne se kyun hichkichate hain?",
+        "لوگ مدد کرنے سے کیوں ہچکچاتے ہیں؟"
+      ],
+      [
+        10,
+        "What the incident left me thinking",
+        "Is waqie ne mujhe kya sochne par majboor kiya",
+        "اس واقعے نے مجھے کیا سوچنے پر مجبور کیا"
+      ]
+    ],
+    "highlights": [
+      [
+        "Bystander Effect",
+        "Bystander Effect",
+        "Bystander Effect"
+      ],
+      [
+        "Social Learning Theory",
+        "Social Learning Theory",
+        "Social Learning Theory"
+      ],
+      [
+        "Outcome Bias",
+        "Outcome Bias",
+        "Outcome Bias"
+      ],
+      [
+        "fear of breaking college rules",
+        "college ke rules todne",
+        "کالج کے قواعد توڑنے"
+      ]
+    ],
+    "takeaway": [
+      "Notice when fear is keeping you silent. Think about what safe, responsible help you can offer.",
+      "Dekho darr kab tumhein khamosh rakhta hai. Socho ke hifazat aur zimmedari ke saath kya madad kar sakte ho.",
+      "غور کریں کہ خوف کب آپ کو خاموش رکھتا ہے۔ سوچیں کہ محفوظ اور ذمہ دار طریقے سے آپ کیا مدد کر سکتے ہیں۔"
+    ],
+    "questions": [
+      [
+        [
+          "Why did I hesitate to follow my classmates?",
+          "Main classmates ke peechhe jaane se kyun hichkichaya?",
+          "میں ہم جماعتوں کے پیچھے جانے سے کیوں ہچکچایا؟"
+        ],
+        [
+          "I was afraid of leaving without permission and facing punishment for breaking college rules.",
+          "Mujhe baghair ijazat nikalne aur college ke rules todne par saza ka darr tha.",
+          "مجھے اجازت کے بغیر نکلنے اور کالج کے قواعد توڑنے پر سزا کا ڈر تھا۔"
+        ]
+      ],
+      [
+        [
+          "What is the bystander effect in this story?",
+          "Is waqie mein bystander effect ka kya matlab hai?",
+          "اس واقعے میں بائی اسٹینڈر ایفیکٹ کا کیا مطلب ہے؟"
+        ],
+        [
+          "When several people witness the same event, each person may feel less personally responsible for helping.",
+          "Jab kai log ek hi waqia dekhte hain, har shakhs ko madad ki apni zimmedari kam mehsoos ho sakti hai.",
+          "جب کئی لوگ ایک ہی واقعہ دیکھتے ہیں تو ہر شخص کو مدد کی اپنی ذمہ داری کم محسوس ہو سکتی ہے۔"
+        ]
+      ]
+    ]
+  },
+  "my-new-admin-panel-streamlining-content-and-launching-movie": {
+    "sections": [
+      [
+        0,
+        "Writing through my own admin panel",
+        "Apne admin panel se likhna",
+        "اپنے ایڈمن پینل سے لکھنا"
+      ],
+      [
+        1,
+        "Bringing Movie Hub back online",
+        "Movie Hub ko dobara live karna",
+        "مووی ہب کو دوبارہ آن لائن لانا"
+      ]
+    ],
+    "highlights": [
+      [
+        "admin panel",
+        "admin panel",
+        "ایڈمن پینل"
+      ],
+      [
+        "Movie Hub",
+        "Movie Hub",
+        "مووی ہب"
+      ]
+    ],
+    "takeaway": [
+      "An easier publishing workflow makes it easier to share progress regularly.",
+      "Publishing asaan ho to apni progress regular share karna bhi asaan hota hai.",
+      "اشاعت کا عمل آسان ہو تو اپنی پیش رفت باقاعدگی سے شیئر کرنا بھی آسان ہوتا ہے۔"
+    ],
+    "questions": [
+      [
+        [
+          "What changed for my blog publishing?",
+          "Blog publish karne mein kya badla?",
+          "بلاگ شائع کرنے میں کیا بدلا؟"
+        ],
+        [
+          "I can write an update through the admin panel without coding each post separately.",
+          "Ab main har post ke liye alag code likhe baghair admin panel se update likh sakta hoon.",
+          "اب میں ہر پوسٹ کے لیے الگ کوڈ لکھے بغیر ایڈمن پینل سے اپڈیٹ لکھ سکتا ہوں۔"
+        ]
+      ]
+    ]
+  },
+  "ensuring-website-reliability-my-approach-to-testing-notifica": {
+    "sections": [
+      [
+        0,
+        "A fourth round of checks",
+        "Jaanch ka chautha round",
+        "جانچ کا چوتھا دور"
+      ],
+      [
+        1,
+        "What reliable alerts are for",
+        "Bharosemand alerts kis kaam aate hain?",
+        "قابلِ اعتماد الرٹس کس کام آتے ہیں؟"
+      ]
+    ],
+    "highlights": [
+      [
+        "email alert",
+        "email alerts",
+        "ای میل الرٹ"
+      ],
+      [
+        "reliable alerts",
+        "reliable alerts",
+        "قابلِ اعتماد الرٹس"
+      ]
+    ],
+    "takeaway": [
+      "Treat delivery of important alerts as part of the product itself.",
+      "Zaroori alerts ki delivery ko product ka hissa samjho.",
+      "ضروری الرٹس کی ترسیل کو پروڈکٹ کا حصہ سمجھیں۔"
+    ]
+  },
+  "ensuring-reliable-communication-my-third-test-for-email-and": {
+    "sections": [
+      [
+        0,
+        "Testing email and push again",
+        "Email aur push ko phir test karna",
+        "ای میل اور پُش کی دوبارہ جانچ"
+      ],
+      [
+        1,
+        "Checking different situations and devices",
+        "Mukhtalif situations aur devices check karna",
+        "مختلف حالات اور ڈیوائسز کی جانچ"
+      ]
+    ],
+    "highlights": [
+      [
+        "push notifications",
+        "push notifications",
+        "پش نوٹیفیکیشنز"
+      ],
+      [
+        "various scenarios and devices",
+        "devices",
+        "مختلف ڈیوائسز"
+      ]
+    ],
+    "takeaway": [
+      "Repeat delivery tests across the situations your readers actually encounter.",
+      "Delivery tests un situations mein dohrao jo readers ko asal mein pesh aati hain.",
+      "ترسیل کی جانچ ان حالات میں دہرائیں جو قارئین کو حقیقت میں پیش آتے ہیں۔"
+    ]
+  },
+  "refining-my-notification-system-a-second-chance-at-testing": {
+    "sections": [
+      [
+        0,
+        "A second chance for notifications",
+        "Notifications ke liye doosra mauqa",
+        "نوٹیفیکیشنز کے لیے دوسرا موقع"
+      ],
+      [
+        1,
+        "Delivery and reader preferences",
+        "Delivery aur readers ki pasand",
+        "ترسیل اور قارئین کی ترجیحات"
+      ]
+    ],
+    "highlights": [
+      [
+        "notification system",
+        "notification system",
+        "نوٹیفیکیشن سسٹم"
+      ],
+      [
+        "user preferences",
+        "user preferences",
+        "صارف کی ترجیحات"
+      ]
+    ],
+    "takeaway": [
+      "Use earlier delivery problems to decide what to test in the next version.",
+      "Pehli delivery problems se tay karo ke agli version mein kya test karna hai.",
+      "ترسیل کے پچھلے مسائل سے طے کریں کہ اگلے ورژن میں کیا جانچنا ہے۔"
+    ]
+  },
+  "testing-my-custom-notification-system-today": {
+    "sections": [
+      [
+        0,
+        "Why I built my own alerts",
+        "Maine apne alerts kyun banaye?",
+        "میں نے اپنے الرٹس کیوں بنائے؟"
+      ],
+      [
+        1,
+        "What I checked in the first test",
+        "Pehle test mein maine kya check kiya?",
+        "پہلی جانچ میں میں نے کیا دیکھا؟"
+      ]
+    ],
+    "highlights": [
+      [
+        "custom notification system",
+        "custom notification system",
+        "کسٹم نوٹیفکیشن سسٹم"
+      ],
+      [
+        "message delivery speed",
+        "delivery speed",
+        "پیغام کی ڈیلیوری کی رفتار"
+      ]
+    ],
+    "takeaway": [
+      "Measure how quickly alerts arrive and whether they arrive consistently.",
+      "Dekho alerts kitni jaldi aur kitni pabandi se pohanchte hain.",
+      "دیکھیں کہ الرٹس کتنی جلدی اور کتنی باقاعدگی سے پہنچتے ہیں۔"
+    ]
+  },
+  "why-i-built-my-personal-website-my-journey-and-learnings": {
+    "sections": [
+      [
+        0,
+        "A home for my work and learning",
+        "Mere kaam aur seekhne ki ek jagah",
+        "میرے کام اور سیکھنے کی ایک جگہ"
+      ],
+      [
+        1,
+        "What building the site taught me",
+        "Site banane se maine kya seekha?",
+        "ویب سائٹ بنانے سے میں نے کیا سیکھا؟"
+      ]
+    ],
+    "highlights": [
+      [
+        "digital home",
+        "digital home",
+        "ڈیجیٹل گھر"
+      ],
+      [
+        "managing domains",
+        "domains",
+        "ڈومینز"
+      ],
+      [
+        "SEO",
+        "SEO",
+        "SEO"
+      ]
+    ],
+    "takeaway": [
+      "Build a personal site around what people should be able to find about your work.",
+      "Personal site is soch se banao ke log tumhare kaam ke baare mein kya aasani se dhoondh sakein.",
+      "ذاتی ویب سائٹ اس سوچ کے ساتھ بنائیں کہ لوگ آپ کے کام کے بارے میں کیا آسانی سے تلاش کر سکیں۔"
+    ],
+    "questions": [
+      [
+        [
+          "Why did I make farhanbalouch.com?",
+          "Maine farhanbalouch.com kyun banai?",
+          "میں نے farhanbalouch.com کیوں بنائی؟"
+        ],
+        [
+          "I wanted one place to share my projects, progress and what I was learning.",
+          "Main apne projects, progress aur seekhi hui cheezein share karne ke liye ek jagah chahta tha.",
+          "میں اپنے منصوبے، پیش رفت اور سیکھی ہوئی باتیں شیئر کرنے کے لیے ایک جگہ چاہتا تھا۔"
+        ]
+      ]
+    ]
+  },
+  "my-college-days-when-a-headache-was-just-an-excuse": {
+    "sections": [
+      [
+        0,
+        "The headache excuse",
+        "Sar dard ka bahana",
+        "سر درد کا بہانہ"
+      ],
+      [
+        1,
+        "An unplanned break with friends",
+        "Doston ke saath achanak break",
+        "دوستوں کے ساتھ اچانک وقفہ"
+      ]
+    ],
+    "highlights": [
+      [
+        "convenient excuse",
+        "bahana",
+        "بہانہ"
+      ],
+      [
+        "friends",
+        "doston",
+        "دوستوں"
+      ]
+    ],
+    "takeaway": [
+      "A break can matter, and you can be honest about needing one.",
+      "Break zaroori ho sakta hai. Uski zaroorat ke baare mein sach keh sakte ho.",
+      "وقفہ ضروری ہو سکتا ہے۔ اس کی ضرورت کے بارے میں سچ کہا جا سکتا ہے۔"
+    ]
+  },
+  "what-are-ai-tokens-a-simple-explanation-for-beginners": {
+    "sections": [
+      [
+        1,
+        "What is an AI token?",
+        "AI token kya hota hai?",
+        "AI ٹوکن کیا ہوتا ہے؟"
+      ],
+      [
+        2,
+        "How the context window works",
+        "Context window kaise kaam karti hai?",
+        "کانٹیکسٹ ونڈو کیسے کام کرتی ہے؟"
+      ],
+      [
+        3,
+        "Why token counts affect API costs",
+        "Tokens ki tadaad API cost par kyun asar dalti hai?",
+        "ٹوکنز کی تعداد API کی لاگت پر کیوں اثر ڈالتی ہے؟"
+      ]
+    ],
+    "highlights": [
+      [
+        "small piece of text",
+        "text ka chhota",
+        "متن کا ایک چھوٹا"
+      ],
+      [
+        "context window",
+        "context window",
+        "کانٹیکسٹ ونڈو"
+      ],
+      [
+        "API costs",
+        "API costs",
+        "API کی لاگت"
+      ],
+      [
+        "input",
+        "input",
+        "ان پٹ"
+      ],
+      [
+        "output",
+        "output",
+        "آؤٹ پٹ"
+      ]
+    ],
+    "takeaway": [
+      "Track both input and output tokens when planning the cost and length of AI requests.",
+      "AI requests ki cost aur length plan karte waqt input aur output dono tokens dekho.",
+      "AI کی درخواستوں کی لاگت اور لمبائی طے کرتے وقت ان پٹ اور آؤٹ پٹ دونوں کے ٹوکنز دیکھیں۔"
+    ],
+    "questions": [
+      [
+        [
+          "Is one AI token always one word?",
+          "Kya aik AI token hamesha aik lafz hota hai?",
+          "کیا ایک AI ٹوکن ہمیشہ ایک لفظ ہوتا ہے؟"
+        ],
+        [
+          "A token is a chunk of text. It can be a word, part of a word, punctuation or a space, depending on the tokenizer.",
+          "Token text ka tukra hai. Tokenizer ke hisaab se yeh lafz, lafz ka hissa, punctuation ya space ho sakta hai.",
+          "ٹوکن متن کا ایک حصہ ہے۔ ٹوکنائزر کے لحاظ سے یہ لفظ، لفظ کا حصہ، علامت یا خالی جگہ ہو سکتا ہے۔"
+        ]
+      ],
+      [
+        [
+          "Do output tokens count toward API costs?",
+          "Kya output tokens bhi API cost mein count hote hain?",
+          "کیا آؤٹ پٹ ٹوکنز بھی API کی لاگت میں شمار ہوتے ہیں؟"
+        ],
+        [
+          "Most token-priced APIs charge for both the input you send and the output the model generates. Check the provider’s rates for each.",
+          "Zyada tar token-priced APIs input aur model ke output dono ka charge karti hain. Dono ke rates provider se check karo.",
+          "ٹوکن کی بنیاد پر قیمت لینے والی زیادہ تر APIs ان پٹ اور ماڈل کے آؤٹ پٹ دونوں کی قیمت لیتی ہیں۔ دونوں کے نرخ فراہم کنندہ سے دیکھیں۔"
+        ]
+      ]
+    ]
+  },
+  "finding-my-recharge-why-simple-breaks-boost-my-focus-in-ai-a": {
+    "sections": [
+      [
+        0,
+        "When I need to step back from work",
+        "Jab mujhe kaam se break chahiye",
+        "جب مجھے کام سے وقفہ چاہیے"
+      ],
+      [
+        1,
+        "An afternoon with a childhood favourite",
+        "Bachpan ke pasandeeda cartoon wali dopahar",
+        "بچپن کے پسندیدہ کارٹون والی دوپہر"
+      ],
+      [
+        2,
+        "Coming back with a clearer mind",
+        "Saaf zehan ke saath kaam par wapsi",
+        "تازہ ذہن کے ساتھ کام پر واپسی"
+      ]
+    ],
+    "highlights": [
+      [
+        "genuine break",
+        "break",
+        "وقفہ"
+      ],
+      [
+        "clearer mind",
+        "clear mind",
+        "صاف ذہن"
+      ]
+    ],
+    "takeaway": [
+      "Leave room for simple breaks that help you come back ready to focus.",
+      "Aise simple breaks ke liye waqt rakho jo focus ke saath wapas la sakein.",
+      "سادہ وقفوں کے لیے وقت رکھیں تاکہ دوبارہ توجہ کے ساتھ کام کر سکیں۔"
+    ]
+  },
+  "a-day-i-chose-friends-over-lectures-my-college-confession": {
+    "sections": [
+      [
+        0,
+        "The lecture I wanted to leave",
+        "Woh lecture jisse main nikalna chahta tha",
+        "وہ لیکچر جس سے میں نکلنا چاہتا تھا"
+      ],
+      [
+        2,
+        "What I was really looking for",
+        "Main asal mein kya chahta tha?",
+        "میں اصل میں کیا چاہتا تھا؟"
+      ]
+    ],
+    "highlights": [
+      [
+        "convenient excuse",
+        "bahana",
+        "بہانہ"
+      ],
+      [
+        "catch up with friends",
+        "friends",
+        "دوستوں"
+      ]
+    ],
+    "takeaway": [
+      "Friendship deserves time. So does the work you agreed to show up for.",
+      "Dosti ko waqt do aur jis kaam ki zimmedari li hai usay bhi.",
+      "دوستی کو وقت دیں اور جس کام کی ذمہ داری لی ہے اسے بھی۔"
+    ]
+  },
+  "from-tears-to-triumph-how-my-school-became-my-second-home": {
+    "sections": [
+      [
+        0,
+        "A frightening first day",
+        "Pehla din aur darr",
+        "پہلا دن اور خوف"
+      ],
+      [
+        1,
+        "How school became familiar",
+        "School apna sa kaise laga?",
+        "اسکول اپنا سا کیسے لگا؟"
+      ]
+    ],
+    "highlights": [
+      [
+        "fail the admission test",
+        "admission test",
+        "داخلہ ٹیسٹ"
+      ],
+      [
+        "second home",
+        "doosra ghar",
+        "دوسرا گھر"
+      ]
+    ],
+    "takeaway": [
+      "A difficult first day can become the start of a place you grow to love.",
+      "Mushkil pehla din bhi aisi jagah ki shuruaat ho sakta hai jo baad mein apni lage.",
+      "ایک مشکل پہلا دن بھی ایسی جگہ کی شروعات ہو سکتا ہے جو بعد میں اپنی لگے۔"
+    ]
+  },
+  "part-1-ahmadpur-east": {
+    "sections": [
+      [
+        0,
+        "Growing up in Ahmadpur East",
+        "Ahmadpur East mein bachpan",
+        "احمد پور شرقیہ میں بچپن"
+      ],
+      [
+        2,
+        "My first small project",
+        "Mera pehla chhota project",
+        "میرا پہلا چھوٹا منصوبہ"
+      ],
+      [
+        4,
+        "Learning to care for small things",
+        "Chhoti cheezon ki dekhbhaal",
+        "چھوٹی چیزوں کی دیکھ بھال"
+      ]
+    ],
+    "highlights": [
+      [
+        "Ahmadpur East",
+        "Ahmadpur East",
+        "احمد پور شرقیہ"
+      ],
+      [
+        "raising chickens",
+        "murgiyan",
+        "مرغیاں"
+      ],
+      [
+        "golden hen",
+        "sunehri murgi",
+        "سنہری مرغی"
+      ]
+    ],
+    "questions": [
+      [
+        [
+          "What was my first small project?",
+          "Mera pehla chhota project kya tha?",
+          "میرا پہلا چھوٹا منصوبہ کیا تھا؟"
+        ],
+        [
+          "I raised chickens and learned what it meant to look after them every day.",
+          "Main murgiyan paalta tha aur roz unki dekhbhaal se zimmedari seekhi.",
+          "میں مرغیاں پالتا تھا اور روز ان کی دیکھ بھال سے ذمہ داری سیکھی۔"
+        ]
+      ]
+    ]
+  },
+  "part-2-school-ka-pehla-safar": {
+    "sections": [
+      [
+        0,
+        "Starting school and moving to Faran",
+        "School ki shuruaat aur Faran jana",
+        "اسکول کی شروعات اور فاران جانا"
+      ],
+      [
+        1,
+        "The admission test I failed",
+        "Woh admission test jo main fail hua",
+        "وہ داخلہ ٹیسٹ جس میں میں ناکام ہوا"
+      ],
+      [
+        2,
+        "Finding my feet at a new school",
+        "Naye school mein apni jagah banana",
+        "نئے اسکول میں اپنی جگہ بنانا"
+      ]
+    ],
+    "highlights": [
+      [
+        "Faran Public High School",
+        "Faran Public High School",
+        "فاران پبلک ہائی اسکول"
+      ],
+      [
+        "table of 6",
+        "6 ka table",
+        "چھ کا پہاڑا"
+      ],
+      [
+        "confidence grew",
+        "confidence",
+        "اعتماد"
+      ]
+    ],
+    "questions": [
+      [
+        [
+          "Why did I struggle in the admission test?",
+          "Admission test mein kya mushkil hui?",
+          "داخلہ ٹیسٹ میں کیا مشکل پیش آئی؟"
+        ],
+        [
+          "The test asked about the table of six, and I did not know it at the time.",
+          "Test mein chhe ka table poochha gaya aur us waqt mujhe woh yaad nahi tha.",
+          "ٹیسٹ میں چھ کا پہاڑا پوچھا گیا اور اس وقت مجھے وہ یاد نہیں تھا۔"
+        ]
+      ]
+    ]
+  },
+  "part-3-the-boy-who-was-afraid-of-school": {
+    "sections": [
+      [
+        0,
+        "A change in the school routine",
+        "School ke routine mein badlaav",
+        "اسکول کے معمول میں تبدیلی"
+      ],
+      [
+        1,
+        "Finding confidence in Class 6",
+        "Class 6 mein confidence aana",
+        "چھٹی جماعت میں اعتماد بڑھنا"
+      ],
+      [
+        2,
+        "The start of Class 7",
+        "Class 7 ki shuruaat",
+        "ساتویں جماعت کی شروعات"
+      ]
+    ],
+    "highlights": [
+      [
+        "Class 6",
+        "Class 6",
+        "کلاس سکس"
+      ],
+      [
+        "far more confident",
+        "confidence",
+        "پراعتماد"
+      ]
+    ]
+  },
+  "part-4-pehla-crush-pehli-confusion": {
+    "sections": [
+      [
+        0,
+        "An ordinary bicycle ride home",
+        "Cycle par ghar jaane ka aam din",
+        "سائیکل پر گھر جانے کا ایک عام دن"
+      ],
+      [
+        2,
+        "Curiosity without a conversation",
+        "Baat kiye baghair barhti curiosity",
+        "بات کیے بغیر بڑھتا تجسس"
+      ],
+      [
+        3,
+        "What it cost me at school",
+        "Parhai par kya asar pada?",
+        "پڑھائی پر کیا اثر پڑا؟"
+      ]
+    ],
+    "highlights": [
+      [
+        "cycling home",
+        "cycle",
+        "سائیکل"
+      ],
+      [
+        "studies suffered",
+        "parhai",
+        "پڑھائی"
+      ],
+      [
+        "two-page letter",
+        "letter",
+        "خط"
+      ]
+    ]
+  },
+  "part-5-position-mil-gayi": {
+    "sections": [
+      [
+        0,
+        "Preparing for the Class 8 exam",
+        "Class 8 ke exam ki tayyari",
+        "آٹھویں جماعت کے امتحان کی تیاری"
+      ],
+      [
+        1,
+        "A result I heard from Islamabad",
+        "Islamabad mein result ki khabar",
+        "اسلام آباد میں نتیجے کی خبر"
+      ],
+      [
+        2,
+        "Why the trophy felt bittersweet",
+        "Trophy ki khushi mein kya kami thi?",
+        "ٹرافی کی خوشی میں کیا کمی تھی؟"
+      ]
+    ],
+    "highlights": [
+      [
+        "second position",
+        "second position",
+        "دوسری پوزیشن"
+      ],
+      [
+        "trophy",
+        "trophy",
+        "ٹرافی"
+      ]
+    ]
+  },
+  "part-6-islamabad-mountains-and-memories": {
+    "sections": [
+      [
+        0,
+        "My first trip away from home",
+        "Ghar se door mera pehla safar",
+        "گھر سے دور میرا پہلا سفر"
+      ],
+      [
+        1,
+        "The overnight bus to Islamabad",
+        "Islamabad ki raat wali bus",
+        "اسلام آباد جانے والی رات کی بس"
+      ],
+      [
+        3,
+        "Faisal Mosque and Ramadan in the hills",
+        "Faisal Mosque aur pahari mausam mein Ramzan",
+        "فیصل مسجد اور پہاڑی موسم میں رمضان"
+      ]
+    ],
+    "highlights": [
+      [
+        "overnight ride",
+        "overnight",
+        "رات کا سفر"
+      ],
+      [
+        "Faisal Mosque",
+        "Faisal Mosque",
+        "فیصل مسجد"
+      ],
+      [
+        "Ramadan",
+        "Ramadan",
+        "رمضان"
+      ]
+    ],
+    "questions": [
+      [
+        [
+          "What do I remember from my first Islamabad trip?",
+          "Pehle Islamabad trip ki kya yaad hai?",
+          "اسلام آباد کے پہلے سفر کی کیا یاد ہے؟"
+        ],
+        [
+          "I remember the overnight bus, my first visit to Faisal Mosque and fasting in the cooler mountain air.",
+          "Mujhe raat ki bus, Faisal Mosque ka pehla visit aur thandi pahari hawa mein rozay yaad hain.",
+          "مجھے رات کی بس، فیصل مسجد کا پہلا دورہ اور ٹھنڈی پہاڑی ہوا میں روزے یاد ہیں۔"
+        ]
+      ]
+    ]
+  },
+  "part-7-ek-aur-rishta-ek-alag-kahani": {
+    "sections": [
+      [
+        0,
+        "Time together after tuition",
+        "Tuition ke baad saath guzra waqt",
+        "ٹیوشن کے بعد ساتھ گزرا وقت"
+      ],
+      [
+        2,
+        "Small moments at family gatherings",
+        "Family gatherings ki chhoti yaadein",
+        "خاندانی ملاقاتوں کی چھوٹی یادیں"
+      ],
+      [
+        3,
+        "A sudden loss in the family",
+        "Ghar walon ko achanak sadma",
+        "خاندان میں اچانک صدمہ"
+      ]
+    ],
+    "highlights": [
+      [
+        "walk her home",
+        "ghar",
+        "گھر"
+      ],
+      [
+        "racing game",
+        "racing game",
+        "ریسنگ گیم"
+      ]
+    ]
+  },
+  "part-8-jab-family-ko-pata-chal-gaya": {
+    "sections": [
+      [
+        0,
+        "How the news reached my family",
+        "Baat ghar tak kaise pohanchi?",
+        "بات گھر تک کیسے پہنچی؟"
+      ],
+      [
+        1,
+        "My reaction when asked",
+        "Poochne par mera jawaab",
+        "پوچھنے پر میرا جواب"
+      ],
+      [
+        2,
+        "What my silence changed",
+        "Meri khamoshi ka asar",
+        "میری خاموشی کا اثر"
+      ]
+    ],
+    "highlights": [
+      [
+        "denied everything",
+        "inkar kar diya",
+        "انکار"
+      ],
+      [
+        "fear",
+        "khauf",
+        "خوف"
+      ]
+    ]
+  },
+  "part-9-chhoti-jobs-bade-lessons": {
+    "sections": [
+      [
+        0,
+        "Working during school holidays",
+        "School ki chhutiyon mein kaam",
+        "اسکول کی چھٹیوں میں کام"
+      ],
+      [
+        2,
+        "What my parents hoped I would learn",
+        "Ammi Abu kya chahte thay ke main seekhoon?",
+        "امی ابو کیا چاہتے تھے کہ میں سیکھوں؟"
+      ],
+      [
+        3,
+        "The lessons that stayed",
+        "Woh sabaq jo saath rahe",
+        "وہ سبق جو ساتھ رہے"
+      ]
+    ],
+    "highlights": [
+      [
+        "medical store",
+        "medical store",
+        "میڈیکل اسٹور"
+      ],
+      [
+        "medical knowledge",
+        "medical knowledge",
+        "طبی معلومات"
+      ]
+    ],
+    "questions": [
+      [
+        [
+          "What did my holiday jobs teach me?",
+          "Chhutiyon ki jobs ne mujhe kya sikhaya?",
+          "چھٹیوں کی ملازمتوں نے مجھے کیا سکھایا؟"
+        ],
+        [
+          "They kept me learning through practical work and gave me basic familiarity with medicines.",
+          "Un jobs se maine practical kaam seekha aur dawaon ki bunyadi samajh mili.",
+          "ان ملازمتوں سے عملی کام سیکھا اور دواؤں کی بنیادی سمجھ ملی۔"
+        ]
+      ]
+    ]
+  },
+  "part-10-nani": {
+    "sections": [
+      [
+        0,
+        "The trust I shared with Nani",
+        "Nani ke saath mera bharosa",
+        "نانی کے ساتھ میرا اعتماد کا رشتہ"
+      ],
+      [
+        1,
+        "When her health changed",
+        "Jab unki tabiyat badli",
+        "جب ان کی طبیعت بدلی"
+      ],
+      [
+        3,
+        "Living with the loss",
+        "Unke jaane ke baad",
+        "ان کے جانے کے بعد"
+      ]
+    ],
+    "highlights": [
+      [
+        "close bond",
+        "Nani",
+        "نانی"
+      ],
+      [
+        "grandmother",
+        "nani",
+        "نانی"
+      ]
+    ]
+  },
+  "part-11-the-unexpected-message": {
+    "sections": [
+      [
+        0,
+        "A message from an unfamiliar number",
+        "Anjaan number se message",
+        "انجان نمبر سے پیغام"
+      ],
+      [
+        1,
+        "Finding out who had written",
+        "Pata chala message kisne bheja",
+        "پتا چلا پیغام کس نے بھیجا"
+      ],
+      [
+        2,
+        "Old memories, new feelings",
+        "Purani yaadein, naye jazbaat",
+        "پرانی یادیں، نئے جذبات"
+      ]
+    ],
+    "highlights": [
+      [
+        "WhatsApp message",
+        "WhatsApp message",
+        "واٹس ایپ پیغام"
+      ],
+      [
+        "old feelings",
+        "purani yaadein",
+        "پرانی یادیں"
+      ]
+    ]
+  },
+  "part-12-confusion": {
+    "sections": [
+      [
+        0,
+        "A different kind of conversation",
+        "Baat cheet ka alag andaaz",
+        "بات چیت کا الگ انداز"
+      ],
+      [
+        1,
+        "When private conversations were shared",
+        "Jab private baatein share hui",
+        "جب نجی باتیں آگے بتائی گئیں"
+      ],
+      [
+        2,
+        "Saying what I knew honestly",
+        "Jo pata tha, woh sach kehna",
+        "جو معلوم تھا، وہ سچ کہنا"
+      ]
+    ],
+    "highlights": [
+      [
+        "private conversations",
+        "private baaton",
+        "نجی باتوں"
+      ],
+      [
+        "I don’t know",
+        "Mujhe khud pura pata nahi",
+        "مجھے خود پورا پتا نہیں"
+      ]
+    ]
+  },
+  "part-13-manzil-se-kuch-kilometer-pehle": {
+    "sections": [
+      [
+        0,
+        "A stop I was hoping for",
+        "Woh jagah jahan rukne ki umeed thi",
+        "وہ جگہ جہاں رکنے کی امید تھی"
+      ],
+      [
+        1,
+        "The phone call that turned us around",
+        "Woh phone call jisne hamein wapas mor diya",
+        "وہ فون کال جس نے ہمیں واپس موڑ دیا"
+      ],
+      [
+        2,
+        "What the unfinished trip meant to me",
+        "Adhoore safar ka mere liye matlab",
+        "ادھورے سفر کا میرے لیے مطلب"
+      ]
+    ],
+    "highlights": [
+      [
+        "phone call",
+        "phone call",
+        "فون کال"
+      ],
+      [
+        "U-turn",
+        "U-turn",
+        "یو ٹرن"
+      ]
+    ]
+  },
+  "part-14-the-boy-who-keeps-looking-forward": {
+    "sections": [
+      [
+        0,
+        "The thread running through my story",
+        "Meri kahani mein aik hi silsila",
+        "میری کہانی میں ایک ہی سلسلہ"
+      ],
+      [
+        1,
+        "Learning from work and medicine",
+        "Kaam aur medicine se seekhna",
+        "کام اور طب سے سیکھنا"
+      ],
+      [
+        2,
+        "A new direction in technology",
+        "Technology ki taraf nayi manzil",
+        "ٹیکنالوجی کی طرف نئی سمت"
+      ]
+    ],
+    "highlights": [
+      [
+        "raised chickens",
+        "murgiyan",
+        "مرغیاں"
+      ],
+      [
+        "medical stores",
+        "medical stores",
+        "میڈیکل اسٹورز"
+      ],
+      [
+        "online business",
+        "online business",
+        "آن لائن کاروبار"
+      ]
+    ]
+  },
+  "part-15-abhi-kahani-baqi-hai": {
+    "sections": [
+      [
+        0,
+        "Where I was when I wrote this",
+        "Jab maine yeh likha, main kahan tha?",
+        "جب میں نے یہ لکھا، میں کہاں تھا؟"
+      ],
+      [
+        2,
+        "What I want to build next",
+        "Main aage kya banana chahta hoon?",
+        "میں آگے کیا بنانا چاہتا ہوں؟"
+      ],
+      [
+        3,
+        "A lesson I carried from college",
+        "College se saath aane wala sabaq",
+        "کالج سے ساتھ آنے والا سبق"
+      ]
+    ],
+    "highlights": [
+      [
+        "Ahmadpur East",
+        "Ahmadpur East",
+        "احمد پور شرقیہ"
+      ],
+      [
+        "second year of FSc",
+        "FSc",
+        "ایف ایس سی"
+      ],
+      [
+        "financially independent",
+        "financially independent",
+        "مالی طور پر خودمختار"
+      ]
+    ]
+  },
+  "part-16-my-ai-journey": {
+    "sections": [
+      [
+        0,
+        "Asking questions and checking answers",
+        "Sawaal poochhna aur jawaab verify karna",
+        "سوال پوچھنا اور جواب کی تصدیق کرنا"
+      ],
+      [
+        2,
+        "From using AI to building with it",
+        "AI use karne se AI se banane tak",
+        "AI کے استعمال سے AI کے ساتھ بنانے تک"
+      ],
+      [
+        4,
+        "Publishing tools and reliable notifications",
+        "Publishing tools aur notifications ki jaanch",
+        "اشاعت کے ٹولز اور نوٹیفیکیشنز کی جانچ"
+      ]
+    ],
+    "highlights": [
+      [
+        "AI agents",
+        "AI agents",
+        "AI ایجنٹس"
+      ],
+      [
+        "SaaS products",
+        "SaaS products",
+        "SaaS پراڈکٹس"
+      ],
+      [
+        "admin panel",
+        "admin panel",
+        "ایڈمن پینل"
+      ],
+      [
+        "notification system",
+        "notification system",
+        "نوٹیفکیشن سسٹم"
+      ]
+    ],
+    "questions": [
+      [
+        [
+          "How did my interest in AI begin?",
+          "AI mein meri dilchaspi kaise shuru hui?",
+          "AI میں میری دلچسپی کیسے شروع ہوئی؟"
+        ],
+        [
+          "I used chatbots when I could not understand a concept, then started comparing answers and building websites and tools.",
+          "Jab concept samajh nahi aata tha main chatbots use karta tha. Phir jawaab compare karne aur websites aur tools banane laga.",
+          "جب کوئی تصور سمجھ نہیں آتا تھا تو میں چیٹ بوٹس استعمال کرتا تھا۔ پھر جوابوں کا موازنہ کیا اور ویب سائٹس اور ٹولز بنانے لگا۔"
+        ]
+      ]
+    ]
+  }
+}

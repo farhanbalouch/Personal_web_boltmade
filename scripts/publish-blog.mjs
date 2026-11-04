@@ -70,6 +70,14 @@ ARTICLE QUALITY:
 - Use 2-6 short paragraphs (the English, Hindi and Urdu versions should
   have the same number of paragraphs, covering the same content in order).
 - Avoid filler, repetition, and generic AI-style motivational language.
+- Include optional editorial fields per language. Use short, specific section
+  headings that describe the following text. Each section start is a zero-based
+  index in that language's body array. Leave a short opening unheaded if useful.
+- Give 2–5 short phrases that occur verbatim in the body for visual emphasis.
+- Add up to 2 reader questions with short, direct answers supported by the body.
+  Use an empty questions array when a Q&A would feel forced or repetitive.
+- Add one short takeaway grounded in the source. For a personal story use a
+  reflection. For a technical piece use a practical point. Do not add new facts.
 
 TITLE: Clear, descriptive, SEO-friendly in English. No clickbait, no
 unnecessary punctuation. The Hindi and Urdu titles should carry the same
@@ -82,12 +90,12 @@ KEYWORDS: 3-6 relevant search phrases per language. No hashtags. The
 Hindi/Urdu keyword lists can be natural equivalents of the English ones,
 not literal translations.
 
-Return ONLY valid JSON in exactly this format:
+Return ONLY valid JSON with this structure for each of en, hi and ur:
 
 {
-  "en": { "title": "string", "excerpt": "string", "body": ["paragraph 1", "paragraph 2"], "keywords": ["keyword one", "keyword two"] },
-  "hi": { "title": "string", "excerpt": "string", "body": ["paragraph 1", "paragraph 2"], "keywords": ["keyword one", "keyword two"] },
-  "ur": { "title": "string", "excerpt": "string", "body": ["paragraph 1", "paragraph 2"], "keywords": ["keyword one", "keyword two"] }
+  "en": { "title": "string", "excerpt": "string", "body": ["paragraph 1", "paragraph 2"], "keywords": ["keyword one", "keyword two"], "editorial": { "sections": [{"start": 1, "title": "Specific heading"}], "highlights": ["verbatim phrase"], "questions": [{"question": "Reader question?", "answer": "Short answer from the post."}], "takeaway": "One grounded line." } },
+  "hi": { "title": "string", "excerpt": "string", "body": ["paragraph 1", "paragraph 2"], "keywords": ["keyword one", "keyword two"], "editorial": { "sections": [{"start": 1, "title": "Specific heading"}], "highlights": ["verbatim phrase"], "questions": [{"question": "Reader question?", "answer": "Short answer from the post."}], "takeaway": "One grounded line." } },
+  "ur": { "title": "string", "excerpt": "string", "body": ["paragraph 1", "paragraph 2"], "keywords": ["keyword one", "keyword two"], "editorial": { "sections": [{"start": 1, "title": "Specific heading"}], "highlights": ["verbatim phrase"], "questions": [{"question": "Reader question?", "answer": "Short answer from the post."}], "takeaway": "One grounded line." } }
 }
 `;
 

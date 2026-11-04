@@ -44,6 +44,7 @@ export function buildItem(
     return {
       ...existing,
       ...media,
+      updatedAt: now,
       translations: Object.fromEntries(
         ["en", "hi", "ur"].map((lang) => [
           lang,
@@ -52,6 +53,7 @@ export function buildItem(
             title: translations[lang].title,
             excerpt: translations[lang].excerpt,
             paragraphs: translations[lang].body,
+            editorial: translations[lang].editorial,
           },
         ]),
       ),

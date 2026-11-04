@@ -1,5 +1,7 @@
-import { readFile, writeFile, mkdir } from 'node:fs/promises';
+import { readFile, writeFile, mkdir, mkdtemp, rm } from 'node:fs/promises';
 import { join } from 'node:path';
+import { pathToFileURL } from 'node:url';
+import { build } from 'esbuild';
 const SITE = 'https://farhanbalouch.com';
 const escape = (s) => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const absolute = (path) => new URL(path, SITE).href;
@@ -26,7 +28,16 @@ export function socialHtml(shell, page) {
     .replace(/<link\b[^>]*rel=["'](?:canonical|alternate)["'][^>]*>/gi, '');
   const markup = `<title>${escape(page.title)}</title>\n` + tags.map(([attr,key,value]) => `<meta ${attr}="${key}" content="${escape(value)}" />`).join('\n') +
     `\n<link rel="canonical" href="${escape(url)}" />\n<link rel="alternate" type="text/markdown" href="${escape(absolute(page.path === '/' ? '/index.md' : page.path + '.md'))}" />`;
-  return html.replace('</head>', markup + '\n</head>');
+  if (page.structuredData) {
+    html = html.replace('</head>', () => `<script id="article-structured-data" type="application/ld+json">${page.structuredData}</script>\n</head>`);
+  }
+  if (page.renderedBody) {
+    const root = '<div id="root"></div>';
+    if (!html.includes(root)) throw new Error('Missing app root in built HTML');
+    html = html.replace(root, () => `<div id="root">${page.renderedBody}</div>`)
+      .replace(/<noscript>\s*<h1>Farhan Balouch<\/h1>[\s\S]*?<\/noscript>/, '');
+  }
+  return html.replace('</head>', () => markup + '\n</head>');
 }
 const cleanLabel = (s) => String(s).replace(/[\[\]\r\n]/g, ' ');
 export function llmsIndex(base, pages) {
@@ -48,10 +59,40 @@ export async function main() {
     {path:'/stories',title:'Stories & Updates — Farhan Balouch',description:'Fresh stories, project updates and moments from Farhan Balouch’s journey.'},
     {path:'/story',title:'My Story — Farhan Balouch',description:'Read the chapters of Farhan Balouch’s personal journey.'},
   ];
-  for (const [route,items] of [['blog',blogs],['stories',stories],['story',chapters]]) for (const item of items) {
-    if (!/^[a-z0-9-]{1,100}$/.test(item.slug)) throw new Error('Invalid public content slug');
-    const t = item.translations.en;
-    pages.push({path:`/${route}/${item.slug}`,title:`${t.title} — Farhan Balouch`,description:t.excerpt,images:item.images,article:true,publishedAt:item.publishedAt,updatedAt:item.updatedAt,paragraphs:t.body || t.paragraphs});
+  const directory = await mkdtemp(join(process.cwd(), '.article-build-'));
+  try {
+    const outfile = join(directory, 'render.mjs');
+    await build({
+      entryPoints: ['scripts/article-prerender.tsx'],
+      outfile, bundle: true, platform: 'node', format: 'esm', jsx: 'automatic',
+      packages: 'external', loader: { '.css': 'empty' },
+    });
+    const { renderArticle, renderReadingIndex, articleSchema } = await import(pathToFileURL(outfile).href);
+    const collections = [
+      ['blog', 'All blog posts', blogs.slice().sort((a,b) => b.publishedAt.localeCompare(a.publishedAt))],
+      ['stories', 'All stories', stories.slice().sort((a,b) => b.publishedAt.localeCompare(a.publishedAt))],
+      ['story', 'All biography chapters', chapters.slice().sort((a,b) => a.part - b.part)],
+    ];
+    for (const [route, collectionLabel, items] of collections) {
+      const articles = items.map((item, index) => {
+        if (!/^[a-z0-9-]{1,100}$/.test(item.slug)) throw new Error('Invalid public content slug');
+        const t = item.translations.en;
+        const neighbor = (other) => other && { path: `/story/${other.slug}`, title: other.translations.en.title };
+        const article = {
+          path: `/${route}/${item.slug}`, slug: item.slug, collection: '/' + route, collectionLabel,
+          title: `${t.title} — Farhan Balouch`, headline: t.title, description: t.excerpt,
+          translation: t, images: item.images, article: true, blog: route === 'blog',
+          publishedAt: item.publishedAt, updatedAt: item.updatedAt, paragraphs: t.body || t.paragraphs,
+          ...(route === 'story' ? { previous: neighbor(items[index - 1]), next: neighbor(items[index + 1]) } : {}),
+        };
+        return { ...article, renderedBody: renderArticle(article), structuredData: articleSchema(article) };
+      });
+      const index = pages.find(page => page.path === '/' + route);
+      index.renderedBody = renderReadingIndex(index, articles);
+      pages.push(...articles);
+    }
+  } finally {
+    await rm(directory, { recursive: true, force: true });
   }
   for (const page of pages) {
     const dir = join('dist',page.path.slice(1)); await mkdir(dir,{recursive:true});
@@ -62,6 +103,6 @@ export async function main() {
     await writeFile(page.path === '/' ? 'dist/index.md' : join('dist',page.path.slice(1)+'.md'),markdown);
   }
   await writeFile('dist/llms.txt',llmsIndex(llms,pages));
-  console.log(`Generated social metadata and Markdown for ${pages.length} public pages.`);
+  console.log(`Generated reading HTML, social metadata and Markdown for ${pages.length} public pages.`);
 }
 if (process.argv[1]?.endsWith('build-social-pages.mjs')) main().catch(e=>{console.error(e.message);process.exitCode=1;});

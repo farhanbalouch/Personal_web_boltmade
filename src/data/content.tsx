@@ -1,3 +1,4 @@
+import type { Editorial } from '../lib/article-reading';
 import type { ContentImage } from "./blog";
 // Central data file for the site. Pure data + type re-exports only — no JSX/components here.
 //
@@ -153,6 +154,7 @@ export type ChapterTranslation = {
   subtitle: string;
   excerpt: string;
   moral: string;
+  editorial?: Editorial;
   paragraphs: string[];
 };
 
@@ -160,6 +162,7 @@ export type StoryChapter = {
   images?: ContentImage[];
   slug: string;
   part: number;
+  updatedAt?: string;
   period: string;
   translations: Record<Language, ChapterTranslation>;
 };

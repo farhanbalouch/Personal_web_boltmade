@@ -1,3 +1,4 @@
+import type { Editorial } from '../lib/article-reading';
 export type ContentImage = { src: string; alt: string; caption: string; width: number; height: number };
 // Blog posts are written to blog-posts.json by scripts/publish-blog.mjs
 // (the GitHub Action). This file just types and re-exports them, sorted
@@ -12,12 +13,14 @@ export type BlogTranslation = {
   excerpt: string;
   body: string[];
   keywords: string[];
+  editorial?: Editorial;
 };
 
 export type BlogPost = {
   images?: ContentImage[];
   slug: string;
   author: { name: string; url: string };
+  updatedAt?: string;
   publishedAt: string; // ISO date-time, added automatically
   translations: Record<BlogLanguage, BlogTranslation>;
 };

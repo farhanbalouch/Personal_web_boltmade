@@ -1,3 +1,5 @@
+import { ArticleIntro, ArticleReading } from '@/components/ArticleReading';
+import { articleSchema } from '@/lib/article-schema';
 import { ContentPhotos } from "@/components/ContentPhotos";
 import { ArrowLeft, ArrowRight, BookOpen, Sparkles } from "lucide-react";
 import { Seo } from "@/components/Seo";
@@ -23,6 +25,11 @@ export function Stories({ slug }: { slug?: string }) {
           "Fresh stories, project updates and moments from Farhan Balouch’s journey."
         }
         path={slug ? `/stories/${slug}` : "/stories"}
+        structuredData={story ? articleSchema({
+          path: `/stories/${story.slug}`, headline: story.translations.en.title,
+          description: story.translations.en.excerpt, publishedAt: story.publishedAt,
+          updatedAt: story.updatedAt, images: story.images,
+        }) : undefined}
         ogImage={story?.images?.[0] ? `https://farhanbalouch.com${story.images[0].src}` : undefined}
       />
       <p className="text-xs text-teal tracking-[0.25em] uppercase mb-5">
@@ -39,7 +46,8 @@ export function Stories({ slug }: { slug?: string }) {
           </a>
           {story && t ? (
             <article
-              className={`max-w-2xl mx-auto ${language === "ur" ? "font-urdu" : ""}`}
+              className={`max-w-3xl mx-auto ${language === "ur" ? "font-urdu" : ""}`}
+              lang={language === "hi" ? "hi-Latn" : language}
               dir={language === "ur" ? "rtl" : "ltr"}
             >
               <LanguageSwitcher />
@@ -49,12 +57,9 @@ export function Stories({ slug }: { slug?: string }) {
               <p className="text-text-muted text-xs mb-10">
                 {formatBlogDate(story.publishedAt, language)}
               </p>
+              <ArticleIntro translation={t} language={language} />
               <ContentPhotos images={story.images} mode="cover" />
-              {t.body.map((p, i) => (
-                <p key={i} className="text-text-muted leading-[2] mb-6">
-                  {p}
-                </p>
-              ))}
+              <ArticleReading slug={story.slug} translation={t} language={language} />
               <ContentPhotos images={story.images} mode="gallery" />
             </article>
           ) : (

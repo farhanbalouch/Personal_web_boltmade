@@ -1,3 +1,5 @@
+import { ArticleIntro, ArticleReading } from '@/components/ArticleReading';
+import { articleSchema } from '@/lib/article-schema';
 import { ContentPhotos } from "@/components/ContentPhotos";
 import { useState } from 'react';
 import { ArrowLeft, ArrowRight, BookOpen, Sparkles, ArrowUpRight } from 'lucide-react';
@@ -15,7 +17,6 @@ export function StoryChapter({ slug }: { slug: string }) {
   const { language } = useLanguage();
   const isUrdu = language === 'ur';
   const chapter = storyChapters.find((c) => c.slug === slug);
-  const [showSummary, setShowSummary] = useState(false);
   const [gateOpen, setGateOpen] = useState(true);
 
   if (!chapter) {
@@ -40,32 +41,22 @@ export function StoryChapter({ slug }: { slug: string }) {
   const t = chapter.translations[language];
   const tEn = chapter.translations.en; // SEO always uses English
 
-  if (gateOpen) {
-    return (
-      <>
-        <Seo
-          title={`${tEn.title} — Farhan Balouch`}
-          description={tEn.excerpt}
-          path={`/story/${chapter.slug}`}
-          ogImage={chapter.images?.[0] ? `https://farhanbalouch.com${chapter.images[0].src}` : undefined}
-        />
-        <StoryGateOverlay onComplete={() => setGateOpen(false)} seconds={7} />
-      </>
-    );
-  }
-
   return (
     <>
-      <StoryDisclaimer />
+      {gateOpen ? <StoryGateOverlay onComplete={() => setGateOpen(false)} seconds={7} /> : <StoryDisclaimer />}
 
       <Seo
         title={`${tEn.title} — Farhan Balouch`}
         description={tEn.excerpt}
         path={`/story/${chapter.slug}`}
-          ogImage={chapter.images?.[0] ? `https://farhanbalouch.com${chapter.images[0].src}` : undefined}
+        structuredData={articleSchema({
+          path: `/story/${chapter.slug}`, headline: tEn.title, description: tEn.excerpt,
+          updatedAt: chapter.updatedAt, images: chapter.images,
+        })}
+        ogImage={chapter.images?.[0] ? `https://farhanbalouch.com${chapter.images[0].src}` : undefined}
       />
 
-      <article className={`pt-32 pb-16 max-w-2xl mx-auto px-5 sm:px-8 ${isUrdu ? 'font-urdu' : ''}`}>
+      <article {...(gateOpen ? { inert: '' } : {})} className={`pt-32 pb-16 max-w-3xl mx-auto px-5 sm:px-8 ${isUrdu ? 'font-urdu' : ''}`}>
         <Reveal>
           <div className="flex items-center justify-between gap-4 mb-8 flex-wrap">
             <button
@@ -78,7 +69,7 @@ export function StoryChapter({ slug }: { slug: string }) {
           </div>
         </Reveal>
 
-        <div dir={isUrdu ? 'rtl' : 'ltr'}>
+        <div lang={language === "hi" ? "hi-Latn" : language} dir={isUrdu ? 'rtl' : 'ltr'}>
           <Reveal delay={60}>
             <p className="text-sm text-teal font-medium tracking-wide uppercase mb-3">
               {language === 'ur' ? `\u0628\u0627\u0628 ${chapter.part}` : `Chapter ${chapter.part}`} \u00b7 {chapter.period}
@@ -88,56 +79,21 @@ export function StoryChapter({ slug }: { slug: string }) {
             <h1 className="font-display text-4xl sm:text-5xl mb-3 leading-tight">{t.title}</h1>
           </Reveal>
 
-          <Reveal delay={150}>
-            <button
-              onClick={() => setShowSummary((s) => !s)}
-              className="mb-8 inline-flex items-center gap-2 px-4 py-2 rounded-xl border border-gold/30 bg-gold/5 text-sm text-gold hover:bg-gold/10 transition-colors"
-            >
-              <Sparkles className="w-4 h-4" />
-              {showSummary
-                ? (language === 'ur' ? 'خلاصہ چھپائیں' : 'Hide summary')
-                : (language === 'ur' ? 'اس صفحے کا خلاصہ دیکھیں' : 'Show page summary')}
-            </button>
-            {showSummary && (
-              <div
-                dir={isUrdu ? 'rtl' : 'ltr'}
-                className="mb-8 rounded-xl border border-border bg-bg-card/50 p-5 text-text-muted leading-relaxed"
-              >
-                {t.excerpt}
-              </div>
-            )}
-          </Reveal>
-
           <Reveal delay={140}>
             <p className="text-lg text-text-muted/80 mb-10">{t.subtitle}</p>
           </Reveal>
 
+          <p className="text-sm text-text-muted mb-4">
+            {language === 'ur' ? 'اس باب کی تخلیقی تدوین AI کی مدد سے کی گئی ہے۔ کچھ مناظر اور مکالمے تخلیقی انداز میں پیش کیے گئے ہیں۔' : language === 'hi' ? 'Is chapter ki creative editing AI ki madad se hui hai. Kuch scenes aur dialogues dobara pesh kiye gaye hain.' : 'This chapter is creatively edited with AI. Some scenes and dialogue may be reconstructed.'}
+          </p>
+          <ArticleIntro translation={t} language={language} />
           <ContentPhotos images={chapter.images} mode="cover" />
 
-          <div className="space-y-6">
-            {t.paragraphs.map((p, i) => (
-              <Reveal key={i} delay={120 + i * 60}>
-                <p className="text-lg text-text-muted leading-[1.75]">{p}</p>
-              </Reveal>
-            ))}
-          </div>
+          <ArticleReading slug={chapter.slug} translation={t} language={language} />
 
           <ContentPhotos images={chapter.images} mode="gallery" />
 
-          <Reveal delay={140 + t.paragraphs.length * 60}>
-            <div
-              dir="ltr"
-              className="mt-10 rounded-xl border border-gold/25 bg-gold/5 p-5 flex items-start gap-3"
-            >
-              <Sparkles className="w-5 h-5 text-gold shrink-0 mt-0.5" />
-              <div>
-                <p className="text-xs text-gold font-medium uppercase tracking-wide mb-1.5">Takeaway</p>
-                <p className="text-sm text-text-muted leading-relaxed">{t.moral}</p>
-              </div>
-            </div>
-          </Reveal>
-
-          <Reveal delay={180 + t.paragraphs.length * 60}>
+          <Reveal delay={180}>
             <div dir="ltr" className="mt-10 pt-8 border-t border-border">
               <div className="relative overflow-hidden rounded-2xl border border-gold/20 bg-bg-soft/60 p-6 sm:p-8">
                 <div className="absolute -top-20 -right-20 w-40 h-40 rounded-full bg-gold/10 blur-3xl animate-pulse-slow pointer-events-none" />
@@ -176,11 +132,11 @@ export function StoryChapter({ slug }: { slug: string }) {
         </div>
       </article>
 
-      <nav className="max-w-2xl mx-auto px-5 sm:px-8 pb-20">
+      <nav {...(gateOpen ? { inert: '' } : {})} className="max-w-3xl mx-auto px-5 sm:px-8 pb-20">
         <div className="grid gap-4 sm:grid-cols-2 border-t border-border/50 pt-8">
           {prev ? (
-            <button
-              onClick={() => navigate(`/story/${prev.slug}`)}
+            <a
+              href={`/story/${prev.slug}`}
               className="group text-left rounded-xl border border-border bg-bg-card/50 p-5 hover:border-gold/30 transition-colors"
             >
               <span className="flex items-center gap-1.5 text-xs text-text-muted mb-1.5">
@@ -189,12 +145,12 @@ export function StoryChapter({ slug }: { slug: string }) {
               <span className="font-display text-lg group-hover:text-gold transition-colors">
                 {prev.translations[language].title}
               </span>
-            </button>
+            </a>
           ) : <div className="hidden sm:block" />}
 
           {next ? (
-            <button
-              onClick={() => navigate(`/story/${next.slug}`)}
+            <a
+              href={`/story/${next.slug}`}
               className="group text-right rounded-xl border border-border bg-bg-card/50 p-5 hover:border-gold/30 transition-colors"
             >
               <span className="flex items-center justify-end gap-1.5 text-xs text-text-muted mb-1.5">
@@ -203,7 +159,7 @@ export function StoryChapter({ slug }: { slug: string }) {
               <span className="font-display text-lg group-hover:text-gold transition-colors">
                 {next.translations[language].title}
               </span>
-            </button>
+            </a>
           ) : <div className="hidden sm:block" />}
         </div>
       </nav>
