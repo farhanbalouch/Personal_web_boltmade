@@ -1,6 +1,7 @@
 import { StudioPhotos } from "@/components/StudioPhotos";
 import { StudioDrafts } from "@/components/StudioDrafts";
 import { StudioInstall } from "@/components/StudioInstall";
+import { StudioPromo } from "@/components/StudioPromo";
 import { setupStudioPwa } from "@/lib/studioPwa";
 import { parseStudioResponse } from "@/lib/studio-response";
 import { draftTitle, emptyDraft, forgetDraft, hasDraftContent, listDeviceDrafts, rememberDraft, restoreActiveDraft, type CloudDraft, type Draft, type Kind } from "@/lib/studio-drafts";
@@ -26,6 +27,7 @@ import {
 } from "lucide-react";
 import type { BlogPost } from "@/data/blog";
 import type { StoryChapter } from "@/data/content";
+import type { SocialPromo } from "@/lib/studio-promo";
 import "./studio.css";
 type Run = {
   id: number;
@@ -41,6 +43,7 @@ type StudioResult = {
   title: string;
   url?: string;
   error?: string;
+  socialPromo?: SocialPromo;
 };
 type Content = {
   warnings?: string[];
@@ -85,6 +88,8 @@ export function Studio() {
   const cloudRevision = content?.drafts.find(note => note.name === draft.id + ".json")?.sha;
   const cloudDraft = Boolean(draft.revision || cloudRevision);
   const [photoBusy, setPhotoBusy] = useState(false);
+  const [promoId, setPromoId] = useState<string | null>(null);
+  const promoResult = content?.results.find(result => result.id === promoId);
   const [busy, setBusy] = useState(false),
     [message, setMessage] = useState(""),
     [error, setError] = useState("");
@@ -243,6 +248,7 @@ export function Studio() {
       if (mode === "publish") {
         forgetDraft(draft.id);
         setDraft(emptyDraft());
+        setPromoId(null);
         setTab("activity");
       } else {
         if (copy) forgetDraft(draft.id);
@@ -732,6 +738,17 @@ export function Studio() {
                 </p>
                 <button onClick={load}>Refresh activity</button>
               </div>
+              {promoResult?.socialPromo && <StudioPromo
+                key={promoResult.id}
+                id={promoResult.id}
+                promo={promoResult.socialPromo}
+                url={promoResult.url}
+                published={Boolean(content?.liveIds?.includes(promoResult.id))}
+                imageAi={content?.imageAi === true}
+                generateArtwork={scene => api({ action: "image-preview", mode: "generate", topic: scene,
+                  instructions: "Photorealistic background art only. Keep it free of any lettering or logos." })}
+                close={() => setPromoId(null)}
+              />}
               {content?.results?.map((result) => (
                 <article key={result.id}>
                   <div>
@@ -765,11 +782,14 @@ export function Studio() {
                       Recover note & retry
                     </button>
                   ) : (
-                    result.url && (
-                      <a href={result.url} target="_blank" rel="noreferrer">
+                    <div className="studio-row-actions">
+                      {result.socialPromo && <button type="button" onClick={() => setPromoId(result.id)}>
+                        <Sparkles size={16} /> Social Promo
+                      </button>}
+                      {result.url && <a href={result.url} target="_blank" rel="noreferrer">
                         View post <ArrowUpRight size={17} />
-                      </a>
-                    )
+                      </a>}
+                    </div>
                   )}
                 </article>
               ))}

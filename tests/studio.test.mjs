@@ -2,7 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { randomBytes, randomUUID } from "node:crypto";
 import handler, { seal, unseal, validateRequest } from "../api/studio.js";
-import { buildItem } from "../scripts/publish-studio.mjs";
+import { buildItem, buildSocialPromo } from "../scripts/publish-studio.mjs";
 process.env.ADMIN_SESSION_SECRET = randomBytes(48).toString("hex");
 const translations = Object.fromEntries(
   ["en", "hi", "ur"].map((l) => [
@@ -15,6 +15,17 @@ const translations = Object.fromEntries(
     },
   ]),
 );
+test("Social Promo uses the specific article when AI leaves the promo out", () => {
+  const article = { title: "What I saw from the classroom window", excerpt: "A student notices a scene during the last lecture." };
+  const fallback = buildSocialPromo(article, null);
+  assert.equal(fallback.headline, article.title);
+  assert.match(fallback.scene, /classroom window/);
+  assert.ok(fallback.caption.includes(article.excerpt));
+  const suggested = buildSocialPromo(article, { headline: "  A sudden silence  ", scene: "A".repeat(1000), subhead: 42 });
+  assert.equal(suggested.headline, "A sudden silence");
+  assert.equal(suggested.scene.length, 700);
+  assert.equal(suggested.subhead, article.excerpt);
+});
 test("session encrypts token and rejects tampering", () => {
   const secret = "github_pat_private_test_value",
     cookie = seal(secret);

@@ -120,7 +120,7 @@ function isValidLangBlock(block) {
   );
 }
 
-export async function callGemini(rawNote) {
+export async function callGemini(rawNote, { socialPromo = false } = {}) {
   const apiKey = process.env.GEMINI_API_KEY;
 
   if (!apiKey) {
@@ -135,7 +135,17 @@ export async function callGemini(rawNote) {
     signal: AbortSignal.timeout(120000),
     body: JSON.stringify({
       systemInstruction: {
-        parts: [{ text: SYSTEM_PROMPT }],
+        parts: [{ text: SYSTEM_PROMPT + (socialPromo ? `
+For this new blog only, also include an optional top-level "socialPromo" object.
+Use the finished article as the source. Give it "headline" (up to 65 characters),
+"subhead" (up to 120 characters), "caption" (up to 280 characters, natural Roman Urdu),
+and "scene" (up to 650 characters in English). The scene is a concrete photorealistic
+editorial image direction describing a subject, composition, lighting and mood.
+Choose a scene or a visual metaphor grounded in this specific article. Treat personal
+events as illustrations, and avoid invented identifiable faces or sensitive details.
+Leave space for later headline placement. Keep text and logos out of the scene itself.
+The promo must never replace or change any of the three language blocks.
+` : '') }],
       },
       contents: [
         {
