@@ -59,8 +59,7 @@ export function Stories({ slug }: { slug?: string }) {
               </p>
               <ArticleIntro translation={t} language={language} />
               <ContentPhotos images={story.images} mode="cover" />
-              <ArticleReading slug={story.slug} translation={t} language={language} />
-              <ContentPhotos images={story.images} mode="gallery" />
+              <ArticleReading slug={story.slug} translation={t} language={language} images={story.images} />
             </article>
           ) : (
             <h1 className="font-display text-4xl">Story not found</h1>

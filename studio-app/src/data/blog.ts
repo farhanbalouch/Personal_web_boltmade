@@ -1,4 +1,4 @@
-export type ContentImage = { src: string; alt: string; caption: string; width: number; height: number };
+export type ContentImage = { src: string; alt: string; caption: string; width: number; height: number; inlineAfter?: number };
 export type BlogLanguage = 'en' | 'hi' | 'ur';
 
 export type BlogTranslation = {

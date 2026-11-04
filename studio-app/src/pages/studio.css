@@ -103,7 +103,7 @@
 .studio-paper-top { padding-bottom: 23px; border-bottom: 1px solid var(--line); }
 .studio-paper-top span:first-child, .studio-paper-bottom button { display: flex; align-items: center; gap: 8px; color: var(--teal); }
 .studio select, .studio-search { width: 100%; background: #101c30; color: var(--ink); border: 1px solid #3a4e6c; padding: 12px; border-radius: 10px; font-size: 13px; }
-.studio-paper textarea { width: 100%; min-height: 350px; margin-top: 25px; resize: vertical; color: #edf3fc; background: transparent; border: 0; font-family: 'Inter', sans-serif; font-size: 15px; line-height: 1.95; }
+.studio-paper #studio-raw { width: 100%; min-height: 350px; margin-top: 25px; resize: vertical; color: #edf3fc; background: transparent; border: 0; font-family: 'Inter', sans-serif; font-size: 15px; line-height: 1.95; }
 .studio-paper-bottom { border-top: 1px solid var(--line); padding-top: 20px; font-size: 8px; }
 .studio-publish { background: radial-gradient(ellipse at 100% 0, #2f675843, transparent 80%), #172b3d; border-color: #355c62; }
 .studio-publish h2 { font-size: 25px; margin-bottom: 14px; }
@@ -214,7 +214,7 @@
   .studio-stats small { font-size: 8px; }
   .studio-editor-grid { grid-template-columns: 1fr; gap: 18px; }
   .studio-paper, .studio-publish { padding: 22px; }
-  .studio-paper textarea { min-height: 300px; font-size: 16px; }
+  .studio-paper #studio-raw { min-height: 300px; font-size: 16px; }
   .studio-paper-bottom > span { max-width: 110px; text-align: right; line-height: 1.6; }
   .studio-content-list > article { display: block; padding: 20px; }
   .studio-row-actions { margin-top: 18px; padding-top: 15px; border-top: 1px solid var(--line); }
@@ -275,3 +275,24 @@
 .studio-install-dialog code { overflow-wrap: anywhere; color: #f4d284; }
 .studio-install-message { font-size: 11px; max-width: 300px; line-height: 1.5; }
 @media (max-width: 500px) { .studio-install-dialog { padding: 21px 16px; } .studio-install-results > div { grid-template-columns: 1fr; gap: 4px; } }
+
+.studio-photo-modes, .studio-photo-review-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-block: 12px; }
+.studio-photo-modes button, .studio-photo-review-actions > button:not(.studio-photo-add) {
+  border: 1px solid var(--line); border-radius: 9px; color: var(--muted); padding: 8px 11px; font-size: 12px;
+}
+.studio-photo-modes button[aria-pressed="true"] { color: var(--teal); border-color: var(--teal); background: #18343b; }
+.studio-photo-instructions { margin-block: 12px; }
+.studio-photo-fields select, .studio-photo-fields textarea {
+  display: block; width: 100%; background: #0c182a; color: #e0edfc; border: 1px solid #344965;
+  border-radius: 7px; padding: 9px; margin-top: 6px; font: inherit; font-size: 13px;
+}
+.studio-photo-fields textarea { resize: vertical; }
+.studio-photo-review { border: 1px solid var(--line); border-radius: 12px; padding: 12px; margin-top: 14px; }
+.studio-photo-review > p { font-size: 12px; margin-bottom: 9px; }
+.studio-photo-candidates { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(160px, 100%), 1fr)); gap: 8px; }
+.studio-photo-candidates img, .studio-photo-source {
+  width: 100%; max-height: 300px; object-fit: contain; border-radius: 9px; background: #0b1629;
+}
+.studio-photo-source { display: block; max-width: 230px; max-height: 140px; margin-top: 8px; }
+.studio-photo-review-actions .studio-photo-add { width: auto; }
+@media (max-width: 600px) { .studio-photo-fields textarea, .studio-photo-fields select { font-size: 16px; } }

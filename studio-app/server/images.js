@@ -7,9 +7,11 @@ export function validateImages(value) {
   return value.map((image) => {
     if (!image || !SRC.test(image.src || '') || typeof image.alt !== 'string' || !image.alt.trim() || image.alt.length > 240 ||
       (image.caption !== undefined && (typeof image.caption !== 'string' || image.caption.length > 400)) ||
-      !Number.isInteger(image.width) || !Number.isInteger(image.height) || image.width < 1 || image.height < 1 || image.width > 1600 || image.height > 1600)
+      !Number.isInteger(image.width) || !Number.isInteger(image.height) || image.width < 1 || image.height < 1 || image.width > 1600 || image.height > 1600 ||
+      (image.inlineAfter !== undefined && (!Number.isInteger(image.inlineAfter) || image.inlineAfter < 1 || image.inlineAfter > 100)))
       throw fail(400, 'Choose an uploaded Studio photo and add a short description.');
-    return {src: image.src, alt: image.alt.trim(), caption: (image.caption || '').trim(), width: image.width, height: image.height};
+    return {src: image.src, alt: image.alt.trim(), caption: (image.caption || '').trim(), width: image.width, height: image.height,
+      ...(image.inlineAfter !== undefined ? {inlineAfter: image.inlineAfter} : {})};
   });
 }
 export function validateUpload(body) {

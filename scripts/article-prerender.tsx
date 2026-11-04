@@ -29,8 +29,7 @@ export function renderArticle(page: Page) {
         </p>}
         <ArticleIntro translation={page.translation} language="en" />
         <ContentPhotos images={page.images} mode="cover" />
-        <ArticleReading slug={page.slug} translation={page.translation} language="en" />
-        <ContentPhotos images={page.images} mode="gallery" />
+        <ArticleReading slug={page.slug} translation={page.translation} language="en" images={page.images} />
         <p className="text-text-muted mt-8">Written by <a className="reading-static-back" href="/about">Farhan Balouch</a></p>
       </article>
       {(page.previous || page.next) && <nav aria-label="More biography chapters" className="reading-static-list">

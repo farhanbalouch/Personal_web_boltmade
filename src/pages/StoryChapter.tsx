@@ -89,9 +89,8 @@ export function StoryChapter({ slug }: { slug: string }) {
           <ArticleIntro translation={t} language={language} />
           <ContentPhotos images={chapter.images} mode="cover" />
 
-          <ArticleReading slug={chapter.slug} translation={t} language={language} />
+          <ArticleReading slug={chapter.slug} translation={t} language={language} images={chapter.images} />
 
-          <ContentPhotos images={chapter.images} mode="gallery" />
 
           <Reveal delay={180}>
             <div dir="ltr" className="mt-10 pt-8 border-t border-border">

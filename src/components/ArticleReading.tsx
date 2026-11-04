@@ -1,6 +1,7 @@
 import { Clock3, MessageCircle, Sparkles } from 'lucide-react';
 import { readingContent, readingLabels, splitLongParagraph, paragraphHighlight, type ReadingText } from '../lib/article-reading';
-import type { BlogLanguage } from '../data/blog';
+import type { BlogLanguage, ContentImage } from '../data/blog';
+import { ContentPhotos } from './ContentPhotos';
 import './article-reading.css';
 
 type Props = { slug: string; translation: ReadingText; language: BlogLanguage };
@@ -20,12 +21,14 @@ export function ArticleIntro({ translation, language }: Pick<Props, 'translation
   );
 }
 
-export function ArticleReading({ slug, translation, language }: Props) {
+export function ArticleReading({ slug, translation, language, images }: Props & { images?: ContentImage[] }) {
   const labels = readingLabels(language);
   const { paragraphs, headings, highlights, questions, takeaway } = readingContent(slug, translation, language);
   const used = new Set<string>();
   const sectionId = (start: number) => `section-${start + 1}`;
   const contents = [...headings.entries()].sort(([a], [b]) => a - b);
+  const inline = images?.filter(photo => photo.inlineAfter && photo.inlineAfter <= paragraphs.length) ?? [];
+  const gallery = images?.filter((photo, index) => (index > 0 || photo.inlineAfter) && !inline.includes(photo));
 
   return (
     <div className="article-reading">
@@ -43,6 +46,7 @@ export function ArticleReading({ slug, translation, language }: Props) {
               const hit = paragraphHighlight(chunk, highlights, used);
               return <p key={offset}>{hit ? <>{hit[0]}<strong>{hit[1]}</strong>{hit[2]}</> : chunk}</p>;
             })}
+            <ContentPhotos images={inline.filter(photo => photo.inlineAfter === start + 1)} />
           </div>
         ))}
       </div>
@@ -63,6 +67,7 @@ export function ArticleReading({ slug, translation, language }: Props) {
           <p>{takeaway}</p>
         </section>
       )}
+      <ContentPhotos images={gallery} mode="gallery" />
     </div>
   );
 }

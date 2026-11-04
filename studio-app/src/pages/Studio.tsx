@@ -51,6 +51,7 @@ type StudioResult = {
 };
 type Content = {
   warnings?: string[];
+  imageAi?: boolean;
   results: StudioResult[];
   liveIds: string[];
   blogs: BlogPost[];
@@ -169,6 +170,7 @@ export function Studio() {
     setContent(null);
     setPreview(null);
     setQuery("");
+    setPhotoBusy(false);
     setMessage("");
     setError("");
   }, []);
@@ -508,8 +510,10 @@ export function Studio() {
                   />
                   <span>Draft restored on this device</span>
                 </div>
-                <StudioPhotos images={draft.images || []} onChange={(images) => input({ images })}
-                  disabled={working} onBusy={setPhotoBusy} upload={(data) => api({ action: "upload-image", data })} />
+                <StudioPhotos key={draft.id} images={draft.images || []} raw={draft.raw} aiReady={content?.imageAi === true}
+                  onChange={(images) => input({ images })} disabled={working} onBusy={setPhotoBusy}
+                  upload={(data) => api({ action: "upload-image", data })}
+                  createPreview={(request) => api({ action: "image-preview", ...request })} />
               </section>
               <aside className="studio-publish">
                 <div className="studio-icon">

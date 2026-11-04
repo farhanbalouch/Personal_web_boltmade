@@ -10,3 +10,9 @@ test('media validation preserves ordered captions, allows removal and distinguis
 test('HTML, SVG, oversized and malformed payloads cannot masquerade as image files', () => {
  for(const data of [Buffer.from('<script>alert(1)</script>').toString('base64'),Buffer.from('<svg/>').toString('base64'),'a'.repeat(2800001),'garbage!']) assert.throws(()=>validateUpload({data}),e=>e.status===400);
 });
+test('an inline placement survives validation and rejects invalid paragraph positions', () => {
+ assert.deepEqual(validateImages([{ ...image, inlineAfter: 2 }]), [{ ...image, inlineAfter: 2 }]);
+ for (const inlineAfter of [0, -1, 1.5, '2', 101]) {
+  assert.throws(() => validateImages([{ ...image, inlineAfter }]), error => error.status === 400);
+ }
+});

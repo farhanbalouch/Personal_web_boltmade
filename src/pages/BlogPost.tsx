@@ -97,9 +97,8 @@ export function BlogPost({ slug }: { slug: string }) {
           <ArticleIntro translation={t} language={language} />
           <ContentPhotos images={post.images} mode="cover" />
 
-          <ArticleReading slug={post.slug} translation={t} language={language} />
+          <ArticleReading slug={post.slug} translation={t} language={language} images={post.images} />
 
-          <ContentPhotos images={post.images} mode="gallery" />
 
           {/* Keywords */}
           {t.keywords.length > 0 && (

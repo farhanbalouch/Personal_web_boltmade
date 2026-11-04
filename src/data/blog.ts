@@ -1,5 +1,5 @@
 import type { Editorial } from '../lib/article-reading';
-export type ContentImage = { src: string; alt: string; caption: string; width: number; height: number };
+export type ContentImage = { src: string; alt: string; caption: string; width: number; height: number; inlineAfter?: number };
 // Blog posts are written to blog-posts.json by scripts/publish-blog.mjs
 // (the GitHub Action). This file just types and re-exports them, sorted
 // newest first.

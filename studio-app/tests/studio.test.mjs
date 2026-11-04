@@ -255,3 +255,67 @@ test("an authenticated upload writes only a validated image into the original re
   assert.equal(bad.code,400);assert.equal(calls.length,2);
  }finally{globalThis.fetch=original;}
 });
+
+test("AI previews require the same owner session and origin as photo uploads", async () => {
+  const body = { action: "image-preview", mode: "generate", topic: "A guide to AI tokens" };
+  const r = await request({ method: "POST", headers: loginHeaders, body });
+  assert.equal(r.code, 401);
+  const crossOrigin = await request({
+    method: "POST",
+    headers: { ...loginHeaders, origin: "https://evil.example", cookie: "__Host-farhan-studio=" + seal() },
+    body,
+  });
+  assert.equal(crossOrigin.code, 403);
+});
+
+test("generation and reference edits produce previews without uploading or publishing", async (t) => {
+  const account = "a".repeat(32);
+  const credential = "test-workers-ai-token";
+  const image = "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+jQioAAAAASUVORK5CYII=";
+  const reference = Buffer.from([255, 216, 255, ...Array(16).fill(0)]).toString("base64");
+  const previous = [process.env.CLOUDFLARE_ACCOUNT_ID, process.env.CLOUDFLARE_WORKERS_AI_TOKEN];
+  const names = ["CLOUDFLARE_ACCOUNT_ID", "CLOUDFLARE_WORKERS_AI_TOKEN"];
+  t.after(() => names.forEach((name, i) => {
+    if (previous[i] === undefined) delete process.env[name];
+    else process.env[name] = previous[i];
+  }));
+  delete process.env.CLOUDFLARE_WORKERS_AI_TOKEN;
+  const headers = { ...loginHeaders, cookie: "__Host-farhan-studio=" + seal() };
+  const preview = (payload) => request({ method: "POST", headers, body: { action: "image-preview", ...payload } });
+  const configMissing = await preview({ mode: "generate", topic: "AI tokens" });
+  assert.equal(configMissing.code, 503);
+  assert.match(configMissing.body.error, /Workers AI token/);
+
+  process.env.CLOUDFLARE_ACCOUNT_ID = account;
+  process.env.CLOUDFLARE_WORKERS_AI_TOKEN = credential;
+  let providerResponse = { success: true, result: { image } };
+  const fetch = t.mock.method(globalThis, "fetch", async (url, request) => {
+    assert.equal(url, `https://api.cloudflare.com/client/v4/accounts/${account}/ai/run/@cf/black-forest-labs/flux-2-klein-4b`);
+    assert.equal(request.headers.Authorization, "Bearer " + credential);
+    assert.equal(request.method, "POST");
+    assert.ok(request.body instanceof FormData);
+    return Response.json(providerResponse, { status: providerResponse.success ? 200 : 429 });
+  });
+  const generated = await preview({ mode: "generate", topic: "AI tokens", instructions: "Use blue blocks" });
+  assert.equal(generated.code, 200);
+  assert.equal(generated.headers["Cache-Control"], "no-store");
+  assert.deepEqual(generated.body, { data: image, mime: "image/png" });
+  const generateForm = fetch.mock.calls[0].arguments[1].body;
+  assert.match(generateForm.get("prompt"), /AI tokens[\s\S]*blue blocks/);
+  assert.equal(generateForm.has("input_image_0"), false);
+
+  const edited = await preview({ mode: "edit", topic: "Private draft topic", instructions: "Brighten the source photo", reference, width: 496, height: 320 });
+  assert.equal(edited.code, 200);
+  const editForm = fetch.mock.calls[1].arguments[1].body;
+  assert.match(editForm.get("prompt"), /Brighten the source photo/);
+  assert.doesNotMatch(editForm.get("prompt"), /Private draft topic/);
+  assert.equal(Buffer.from(await editForm.get("input_image_0").arrayBuffer()).toString("base64"), reference);
+  const invalid = await preview({ mode: "edit", instructions: "Brighten", reference: image });
+  assert.equal(invalid.code, 400);
+  assert.equal(fetch.mock.callCount(), 2);
+
+  providerResponse = { success: false, errors: [{ code: 3036 }] };
+  const limited = await preview({ mode: "generate", topic: "AI tokens" });
+  assert.equal(limited.code, 429);
+  assert.match(limited.body.error, /free usage limit/);
+});

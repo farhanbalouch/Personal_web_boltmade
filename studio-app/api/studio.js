@@ -1,4 +1,5 @@
 import { validateImages, validateUpload } from "../server/images.js";
+import { createImagePreview, imageAiConfigured } from "../server/image-ai.js";
 import {
   createCipheriv,
   createDecipheriv,
@@ -186,8 +187,9 @@ export default async function handler(req, res) {
       throw fail(403, "Use Studio from this website.");
     let body =
       typeof req.body === "string" ? JSON.parse(req.body) : req.body || {};
-    if (JSON.stringify(body).length > (body.action === "upload-image" ? 2900000 : 60000))
-      throw fail(413, "This note is too large.");
+    const maxBody = body.action === "upload-image" ? 2900000 : body.action === "image-preview" ? 810000 : 60000;
+    if (JSON.stringify(body).length > maxBody)
+      throw fail(413, "This request is too large.");
     if (req.method === "POST" && body.action === "logout") {
       res.setHeader(
         "Set-Cookie",
@@ -253,6 +255,7 @@ export default async function handler(req, res) {
         chapters,
         results,
         liveIds,
+        imageAi: imageAiConfigured(),
         warnings,
         drafts: drafts
           .filter((d) => d.name.endsWith(".json"))
@@ -266,6 +269,9 @@ export default async function handler(req, res) {
           createdAt: r.created_at,
         })),
       });
+    }
+    if (body.action === "image-preview") {
+      return reply(200, await createImagePreview(body));
     }
     if (body.action === "upload-image") {
       const image = validateUpload(body);
