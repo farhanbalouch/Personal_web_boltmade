@@ -6,13 +6,14 @@ type SeoProps = {
   path?: string;
   ogImage?: string;
   structuredData?: string;
+  ogType?: 'website' | 'article';
 };
 
 const SITE_URL = 'https://farhanbalouch.com';
 const DEFAULT_OG_IMAGE = `${SITE_URL}/og-image.png`;
 
 /** Lightweight per-page SEO: <title>, meta description, OG/Twitter tags, canonical link. */
-export function Seo({ title, description, path = '/', ogImage = DEFAULT_OG_IMAGE, structuredData }: SeoProps) {
+export function Seo({ title, description, path = '/', ogImage = DEFAULT_OG_IMAGE, structuredData, ogType }: SeoProps) {
   useEffect(() => {
     document.title = title;
 
@@ -50,7 +51,7 @@ export function Seo({ title, description, path = '/', ogImage = DEFAULT_OG_IMAGE
     setMeta('meta[name="twitter:description"]', 'content', description);
     setMeta('meta[name="twitter:image"]', 'content', ogImage);
     setMeta('link[rel="canonical"]', 'href', url);
-    setMeta('meta[property="og:type"]', 'content', structuredData ? 'article' : 'website');
+    setMeta('meta[property="og:type"]', 'content', ogType || (structuredData ? 'article' : 'website'));
 
     let script = document.head.querySelector<HTMLScriptElement>('#article-structured-data');
     if (!structuredData) {
@@ -65,7 +66,7 @@ export function Seo({ title, description, path = '/', ogImage = DEFAULT_OG_IMAGE
     }
     script.textContent = structuredData;
     return () => script.remove();
-  }, [title, description, path, ogImage, structuredData]);
+  }, [title, description, path, ogImage, structuredData, ogType]);
 
   return null;
 }

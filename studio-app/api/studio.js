@@ -70,7 +70,7 @@ function loginBucket(req) {
   bucket.count++;
   return bucket;
 }
-async function github(token, path, options = {}) {
+export async function github(token, path, options = {}) {
   const r = await fetch(`https://api.github.com${path}`, {
     ...options,
     headers: {

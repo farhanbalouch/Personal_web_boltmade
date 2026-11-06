@@ -56,7 +56,11 @@ export type Project = {
   link: string | null;
   displayUrl: string | null;
   cta: string;
-  status: 'live' | 'coming-soon' | 'placeholder';
+  status: 'live' | 'coming-soon' | 'placeholder' | 'preview';
+  logo?: string;
+  secondaryLink?: string;
+  secondaryCta?: string;
+  featuredOrder?: number;
   icon: 'bot' | 'book' | 'store' | 'shield' | 'film';
   spotlight?: boolean;
   showcase?: boolean;
@@ -95,16 +99,36 @@ export const projects: Project[] = [
   {
     slug: 'farhan-deals',
     title: 'Farhan Deals',
-    category: 'E-commerce Store',
-    tagline: 'The Most Discount Store in the World.',
+    category: 'E-commerce · Online business',
+    tagline: 'A small idea. A world of possibilities.',
     description:
-      'Farhan Deals is an e-commerce store built around one idea \u2014 unbeatable discounts. An online business that started in Ahmadpur East and is growing every day.',
-    features: ['Online store', 'Big discounts', 'Real online business'],
+      'Farhan Deals is an online shopping project founded by Farhan Balouch in Ahmadpur East, Pakistan. Launched on 1 January 2026, the store brings his interest in e-commerce, product discovery and digital business into one place.',
+    features: ['Online store', 'Product discovery', 'Founded in Pakistan'],
     link: 'https://farhandeals.store',
     displayUrl: 'farhandeals.store',
-    cta: 'Visit the store',
+    cta: 'Explore Farhan Deals',
     status: 'live',
     icon: 'store',
+    logo: '/projects/farhan-deals.jpg',
+    featuredOrder: 1,
+  },
+  {
+    slug: 'saras',
+    title: 'SARAS Next',
+    category: 'Windows companion · Mobile controller',
+    tagline: 'Your voice. Your computer. A little more connected.',
+    description:
+      'SARAS Next is a Windows companion and mobile web controller created by Farhan Balouch. Install the Companion on your Windows PC, pair your phone with laptop approval, and use supported voice and remote-control actions. The computer stays awake, online and running the Companion. Current development preview: 2.0.0-dev.8, released 29 October 2026.',
+    features: ['Windows companion', 'Phone-to-PC pairing', 'Voice interaction', 'Remote actions'],
+    link: 'https://saras.farhanbalouch.com',
+    displayUrl: 'saras.farhanbalouch.com',
+    cta: 'Open SARAS controller',
+    secondaryLink: 'https://sarasdownload.farhanbalouch.com',
+    secondaryCta: 'Download & setup guide',
+    status: 'preview',
+    icon: 'bot',
+    logo: '/projects/saras.svg',
+    featuredOrder: 2,
   },
   {
     slug: 'hack-ai',
@@ -127,6 +151,7 @@ export const projects: Project[] = [
     features: ['Stream movies', 'Download movies', 'Cinephile Shorts', 'X Feed', 'AI assistant & smart search'],
     link: 'https://moviehub.farhanbalouch.com', displayUrl: 'moviehub.farhanbalouch.com',
     cta: 'Watch on Movie Hub', status: 'live', icon: 'film', showcase: true,
+    featuredOrder: 3,
   },
 ];
 

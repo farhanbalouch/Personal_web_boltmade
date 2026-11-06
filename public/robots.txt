@@ -4,5 +4,6 @@ Allow: /
 Sitemap: https://farhanbalouch.com/sitemap.xml
 
 
+Disallow: /memories
 Disallow: /admin
 Disallow: /api/

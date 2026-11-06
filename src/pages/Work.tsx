@@ -2,25 +2,11 @@ import { MessageSquare } from 'lucide-react';
 import { Seo } from '@/components/Seo';
 import { Reveal } from '@/components/Reveal';
 import { MovieHubSpotlight } from '@/components/MovieHubSpotlight';
+import { ProjectSpotlights } from '@/components/ProjectSpotlights';
+import { projectsSchema, projectDate, projectMilestones, orderedProjects } from '@/lib/project-meta';
 import { ProjectCard } from '@/components/FeaturedProjects';
 import { useRouter } from '@/router';
 import { projects, SITE } from '@/data/content';
-
-// Google ke liye: projects ki list structured data ke taur par
-const projectsSchema = {
-  '@context': 'https://schema.org',
-  '@type': 'ItemList',
-  name: 'Projects by Farhan Balouch',
-  itemListElement: projects
-    .filter((p) => p.link)
-    .map((p, i) => ({
-      '@type': 'ListItem',
-      position: i + 1,
-      name: p.title,
-      url: p.link,
-      description: p.description,
-    })),
-};
 
 export function Work() {
   const { navigate } = useRouter();
@@ -29,14 +15,11 @@ export function Work() {
     <>
       <Seo
         title="Projects & Portfolio — Farhan Balouch"
-        description="Projects by Farhan Balouch: Nexus AI (AI chatbot & coding assistant), Rawi (AI storyteller), Farhan Deals (e-commerce store), Hack AI (cybersecurity AI) and Movie Hub (live)."
+        description="Explore Farhan Deals, SARAS Next, MovieHub and other projects by Farhan Balouch, with official links, introductions and release records."
+        structuredData={projectsSchema()}
+        ogType="website"
         path="/work"
         ogImage={SITE.ogImage}
-      />
-
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(projectsSchema) }}
       />
 
       <section className="pt-32 pb-8 max-w-5xl mx-auto px-5 sm:px-8">
@@ -50,16 +33,24 @@ export function Work() {
         </Reveal>
         <Reveal delay={140}>
           <p className="text-lg text-text-muted max-w-2xl leading-relaxed">
-            AI chatbots, an online store and cybersecurity tools — everything I&apos;ve built so far,
-            with bigger projects still on the way.
+            An online store, a Windows companion, entertainment and AI tools. Explore my main projects here, then discover the smaller experiments below.
           </p>
         </Reveal>
       </section>
 
+      <ProjectSpotlights />
       <MovieHubSpotlight />
+      <section className="max-w-5xl mx-auto px-5 sm:px-8 pt-10" aria-labelledby="project-records">
+        <h2 id="project-records" className="font-display text-2xl mb-5">Project dates & release records</h2>
+        <p className="text-sm text-text-muted mb-5">Launch dates are shown where confirmed. A portfolio record is the date a project was documented on this website, rather than its original release date.</p>
+        <dl className="grid sm:grid-cols-2 gap-3">{orderedProjects().map(project => {
+          const milestone = projectMilestones[project.slug];
+          return <div key={project.slug} className="rounded-xl border border-border bg-bg-card p-4"><dt className="text-gold text-sm">{project.title}</dt><dd className="text-text-muted text-xs mt-2">{milestone ? <>{milestone.label} · <time dateTime={milestone.date}>{projectDate(milestone.date)}</time></> : 'Release date not recorded'}</dd></div>;
+        })}</dl>
+      </section>
       <section className="py-12 max-w-5xl mx-auto px-5 sm:px-8">
         <div className="grid gap-6 sm:grid-cols-2">
-          {projects.filter(p => !p.showcase).map((p, i) => (
+          {projects.filter(p => !p.showcase && !p.featuredOrder).map((p, i) => (
             <Reveal key={p.slug} delay={i * 90}>
               <ProjectCard project={p} />
             </Reveal>

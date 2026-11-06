@@ -1,5 +1,12 @@
 {
-  "functions": { "api/studio.js": { "maxDuration": 60 } },
+  "functions": {
+    "api/studio.js": {
+      "maxDuration": 60
+    },
+    "api/diary.js": {
+      "maxDuration": 60
+    }
+  },
   "rewrites": [
     {
       "source": "/((?!api/).*)",

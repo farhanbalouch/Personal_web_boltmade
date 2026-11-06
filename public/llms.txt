@@ -18,3 +18,7 @@ Canonical website: https://farhanbalouch.com. Public writing is available in Eng
 
 - [Sitemap](https://farhanbalouch.com/sitemap.xml): Canonical public page URLs.
 - [MovieHub](https://moviehub.farhanbalouch.com): A separate entertainment project.
+
+- [SARAS Next controller](https://saras.farhanbalouch.com): Pair a phone with the Windows Companion for supported remote actions.
+- [SARAS Next downloads & setup](https://sarasdownload.farhanbalouch.com): The Windows Companion installer, guides and release history.
+- [Farhan Deals](https://farhandeals.store): Farhan Balouch’s e-commerce project, launched 1 January 2026.

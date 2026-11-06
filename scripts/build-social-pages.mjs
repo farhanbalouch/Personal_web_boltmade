@@ -53,7 +53,7 @@ export async function main() {
   const pages = [
     {path:'/',title:'Farhan Balouch — Official Website',description:'Explore Farhan Balouch’s stories, AI projects, blogs and journey in SEO and online business.'},
     {path:'/about',title:'About Farhan Balouch',description:'Meet Farhan Balouch and explore the ideas, interests and projects behind this personal website.'},
-    {path:'/work',title:'Projects — Farhan Balouch',description:'Explore Farhan Balouch’s AI and web projects, including MovieHub, Nexus AI and Rawi.'},
+    {path:'/work',title:'Projects — Farhan Balouch',description:'Explore Farhan Deals, SARAS Next, MovieHub and other projects by Farhan Balouch, with official links, introductions and release records.'},
     {path:'/contact',title:'Contact — Farhan Balouch',description:'Get in touch with Farhan Balouch through the contact options on his official website.'},
     {path:'/blog',title:'Blog — Farhan Balouch',description:'Ideas, project notes and updates from Farhan Balouch.'},
     {path:'/stories',title:'Stories & Updates — Farhan Balouch',description:'Fresh stories, project updates and moments from Farhan Balouch’s journey.'},
@@ -67,7 +67,11 @@ export async function main() {
       outfile, bundle: true, platform: 'node', format: 'esm', jsx: 'automatic',
       packages: 'external', loader: { '.css': 'empty' },
     });
-    const { renderArticle, renderReadingIndex, articleSchema } = await import(pathToFileURL(outfile).href);
+    const { renderArticle, renderReadingIndex, articleSchema, renderProjects, projectsSchema, projectMarkdown } = await import(pathToFileURL(outfile).href);
+    const work = pages.find(page => page.path === '/work');
+    work.renderedBody = renderProjects();
+    work.structuredData = projectsSchema();
+    work.paragraphs = projectMarkdown();
     const collections = [
       ['blog', 'All blog posts', blogs.slice().sort((a,b) => b.publishedAt.localeCompare(a.publishedAt))],
       ['stories', 'All stories', stories.slice().sort((a,b) => b.publishedAt.localeCompare(a.publishedAt))],

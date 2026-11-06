@@ -101,9 +101,28 @@
           "value": "*"
         }
       ]
+    },
+    {
+      "source": "/memories/:path*",
+      "headers": [
+        {
+          "key": "X-Robots-Tag",
+          "value": "noindex, nofollow, noarchive"
+        }
+      ]
     }
   ],
   "redirects": [
+    {
+      "source": "/memories",
+      "destination": "https://adminpage.farhanbalouch.com/admin/?space=memories",
+      "permanent": false
+    },
+    {
+      "source": "/memories/",
+      "destination": "https://adminpage.farhanbalouch.com/admin/?space=memories",
+      "permanent": false
+    },
     {
       "source": "/admin",
       "destination": "/admin/",

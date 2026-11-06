@@ -1,0 +1,231 @@
+import { useEffect, useRef, useState } from 'react';
+import { BookHeart, Download, ImagePlus, LockKeyhole, PenLine, Plus, Save, ShieldCheck, X } from 'lucide-react';
+import { createConfig, decrypt, emptyMemory, encrypt, memoryContext, unlockConfig, type Memory, type MemoryConfig, type MemoryRecord } from '@/lib/memories-crypto';
+import { optimizePhoto } from '@/lib/studio-images';
+import { parseStudioResponse } from '@/lib/studio-response';
+import './memories.css';
+
+type Note = { record: MemoryRecord; value: Memory; local?: boolean };
+type Index = { config: MemoryConfig | null; entries: { id: string; revision: string }[] };
+const prefix = 'farhan-memories-encrypted-v1:';
+const request = async (body?: object): Promise<any> => parseStudioResponse(await fetch('/api/diary', body ? {
+  method: 'POST', cache: 'no-store', credentials: 'same-origin', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body),
+} : { cache: 'no-store', credentials: 'same-origin' }));
+const date = (value: string) => value ? new Date(value).toLocaleString('en-PK', { timeZone: 'Asia/Karachi', dateStyle: 'medium', timeStyle: 'medium' }) : 'Not saved to cloud yet';
+const noteTitle = (value: Memory) => value.title.trim() || value.text.trim().slice(0, 70) || 'Untitled memory';
+
+export function Memories() {
+  const [index, setIndex] = useState<Index | null>(null), [key, setKey] = useState<CryptoKey | null>(null);
+  const [passphrase, setPassphrase] = useState(''), [confirm, setConfirm] = useState('');
+  const [notes, setNotes] = useState<Note[]>([]), [selected, setSelected] = useState<Note | null>(null);
+  const [editing, setEditing] = useState(false), [query, setQuery] = useState('');
+  const [busy, setBusy] = useState(false), [error, setError] = useState(''), [message, setMessage] = useState('');
+  const [dirty, setDirty] = useState(false), [deviceSaved, setDeviceSaved] = useState(true);
+  const epoch = useRef(0), change = useRef(0), file = useRef<HTMLInputElement>(null);
+  const saveQueue = useRef(Promise.resolve());
+  const current = useRef<{ key: CryptoKey | null; selected: Note | null; dirty: boolean }>({ key, selected, dirty });
+  current.current = { key, selected, dirty };
+  const persist = (note: Note, secret: CryptoKey) => {
+    const task = saveQueue.current.catch(() => {}).then(async () => {
+      const envelope = await encrypt(secret, note.value, memoryContext(note.record.id));
+      localStorage.setItem(prefix + note.record.id, JSON.stringify({ ...note.record, envelope, deviceSavedAt: new Date().toISOString() }));
+    });
+    saveQueue.current = task;
+    return task;
+  };
+  const lock = () => {
+    const snapshot = current.current;
+    if (snapshot.key && snapshot.selected && snapshot.dirty) void persist(snapshot.selected, snapshot.key).catch(() => {});
+    epoch.current++; change.current++;
+    setKey(null); setSelected(null); setNotes([]); setPassphrase(''); setConfirm(''); setQuery(''); setDirty(false); setBusy(false); setError(''); setMessage('Memories locked.');
+    current.current = { key: null, selected: null, dirty: false };
+  };
+  useEffect(() => {
+    let active = true;
+    request().then(value => { if (active) setIndex(value); }).catch(e => { if (active) setError(e.message); });
+    return () => { active = false; epoch.current++; const snapshot = current.current; if (snapshot.key && snapshot.selected && snapshot.dirty) void persist(snapshot.selected, snapshot.key).catch(() => {}); };
+  }, []);
+  useEffect(() => {
+    let hiddenAt = 0, timer: ReturnType<typeof setTimeout> | undefined;
+    const hide = () => {
+      if (document.hidden) { hiddenAt = Date.now(); timer = setTimeout(lock, 60000); }
+      else { clearTimeout(timer); if (hiddenAt && Date.now() - hiddenAt >= 60000) lock(); hiddenAt = 0; }
+    };
+    const pageHide = () => { lock(); };
+    const beforeUnload = (event: BeforeUnloadEvent) => { if (current.current.dirty) { event.preventDefault(); event.returnValue = ''; } };
+    document.addEventListener('visibilitychange', hide); window.addEventListener('pagehide', pageHide); window.addEventListener('beforeunload', beforeUnload);
+    return () => { clearTimeout(timer); document.removeEventListener('visibilitychange', hide); window.removeEventListener('pagehide', pageHide); window.removeEventListener('beforeunload', beforeUnload); };
+  }, []);
+  useEffect(() => {
+    if (!key || !selected || !dirty || busy) return;
+    setDeviceSaved(false);
+    const version = change.current;
+    const timer = setTimeout(() => persist(selected, key).then(() => {
+      if (version === change.current) setDeviceSaved(true);
+    }).catch(() => { if (version === change.current) { setDeviceSaved(false); setError('Device recovery storage is full or unavailable. Save this memory to cloud before leaving.'); } }), 700);
+    return () => clearTimeout(timer);
+  }, [key, selected, dirty, busy]);
+  const update = (value: Memory) => {
+    if (!selected) return;
+    change.current++; setSelected({ ...selected, value, local: true }); setDirty(true); setDeviceSaved(false); setMessage('');
+  };
+  const guard = async () => {
+    if (key && selected && dirty) { await persist(selected, key); setDeviceSaved(true); const copy = { ...selected, local: true }; setNotes(old => [copy, ...old.filter(note => note.record.id !== copy.record.id)]); }
+  };
+  const list = async (secret: CryptoKey, data: Index, generation: number) => {
+    const found: Note[] = [], warnings: string[] = [];
+    const ids = new Set(data.entries.map(item => item.id));
+    for (let i = 0; i < localStorage.length; i++) {
+      const name = localStorage.key(i);
+      if (name?.startsWith(prefix) && /^[a-f0-9-]{36}$/.test(name.slice(prefix.length))) ids.add(name.slice(prefix.length));
+    }
+    const entries = [...ids];
+    for (let offset = 0; offset < entries.length; offset += 3) {
+      if (generation !== epoch.current) return;
+      await Promise.all(entries.slice(offset, offset + 3).map(async id => {
+        try {
+          const local = localStorage.getItem(prefix + id);
+          const recovery = local ? JSON.parse(local) : null;
+          const cloud = data.entries.some(item => item.id === id) ? await request({ action: 'read', id }) as MemoryRecord : null;
+          const useLocal = recovery && (!cloud || recovery.deviceSavedAt > cloud.updatedAt);
+          const record = useLocal ? recovery : cloud;
+          if (record) found.push({ record, value: await decrypt<Memory>(secret, record.envelope, memoryContext(id)), local: Boolean(useLocal) });
+        } catch { warnings.push(id); }
+      }));
+    }
+    if (generation !== epoch.current) return;
+    found.sort((a, b) => (b.record.createdAt || b.record.updatedAt).localeCompare(a.record.createdAt || a.record.updatedAt));
+    setNotes(found); setSelected(null); setDirty(false);
+    if (warnings.length) setError(`${warnings.length} memories could not be opened. Their encrypted files are kept. Check your connection and refresh the list.`);
+  };
+  const unlock = async (event: React.FormEvent) => {
+    event.preventDefault(); setError(''); setMessage(''); setBusy(true);
+    const generation = epoch.current;
+    try {
+      if (!index) throw new Error('The private storage is still loading.');
+      let data = index, secret: CryptoKey;
+      if (!data.config) {
+        if (passphrase.length < 16 || passphrase.length > 256) throw new Error('Use a separate passphrase of 16–256 characters.');
+        if (passphrase !== confirm) throw new Error('The two passphrases do not match.');
+        const created = await createConfig(passphrase);
+        await request({ action: 'initialize', config: created.config });
+        data = { ...data, config: created.config }; secret = created.key;
+      } else {
+        try { secret = await unlockConfig(passphrase, data.config); }
+        catch { throw new Error('That passphrase could not unlock Memories. Use the separate Memories passphrase.'); }
+      }
+      if (generation !== epoch.current) return;
+      setPassphrase(''); setConfirm(''); setIndex(data); setKey(secret);
+      await list(secret, data, generation);
+    } catch (e) {
+      if (generation === epoch.current) { setError((e as Error).message); request().then(setIndex).catch(() => {}); }
+    } finally { if (generation === epoch.current) setBusy(false); }
+  };
+  const action = async (fn: () => Promise<void>) => {
+    setBusy(true); setError(''); setMessage(''); const generation = epoch.current;
+    try { await fn(); } catch (e) { if (generation === epoch.current) setError((e as Error).message); }
+    finally { if (generation === epoch.current) setBusy(false); }
+  };
+  const open = (note: Note) => action(async () => {
+    if (selected?.record.id === note.record.id) return;
+    await guard(); change.current++; setSelected(note); setEditing(Boolean(note.local)); setDirty(Boolean(note.local)); setDeviceSaved(true);
+  });
+  const fresh = () => action(async () => {
+    await guard(); change.current++;
+    const record: MemoryRecord = { id: crypto.randomUUID(), revision: null, createdAt: '', updatedAt: '', envelope: { version: 1, iv: '', data: '' } };
+    setSelected({ record, value: emptyMemory() }); setEditing(true); setDirty(false); setDeviceSaved(true);
+  });
+  const save = (asNew = false) => action(async () => {
+    if (!key || !selected) return;
+    if (!selected.value.text.trim() && !selected.value.photos.length) throw new Error('Write a memory or add a photo first.');
+    const generation = epoch.current;
+    const note = asNew ? { ...selected, record: { ...selected.record, id: crypto.randomUUID(), revision: null, createdAt: '', updatedAt: '' } } : selected;
+    try { await persist(note, key); } catch { setDeviceSaved(false); }
+    const envelope = await encrypt(key, note.value, memoryContext(note.record.id));
+    if (envelope.data.length > 2266668) throw new Error('This memory is too large. Remove a photo or split it into two memories.');
+    const record = await request({ action: 'save', id: note.record.id, revision: note.record.revision, envelope }) as MemoryRecord;
+    if (generation !== epoch.current) return;
+    change.current++;
+    // Remove only after the server confirms a successful save; failed/conflicting writes keep the device copy.
+    try { localStorage.removeItem(prefix + note.record.id); } catch { /* Cloud save is already confirmed. */ }
+    const saved: Note = { record, value: note.value };
+    setNotes(old => [saved, ...old.filter(item => item.record.id !== record.id)]);
+    setSelected(saved); setDirty(false); setDeviceSaved(true); setEditing(false); setMessage('Encrypted memory saved to cloud. It will be available on your other devices.');
+  });
+  const addPhotos = (files: FileList | null) => action(async () => {
+    if (!files || !selected) return;
+    const generation = epoch.current;
+    if (files.length + selected.value.photos.length > 4) throw new Error('Keep up to four photos in one memory. Add another memory for more.');
+    const photos = [];
+    for (const photo of Array.from(files)) {
+      const optimized = await optimizePhoto(photo, 1000, 'image/webp', 220000);
+      photos.push({ id: crypto.randomUUID(), data: optimized.data, caption: '', width: optimized.width, height: optimized.height });
+    }
+    if (generation === epoch.current) update({ ...selected.value, photos: [...selected.value.photos, ...photos] });
+  });
+  const backup = () => action(async () => {
+    await guard(); const generation = epoch.current;
+    const data = await request() as Index;
+    const entries: MemoryRecord[] = [];
+    for (const item of data.entries) { if (generation !== epoch.current) return; entries.push(await request({ action: 'read', id: item.id })); }
+    const deviceDrafts = Object.keys(localStorage).filter(name => name.startsWith(prefix)).map(name => JSON.parse(localStorage.getItem(name)!));
+    if (generation !== epoch.current) return;
+    const url = URL.createObjectURL(new Blob([JSON.stringify({ format: 'farhan-memories-encrypted-backup-v1', exportedAt: new Date().toISOString(), config: data.config, entries, deviceDrafts })], { type: 'application/json' }));
+    const link = document.createElement('a'); link.href = url; link.download = `memories-encrypted-${new Date().toISOString().slice(0, 10)}.json`; link.click(); setTimeout(() => URL.revokeObjectURL(url), 1000);
+    setMessage('Encrypted backup downloaded. Keep it with your separate passphrase in a safe place.');
+  });
+  if (!key) return <section className="memories-gate studio-paper">
+    <div className="memories-seal"><BookHeart size={30} /></div><p className="studio-eyebrow">ONLY FOR YOU</p>
+    <h2>A little space for your heart.</h2><p>Private words. Personal photos. Moments worth keeping.</p>
+    <p>Your text and photos are encrypted on this device before saving. They stay separate from your public writing and are never sent to the AI editor.</p>
+    {index && <form onSubmit={unlock}>
+      <label htmlFor="memories-key">{index.config ? 'Memories passphrase' : 'Create a separate Memories passphrase'}</label>
+      <input id="memories-key" type="password" autoComplete={index.config ? 'current-password' : 'new-password'} value={passphrase} onChange={event => setPassphrase(event.target.value)} required minLength={index.config ? undefined : 16} maxLength={256} disabled={busy} />
+      {!index.config && <><label htmlFor="memories-confirm">Repeat passphrase</label><input id="memories-confirm" type="password" autoComplete="new-password" value={confirm} onChange={event => setConfirm(event.target.value)} required minLength={16} maxLength={256} disabled={busy} />
+        <p className="memories-notice">Keep this passphrase safe. It cannot be reset to recover your memories. Use something different from your Studio password.</p></>}
+      <button className="studio-primary" disabled={busy || !index}><LockKeyhole size={17} />{busy ? 'Opening your space…' : index.config ? 'Unlock Memories' : 'Create my private space'}</button>
+    </form>}
+    {!index && !error && <p role="status">Loading private storage…</p>}
+    {error && <p className="studio-error" role="alert">{error}</p>}{message && <p role="status">{message}</p>}
+    <p className="memories-caption"><ShieldCheck size={15} /> Studio login + your separate encryption passphrase</p>
+  </section>;
+  const matching = notes.filter(note => `${note.value.title} ${note.value.text}`.toLocaleLowerCase().includes(query.toLocaleLowerCase()));
+  return <section className="memories-space">
+    <div className="memories-toolbar"><span><ShieldCheck size={16} /> Encrypted & private</span><div>
+      <button disabled={busy} onClick={backup}><Download size={16} /> Encrypted backup</button>
+      <button disabled={busy} onClick={() => action(async () => { await guard(); lock(); })}><LockKeyhole size={16} /> Lock</button>
+      <button className="studio-primary" disabled={busy} onClick={fresh}><Plus size={16} /> New memory</button>
+    </div></div>
+    <p className="memories-caption">Cloud saves sync between devices. Unsaved recovery copies stay encrypted on this device. Locks after one minute in the background.</p>
+    {error && <p role="alert" className="studio-error">{error}</p>}{message && <p role="status" className="studio-success">{message}</p>}
+    {busy && <p role="status">Working on your private space…</p>}
+    <div className="memories-layout"><aside className="studio-paper memories-list">
+      <label htmlFor="memory-search">Your memories <span>{notes.length}</span></label><input id="memory-search" type="search" placeholder="Find a moment…" value={query} onChange={e => setQuery(e.target.value)} disabled={busy} />
+      <button className="memories-refresh" disabled={busy} onClick={() => action(async () => { await guard(); const data = await request(); setIndex(data); await list(key, data, epoch.current); })}>Refresh cloud & device copies</button>
+      {!matching.length && <p>{notes.length ? 'No matching moments.' : 'Your first memory starts here. Choose New memory.'}</p>}
+      {matching.map(note => <button key={note.record.id} className={`memories-list-item ${selected?.record.id === note.record.id ? 'active' : ''}`} disabled={busy} onClick={() => open(note)}>
+        <strong>{noteTitle(note.value)}</strong><small>{note.local ? 'Device recovery copy · not synced' : date(note.record.createdAt)}</small><span>{note.value.photos.length ? `${note.value.photos.length} photo${note.value.photos.length > 1 ? 's' : ''}` : 'A personal note'}</span>
+      </button>)}
+    </aside><div className="studio-paper memories-note">
+      {!selected ? <div className="memories-empty"><BookHeart size={45} /><h2>For the moments you keep.</h2><p>Open a memory to read it, or write something just for yourself.</p></div> : <>
+        <div className="memories-note-actions"><p className="studio-eyebrow">{editing ? 'A PAGE OF YOUR OWN' : 'YOUR PRIVATE JOURNAL'}</p><button disabled={busy} onClick={() => setEditing(!editing)}><PenLine size={16} />{editing ? 'Read view' : 'Edit memory'}</button></div>
+        {editing ? <>
+          <label htmlFor="memory-title">Give this moment a title</label><input id="memory-title" placeholder="A moment I want to remember…" maxLength={200} value={selected.value.title} disabled={busy} onChange={e => update({ ...selected.value, title: e.target.value })} />
+          <label htmlFor="memory-event">When did it happen? <small>Optional · enter Pakistan time</small></label><input id="memory-event" type="datetime-local" step="1" value={selected.value.happenedAt} disabled={busy} onChange={e => update({ ...selected.value, happenedAt: e.target.value })} />
+          <label htmlFor="memory-text">Your words</label><textarea id="memory-text" dir="auto" placeholder="Write freely. This page stays private." maxLength={100000} rows={14} value={selected.value.text} disabled={busy} onChange={e => update({ ...selected.value, text: e.target.value })} />
+        </> : <><h2 className="memories-title" dir="auto">{noteTitle(selected.value)}</h2>{selected.value.happenedAt && <p className="memories-event">The moment: <time dateTime={selected.value.happenedAt + '+05:00'}>{date(selected.value.happenedAt + '+05:00')}</time> · Pakistan time</p>}<div className="memories-prose" dir="auto">{selected.value.text}</div></>}
+        <div className="memories-photos">{selected.value.photos.map(photo => <figure key={photo.id}>
+          <img src={`data:image/webp;base64,${photo.data}`} alt={photo.caption || 'Private memory photo'} width={photo.width} height={photo.height} loading="lazy" />
+          {editing ? <><label htmlFor={'caption-' + photo.id}>Photo caption</label><input id={'caption-' + photo.id} maxLength={300} value={photo.caption} disabled={busy} onChange={e => update({ ...selected.value, photos: selected.value.photos.map(item => item.id === photo.id ? { ...item, caption: e.target.value } : item) })} /><button disabled={busy} onClick={() => update({ ...selected.value, photos: selected.value.photos.filter(item => item.id !== photo.id) })}><X size={14} />Remove from this memory</button></> : photo.caption && <figcaption dir="auto">{photo.caption}</figcaption>}
+        </figure>)}</div>
+        {editing && <><input ref={file} type="file" accept="image/jpeg,image/png,image/webp" multiple hidden onChange={e => { addPhotos(e.target.files); e.target.value = ''; }} />
+          <button disabled={busy || selected.value.photos.length >= 4} onClick={() => file.current?.click()}><ImagePlus size={17} /> Add private photos ({selected.value.photos.length}/4)</button><p className="memories-caption">Photos are resized for a private reading copy; keep your originals separately.</p></>}
+        <div className="memories-save-row"><button className="studio-primary" disabled={busy || !dirty} onClick={() => save()}><Save size={16} />Save encrypted to cloud</button>
+          {dirty && selected.record.revision && <button disabled={busy} onClick={() => save(true)}>Save as a new memory</button>}
+          <span role="status">{dirty ? deviceSaved ? 'Encrypted device copy saved · cloud save needed' : 'Saving device recovery copy…' : selected.record.createdAt ? 'Saved to cloud' : 'Not saved yet'}</span>
+        </div>
+        <dl className="memories-timestamps"><div><dt>First saved</dt><dd><time dateTime={selected.record.createdAt || undefined}>{date(selected.record.createdAt)}</time></dd></div><div><dt>Last cloud save</dt><dd><time dateTime={selected.record.updatedAt || undefined}>{date(selected.record.updatedAt)}</time></dd></div></dl><p className="memories-caption">Cloud timestamps are recorded by the server and displayed in Pakistan time. The moment’s date above is your own record.</p>
+      </>}
+    </div></div>
+  </section>;
+}

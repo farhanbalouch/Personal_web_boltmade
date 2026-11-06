@@ -5,7 +5,6 @@ import { Starfield } from '@/components/Starfield';
 import { Reveal } from '@/components/Reveal';
 import { useRouter } from '@/router';
 import { highlights, SITE } from '@/data/content';
-import { RawiSpotlight } from '@/components/RawiSpotlight';
 import { MovieHubSpotlight } from '@/components/MovieHubSpotlight';
 import { FeaturedProjects } from '@/components/FeaturedProjects';
 
@@ -490,9 +489,8 @@ export function Home() {
         </div>
       </section>
 
-      <RawiSpotlight />
+      <FeaturedProjects />
       <MovieHubSpotlight showAllProjectsButton />
-   <FeaturedProjects />
     </>
   );
 }

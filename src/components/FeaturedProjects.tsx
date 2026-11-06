@@ -1,7 +1,7 @@
-import { ArrowRight, BookOpen, Bot, ExternalLink, Film, ShieldCheck, ShoppingBag } from 'lucide-react';
-import { Reveal } from '@/components/Reveal';
-import { useRouter } from '@/router';
-import { projects, type Project } from '@/data/content';
+import { BookOpen, Bot, ExternalLink, Film, ShieldCheck, ShoppingBag } from 'lucide-react';
+import { ProjectSpotlights } from './ProjectSpotlights';
+import { projectDate, projectMilestones } from '@/lib/project-meta';
+import { type Project } from '@/data/content';
 
 const iconMap = {
   bot: Bot,
@@ -15,23 +15,26 @@ const statusStyle: Record<Project['status'], string> = {
   placeholder: 'text-text-muted border-border bg-bg-soft',
   'coming-soon': 'text-gold border-gold/30 bg-gold/10',
   live: 'text-teal border-teal/30 bg-teal/10',
+  preview: 'text-gold border-gold/30 bg-gold/10',
 };
 
 const statusLabel: Record<Project['status'], string> = {
   placeholder: 'Placeholder',
   'coming-soon': 'Coming soon',
   live: 'Live',
+  preview: 'Preview',
 };
 
 /** Ek project ka card — Home (Featured Projects) aur Work page dono isi ko use karte hain. */
 export function ProjectCard({ project: p }: { project: Project }) {
   const Icon = iconMap[p.icon];
+  const milestone = projectMilestones[p.slug];
 
   return (
     <article className="card-glow rounded-2xl border border-border bg-bg-card p-7 h-full flex flex-col">
       <div className="flex items-start justify-between mb-5">
         <div className="w-12 h-12 rounded-xl bg-bg-soft border border-border flex items-center justify-center">
-          <Icon className="w-6 h-6 text-gold" />
+          {p.logo ? <img src={p.logo} alt={`${p.title} official logo`} className="w-10 h-10 object-contain" loading="lazy" /> : <Icon className="w-6 h-6 text-gold" />}
         </div>
         <span className={`text-xs px-2.5 py-1 rounded-full border font-medium ${statusStyle[p.status]}`}>
           {statusLabel[p.status]}
@@ -54,6 +57,7 @@ export function ProjectCard({ project: p }: { project: Project }) {
         ))}
       </ul>
 
+      {milestone && <p className="text-xs text-text-muted mb-5">{milestone.label} · <time dateTime={milestone.date}>{projectDate(milestone.date)}</time></p>}
       <div className="mt-auto">
         {p.link ? (
           <a
@@ -77,51 +81,7 @@ export function ProjectCard({ project: p }: { project: Project }) {
   );
 }
 
-/** Home page ka "Featured Projects" section (Rawi alag spotlight card mein hai, isliye yahan nahi). */
+/** Homepage highlights; MovieHub keeps its existing separate card. */
 export function FeaturedProjects() {
-  const { navigate } = useRouter();
-  const list = projects.filter((p) => !p.spotlight && !p.showcase);
-
-  return (
-    <section className="py-20 sm:py-24 max-w-6xl mx-auto px-5 sm:px-8" aria-labelledby="featured-projects">
-      <Reveal>
-        <p className="text-sm text-gold/80 font-medium tracking-wide uppercase text-center mb-3">
-          Portfolio
-        </p>
-      </Reveal>
-      <Reveal delay={60}>
-        <h2 id="featured-projects" className="font-display text-3xl sm:text-4xl text-center mb-3">
-          Featured Projects
-        </h2>
-      </Reveal>
-      <Reveal delay={120}>
-        <p className="text-center text-text-muted max-w-xl mx-auto mb-14">
-          AI tools, an online store and more — real things built by Farhan Balouch,
-          with the biggest project still on its way.
-        </p>
-      </Reveal>
-
-      <div className="grid gap-6 md:grid-cols-2">
-        {list.map((p, i) => (
-          <Reveal key={p.slug} delay={i * 90}>
-            <ProjectCard project={p} />
-          </Reveal>
-        ))}
-      </div>
-
-      <Reveal delay={200}>
-        <div className="mt-10 text-center">
-          <button
-            onClick={() => navigate('/work')}
-            className="group inline-flex items-center gap-2 px-5 py-3 rounded-xl border border-border hover:border-gold/40 text-text hover:text-gold transition-colors"
-          >
-            View all projects
-            <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-          </button>
-        </div>
-      </Reveal>
-    </section>
-  );
+  return <ProjectSpotlights />;
 }
-
-
