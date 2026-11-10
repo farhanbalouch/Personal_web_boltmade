@@ -33,11 +33,17 @@ export async function notify({ title, message, url, id }) {
     signal: AbortSignal.timeout(30000),
   });
   const data = await r.json();
+  const errors = Array.isArray(data.errors) ? data.errors : [];
+  if (r.ok && !data.id && errors.length === 1 && errors[0] === 'All included players are not subscribed') {
+    console.log('Notification not sent: no active subscribed devices. Website publishing succeeded.');
+    return { status: 'no-recipients', id: null, recipients: 0 };
+  }
   if (!r.ok || data.errors)
     throw new Error(
       `OneSignal delivery failed (${r.status}): ${JSON.stringify(data.errors || "request rejected")}`,
     );
-  console.log("OneSignal accepted push:", data.id || "no active recipients");
+  if (!data.id) throw new Error('OneSignal did not return a notification ID. Delivery is unconfirmed.');
+  console.log("OneSignal accepted push (device delivery not confirmed):", data.id);
   return data;
 }
 if (process.argv[1]?.endsWith("notify-onesignal.mjs")) {

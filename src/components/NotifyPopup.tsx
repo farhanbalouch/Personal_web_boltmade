@@ -8,15 +8,15 @@ export function NotifyPopup() {
     let cancelled = false;
     const timer = setTimeout(async () => {
       if (
-        localStorage.getItem("notify_dismissed") === "1" ||
-        localStorage.getItem("push_allowed") === "1" ||
         !("Notification" in window) ||
         Notification.permission === "denied"
       )
         return;
       try {
+        try { if (localStorage.getItem("notify_dismissed") === "1") return; } catch { /* Optional storage. */ }
+        if (Notification.permission !== "granted") { if (!cancelled) setVisible(true); return; }
         const sdk = await getPushSDK();
-        if (!cancelled && !sdk.User.PushSubscription.optedIn) setVisible(true);
+        if (!cancelled && !(sdk.User.PushSubscription.optedIn && sdk.User.PushSubscription.id)) setVisible(true);
       } catch {
         /* Footer remains available for retry. */
       }
@@ -36,7 +36,7 @@ export function NotifyPopup() {
         className="notify-popup-close"
         aria-label="Dismiss notification invitation"
         onClick={() => {
-          localStorage.setItem("notify_dismissed", "1");
+          try { localStorage.setItem("notify_dismissed", "1"); } catch { /* Close still works. */ }
           setVisible(false);
         }}
       >

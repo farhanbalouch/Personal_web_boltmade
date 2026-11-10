@@ -1,12 +1,13 @@
 import { useEffect, useState } from "react";
 import { Bell, Check } from "lucide-react";
-import { allowNotifications, getPushSDK } from "@/lib/notifications";
+import { allowNotifications, getPushSDK, rememberPushState } from "@/lib/notifications";
 export function NotificationButton() {
   const [enabled, setEnabled] = useState(false),
     [busy, setBusy] = useState(false),
     [message, setMessage] = useState("");
   useEffect(() => {
     const update = () => {
+      if (!("Notification" in window) || Notification.permission !== "granted") { setEnabled(false); return; }
       getPushSDK()
         .then((sdk) =>
           setEnabled(
@@ -29,9 +30,7 @@ export function NotificationButton() {
         const sdk = await getPushSDK();
         await sdk.User.PushSubscription.optOut();
         setEnabled(false);
-        localStorage.removeItem("push_allowed");
-        localStorage.setItem("notify_dismissed", "1");
-        window.dispatchEvent(new Event("push-status"));
+        rememberPushState(false);
         setMessage("Notifications turned off.");
       } else {
         await allowNotifications();

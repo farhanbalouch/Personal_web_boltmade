@@ -110,28 +110,47 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@300;400;500;600;700&family=Noto+Nastaliq+Urdu:wght@400;600;700&display=swap" rel="stylesheet" />
 
-    <!-- OneSignal Integration -->
-    <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
+    <!-- Load push only after native permission is granted. Our own invitation is the only soft prompt. -->
+    <style>#onesignal-slidedown-container, #onesignal-bell-container { display: none !important; }</style>
     <script>
-      window.OneSignalDeferred = window.OneSignalDeferred || [];
-      window.farhanPushReady = new Promise((resolve, reject) => {
-        OneSignalDeferred.push(async function (OneSignal) {
-          try {
-            if (location.pathname === '/admin' || location.pathname.startsWith('/admin/')) throw new Error('Push prompts are disabled inside Studio.');
-            if (location.hostname !== 'farhanbalouch.com') throw new Error('Notifications are available on farhanbalouch.com.');
-            await OneSignal.init({
-              appId: '724f058f-edba-4c5a-b0dc-17d9a442eda8',
-              notifyButton: { enable: false },
-              promptOptions: { slidedown: { prompts: [{ type: 'push', autoPrompt: false }] } },
-              welcomeNotification: { disable: true },
-              serviceWorkerPath: '/OneSignalSDKWorker.js',
-              serviceWorkerParam: { scope: '/' },
-            });
-            resolve(OneSignal);
-          } catch (err) { reject(err); }
+      window.farhanStartPush = function () {
+        if (window.farhanPushReady) return window.farhanPushReady;
+        if (location.hostname !== 'farhanbalouch.com' || location.pathname === '/admin' || location.pathname.startsWith('/admin/'))
+          return Promise.reject(new Error('Notifications are available on the public farhanbalouch.com website.'));
+        if (!('Notification' in window) || Notification.permission !== 'granted')
+          return Promise.reject(new Error('Use Allow notifications first.'));
+        window.OneSignalDeferred = window.OneSignalDeferred || [];
+        window.farhanPushReady = new Promise((resolve, reject) => {
+          window.OneSignalDeferred.push(async function (OneSignal) {
+            try {
+              await OneSignal.init({
+                appId: '724f058f-edba-4c5a-b0dc-17d9a442eda8',
+                notifyButton: { enable: false },
+                promptOptions: {
+                  native: { enabled: false, autoPrompt: false },
+                  slidedown: { prompts: [] },
+                  customlink: { enabled: false },
+                },
+                welcomeNotification: { disable: true },
+                serviceWorkerPath: '/OneSignalSDKWorker.js',
+                serviceWorkerParam: { scope: '/' },
+              });
+              const update = () => window.dispatchEvent(new Event('push-status'));
+              OneSignal.User.PushSubscription.addEventListener('change', update);
+              OneSignal.Notifications.addEventListener('permissionChange', update);
+              resolve(OneSignal);
+            } catch (err) { reject(err); }
+          });
+          const script = document.createElement('script');
+          script.src = 'https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js';
+          script.async = true;
+          script.onerror = () => reject(new Error('Notification service could not load. Check your connection or content blocker, then reload.'));
+          document.head.appendChild(script);
         });
-      });
-      window.farhanPushReady.catch(() => {});
+        window.farhanPushReady.catch(() => {});
+        return window.farhanPushReady;
+      };
+      if ('Notification' in window && Notification.permission === 'granted') window.farhanStartPush().catch(() => {});
     </script>
   </head>
   <body>
