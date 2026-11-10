@@ -125,13 +125,17 @@ export function StudioPromo({ id, promo, url, published, imageAi, initialLabel =
     });
   }
 
-  function editWithAi() {
+  function editWithAi(mode: 'enhance' | 'recompose') {
     if(!artwork || !editArtwork) return;
     return prepareArtwork(async()=>{
       const blob=await fetch(artwork.src).then(response=>response.blob());
       const source=await optimizePhoto(new File([blob],'reference',{type:blob.type}),480,'image/jpeg');
-      const identityLock='Preserve the real person exactly: same face, identity, facial features, expression, skin tone, hair, age, body shape, body proportions, pose, and clothing. Do not beautify, reshape, replace, duplicate, or redraw the person. Change only the requested scene, background, composition, and lighting. Keep the result photorealistic and natural.';
-      const result=await editArtwork({reference:source.data,width:source.width,height:source.height,instructions:`${identityLock}\nComposition: ${editComposition}\nOther changes: ${editInstructions}`});
+      const identityLock='If a person is present, preserve the exact person: face, identity, facial features, expression, skin tone, hair, age, body shape, proportions, pose and clothing. Do not beautify, reshape, replace, duplicate or redraw them. Keep the photo natural and photorealistic.';
+      const topic=settings.scene.trim();
+      const modePrompt=mode==='enhance'
+        ? `Enhance this uploaded artwork for the blog topic. Improve clarity, lighting, color balance and visual polish; adapt the setting gently to this topic while keeping the original framing and subject placement. Topic direction: ${topic}.`
+        : `Create a new thumbnail composition from this uploaded artwork for the blog topic. Reframe and adjust the scene to make the topic clear, use a strong editorial composition and leave clean space for the thumbnail text. Topic direction: ${topic}. Keep the person recognizable and unchanged. Composition choice: ${editComposition}.`;
+      const result=await editArtwork({reference:source.data,width:source.width,height:source.height,instructions:`${identityLock}\n${modePrompt}\nAdditional edits: ${editInstructions}`});
       setNotice(`Edited preview ready${result.model ? ' · '+result.model : ''}. Check the face and body before downloading; your original photo stays unchanged.`);
       return decodeImage(`data:${result.mime};base64,${result.data}`);
     });
@@ -170,7 +174,7 @@ export function StudioPromo({ id, promo, url, published, imageAi, initialLabel =
         <button type="button" className="studio-primary" disabled={settings.showLogo && !logo} onClick={download}><Download size={17} /> Download thumbnail</button>
       </div>
       <div className="studio-promo-controls">
-        <div className="studio-promo-fields"><label>Design layout<select value={settings.layout || 'cinematic'} onChange={event=>update({layout:event.target.value as PromoSettings['layout']})}>{Object.entries(promoLayouts).map(([key,label])=><option key={key} value={key}>{label}</option>)}</select></label><label>Headline font<select value={settings.font || 'sans'} onChange={event=>update({font:event.target.value as 'sans'|'serif'})}><option value="sans">Modern bold</option><option value="serif">Editorial serif</option></select></label></div>
+        <div className="studio-promo-fields"><label>Choose thumbnail template<select value={settings.layout || 'cinematic'} onChange={event=>update({layout:event.target.value as PromoSettings['layout']})}>{Object.entries(promoLayouts).map(([key,label])=><option key={key} value={key}>{label}</option>)}</select><small className="studio-hint">Try Cinematic, Editorial, Split or Minimal; then edit text, colors and photo framing.</small></label><label>Headline font<select value={settings.font || 'sans'} onChange={event=>update({font:event.target.value as 'sans'|'serif'})}><option value="sans">Modern bold</option><option value="serif">Editorial serif</option></select></label></div>
         <label>Post size
           <select value={settings.format} onChange={event => update({ format: event.target.value as PromoFormat })}>
             {Object.entries(promoFormats).map(([key, format]) => <option key={key} value={key}>{format.label} · {format.ratio}</option>)}
@@ -199,13 +203,13 @@ export function StudioPromo({ id, promo, url, published, imageAi, initialLabel =
           }} />
         </div>
         <p className="studio-hint">AI uses the shared Cloudflare free allocation. Model routing helps with model failures; it cannot reset the daily quota. No paid provider is added.</p>
-        {artwork && editArtwork && <div className="studio-promo-edit"><span>Change scene layout</span><select value={editComposition} onChange={event=>setEditComposition(event.target.value)}>
+        {artwork && editArtwork && <div className="studio-promo-edit"><span>AI edit your uploaded artwork</span><p className="studio-hint">Choose how your photo should fit this blog, then select an edit action. The original upload stays unchanged.</p><label>Composition for the new thumbnail<select value={editComposition} onChange={event=>setEditComposition(event.target.value)}>
           <option value="Change the background or surroundings to fit the blog topic; keep the person centred and at the same scale.">Change setting; keep my position and size</option>
           <option value="Move the person slightly to the left and create clean negative space on the right for text; keep their size and pose.">Move me left; leave room for text</option>
           <option value="Use a wider environmental composition that shows more of the setting around the person; preserve their size, face and body.">Show more of the scene</option>
           <option value="Use a closer portrait crop while keeping the complete face and natural upper body proportions unchanged.">Closer portrait framing</option>
           <option value="Keep the original framing and person placement; update only the background to match the blog topic.">Keep framing; change background only</option>
-        </select><label>Other edits<textarea rows={3} maxLength={700} value={editInstructions} onChange={event=>setEditInstructions(event.target.value)} placeholder="e.g. warm window light, remove clutter from the background" /></label><p className="studio-hint">Face, identity, body, pose and clothes ko same rakhne ki koshish hogi. AI output ko download se pehle check kar lena.</p><button type="button" className="studio-secondary" disabled={busy || !imageAi} onClick={editWithAi}><Sparkles size={15} />Edit artwork with AI</button></div>}
+        </select></label><label>Extra instruction<textarea rows={3} maxLength={700} value={editInstructions} onChange={event=>setEditInstructions(event.target.value)} placeholder="e.g. warm window light, remove clutter from the background" /></label><p className="studio-hint">AI face, body, pose aur kapray preserve karne ki koshish karega; result ko download se pehle check karein.</p><div className="studio-promo-actions"><button type="button" className="studio-secondary" disabled={busy || !imageAi} onClick={()=>editWithAi('enhance')}><Sparkles size={15} />Enhance photo for this topic</button><button type="button" className="studio-secondary" disabled={busy || !imageAi} onClick={()=>editWithAi('recompose')}><Sparkles size={15} />Create new topic layout</button></div></div>}
         {artwork && <div className="studio-promo-actions studio-promo-crop">
           <label>Horizontal crop <input type="range" value={settings.focalX} onChange={event => update({ focalX: Number(event.target.value) })} /></label>
           <label>Vertical crop <input type="range" value={settings.focalY} onChange={event => update({ focalY: Number(event.target.value) })} /></label>

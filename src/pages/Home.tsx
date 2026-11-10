@@ -492,8 +492,6 @@ export function Home() {
         </div>
       </section>
 
-      <FeaturedProjects />
-      <MovieHubSpotlight showAllProjectsButton />
       {blogPosts.length > 0 && <section className="home-latest-blogs">
         <div className="home-section-heading">
           <div><span className="home-section-kicker">FRESH FROM THE JOURNEY</span><h2>Latest notes</h2><p>New ideas and stories, shared as they happen.</p></div>
@@ -513,6 +511,13 @@ export function Home() {
           </Reveal>)}
         </div>
       </section>}
+      <FeaturedProjects />
+      <MovieHubSpotlight />
+      <section className="home-all-projects-wrap" aria-label="Explore all projects">
+        <button className="home-view-projects home-all-projects-button" onClick={() => navigate('/work')}>
+          Explore all projects <ArrowRight size={17} />
+        </button>
+      </section>
     </>
   );
 }

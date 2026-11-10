@@ -14,6 +14,9 @@
 .studio-promo select { width:100%; padding:10px; color:var(--ink); background:#101c30; border:1px solid #3a4e6c; border-radius:8px; }
 .studio-promo-edit { display:grid; gap:10px; padding:14px; border:1px solid #3a4e6c; border-radius:14px; background:linear-gradient(140deg,#142139,#101827); color:var(--muted); font-size:12px; }
 .studio-promo-edit>span { color:var(--ink); font-weight:650; }
+.studio-promo-edit .studio-hint { margin:0; line-height:1.55; }
+.studio-promo-edit .studio-promo-actions { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); }
+.studio-promo-edit .studio-secondary { min-height:44px; justify-content:center; }
 .studio-promo textarea { resize: vertical; line-height: 1.5; }
 .studio-promo-brand, .studio-promo-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
 .studio-promo-brand label { display: flex; align-items: center; }
@@ -24,4 +27,4 @@
 .studio-promo-text { border-top: 1px solid #3a4e6c; padding-top: 12px; }
 .studio-promo-text summary { color: var(--teal); cursor: pointer; font-size: 12px; }
 .studio-promo-text label { margin-top: 10px; }
-@media (max-width: 760px) { .studio-promo-grid { grid-template-columns: minmax(0, 1fr); } }
+@media (max-width: 760px) { .studio-promo-grid { grid-template-columns: minmax(0, 1fr); } .studio-promo-edit .studio-promo-actions { grid-template-columns:1fr; } }
