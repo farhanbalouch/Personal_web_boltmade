@@ -59,7 +59,7 @@ async function decodeImage(src: string) {
 }
 
 export function StudioPromo({ id, promo, url, published, imageAi, initialLabel = 'NEW ON THE BLOG', generateArtwork, editArtwork, initialArtwork, close }: Props) {
-  const storageKey = 'studio-promo-v1:' + id;
+  const storageKey = 'studio-promo-v2:' + id;
   const [settings, setSettings] = useState(() => loadSettings(storageKey, promo, initialLabel));
   const [logo, setLogo] = useState<HTMLImageElement | null>(null);
   const [artwork, setArtwork] = useState<HTMLImageElement | null>(null);
@@ -67,6 +67,7 @@ export function StudioPromo({ id, promo, url, published, imageAi, initialLabel =
   const [notice, setNotice] = useState('');
   const [error, setError] = useState('');
   const [editInstructions, setEditInstructions] = useState('');
+  const [editComposition, setEditComposition] = useState('Change the background or surroundings to fit the blog topic; keep the person centred and at the same scale.');
   const canvas = useRef<HTMLCanvasElement>(null);
   const picker = useRef<HTMLInputElement>(null);
   const section = useRef<HTMLElement>(null);
@@ -125,12 +126,13 @@ export function StudioPromo({ id, promo, url, published, imageAi, initialLabel =
   }
 
   function editWithAi() {
-    if(!artwork || !editArtwork || !editInstructions.trim()) return;
+    if(!artwork || !editArtwork) return;
     return prepareArtwork(async()=>{
       const blob=await fetch(artwork.src).then(response=>response.blob());
       const source=await optimizePhoto(new File([blob],'reference',{type:blob.type}),480,'image/jpeg');
-      const result=await editArtwork({reference:source.data,width:source.width,height:source.height,instructions:editInstructions});
-      setNotice(`Edited preview ready${result.model ? ' · '+result.model : ''}. Original upload is not changed.`);
+      const identityLock='Preserve the real person exactly: same face, identity, facial features, expression, skin tone, hair, age, body shape, body proportions, pose, and clothing. Do not beautify, reshape, replace, duplicate, or redraw the person. Change only the requested scene, background, composition, and lighting. Keep the result photorealistic and natural.';
+      const result=await editArtwork({reference:source.data,width:source.width,height:source.height,instructions:`${identityLock}\nComposition: ${editComposition}\nOther changes: ${editInstructions}`});
+      setNotice(`Edited preview ready${result.model ? ' · '+result.model : ''}. Check the face and body before downloading; your original photo stays unchanged.`);
       return decodeImage(`data:${result.mime};base64,${result.data}`);
     });
   }
@@ -197,7 +199,13 @@ export function StudioPromo({ id, promo, url, published, imageAi, initialLabel =
           }} />
         </div>
         <p className="studio-hint">AI uses the shared Cloudflare free allocation. Model routing helps with model failures; it cannot reset the daily quota. No paid provider is added.</p>
-        {artwork && editArtwork && <label>What should AI change?<textarea rows={3} maxLength={900} value={editInstructions} onChange={event=>setEditInstructions(event.target.value)} placeholder="e.g. warmer light, cleaner background; keep my face and pose unchanged" /><button type="button" className="studio-secondary" disabled={busy || !imageAi || !editInstructions.trim()} onClick={editWithAi}><Sparkles size={15} />Edit artwork with AI</button></label>}
+        {artwork && editArtwork && <div className="studio-promo-edit"><span>Change scene layout</span><select value={editComposition} onChange={event=>setEditComposition(event.target.value)}>
+          <option value="Change the background or surroundings to fit the blog topic; keep the person centred and at the same scale.">Change setting; keep my position and size</option>
+          <option value="Move the person slightly to the left and create clean negative space on the right for text; keep their size and pose.">Move me left; leave room for text</option>
+          <option value="Use a wider environmental composition that shows more of the setting around the person; preserve their size, face and body.">Show more of the scene</option>
+          <option value="Use a closer portrait crop while keeping the complete face and natural upper body proportions unchanged.">Closer portrait framing</option>
+          <option value="Keep the original framing and person placement; update only the background to match the blog topic.">Keep framing; change background only</option>
+        </select><label>Other edits<textarea rows={3} maxLength={700} value={editInstructions} onChange={event=>setEditInstructions(event.target.value)} placeholder="e.g. warm window light, remove clutter from the background" /></label><p className="studio-hint">Face, identity, body, pose and clothes ko same rakhne ki koshish hogi. AI output ko download se pehle check kar lena.</p><button type="button" className="studio-secondary" disabled={busy || !imageAi} onClick={editWithAi}><Sparkles size={15} />Edit artwork with AI</button></div>}
         {artwork && <div className="studio-promo-actions studio-promo-crop">
           <label>Horizontal crop <input type="range" value={settings.focalX} onChange={event => update({ focalX: Number(event.target.value) })} /></label>
           <label>Vertical crop <input type="range" value={settings.focalY} onChange={event => update({ focalY: Number(event.target.value) })} /></label>

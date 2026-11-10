@@ -126,7 +126,7 @@ export const projects: Project[] = [
     cta: 'Explore Farhan Deals',
     status: 'live',
     icon: 'store',
-    logo: '/projects/farhan-deals-transparent.png',
+    logo: '/projects/farhan-deals.jpg',
     featuredOrder: 1,
   },
   {

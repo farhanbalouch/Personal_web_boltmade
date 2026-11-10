@@ -267,7 +267,7 @@ export function MovieHubSpotlight({
                   <button
                     onClick={() => t("/work")}
                     className={
-                      "group inline-flex items-center gap-2 px-5 py-3 rounded-xl border border-border hover:border-gold/40 text-text hover:text-gold transition-colors"
+                    "home-view-projects group inline-flex items-center gap-2 px-6 py-3 rounded-xl text-bg font-semibold transition-all"
                     }
                   >
                     {"View all projects"}

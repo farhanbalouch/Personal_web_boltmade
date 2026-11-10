@@ -1,4 +1,4 @@
-import { Mail, MapPin, Phone, Instagram, Youtube, Facebook } from 'lucide-react';
+import { Mail, MapPin, Phone, Instagram } from 'lucide-react';
 import { useRouter } from '@/router';
 import { SubscribeFooter } from '@/components/SubscribeFooter';   {/* <-- YE LINE NAYI DAALNI HAI */}
 
@@ -104,7 +104,20 @@ export function Footer() {
                 className="p-2.5 rounded-full bg-white/5 border border-white/20 text-text hover:scale-110 hover:border-gold hover:text-gold transition-all flex items-center justify-center font-bold text-xs w-9 h-9 shadow-sm"
                 title="TikTok"
               >
-                TT
+                <svg aria-hidden="true" viewBox="0 0 24 24" className="w-4 h-4" fill="currentColor">
+                  <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.36V2h-3.54v13.67a2.9 2.9 0 0 1-2.9 2.9 2.9 2.9 0 1 1 2.9-2.9v-3.54a6.44 6.44 0 1 0 3.54 5.75V9.63a8.33 8.33 0 0 0 4.88 1.57V7.66a4.8 4.8 0 0 1-1.11-.97Z" />
+                </svg>
+              </a>
+
+              <a
+                href="https://x.com/FarhanBalouch08"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="p-2.5 rounded-full bg-white/5 border border-white/20 text-text hover:scale-110 hover:border-gold hover:text-gold transition-all shadow-sm"
+                title="X (Twitter)"
+                aria-label="Farhan Balouch on X"
+              >
+                <svg aria-hidden="true" viewBox="0 0 24 24" className="w-4 h-4" fill="currentColor"><path d="M18.9 2H22l-6.78 7.75L23.2 22h-6.25l-4.9-7.42L5.56 22H2.43l7.25-8.28L1.6 2h6.4l4.43 6.78L18.9 2Zm-1.1 18h1.73L7.08 3.9H5.22L17.8 20Z" /></svg>
               </a>
 
               <a 
@@ -114,7 +127,7 @@ export function Footer() {
                 className="p-2.5 rounded-full bg-red-500/10 border border-red-500/30 text-red-400 hover:scale-110 hover:border-red-500 transition-all shadow-sm"
                 title="YouTube"
               >
-                <Youtube className="w-4 h-4" />
+                <svg aria-hidden="true" viewBox="0 0 24 24" className="w-4 h-4" fill="currentColor"><path d="M23.5 6.2a3 3 0 0 0-2.1-2.1C19.5 3.6 12 3.6 12 3.6s-7.5 0-9.4.5A3 3 0 0 0 .5 6.2 31 31 0 0 0 0 12s0 3.8.5 5.8a3 3 0 0 0 2.1 2.1c1.9.5 9.4.5 9.4.5s7.5 0 9.4-.5a3 3 0 0 0 2.1-2.1c.5-2 .5-5.8.5-5.8s0-3.8-.5-5.8ZM9.6 15.6V8.4l6.3 3.6-6.3 3.6Z" /></svg>
               </a>
 
               <a 
@@ -124,7 +137,7 @@ export function Footer() {
                 className="p-2.5 rounded-full bg-blue-500/10 border border-blue-500/30 text-blue-400 hover:scale-110 hover:border-blue-500 transition-all shadow-sm"
                 title="Facebook"
               >
-                <Facebook className="w-4 h-4" />
+                <svg aria-hidden="true" viewBox="0 0 24 24" className="w-4 h-4" fill="currentColor"><path d="M13.4 21v-8.2h2.8l.4-3.2h-3.2v-2c0-.9.3-1.5 1.6-1.5h1.7V3.2c-.3 0-1.4-.1-2.6-.1-2.6 0-4.4 1.6-4.4 4.5v2.5H6.8v3.2h2.9V21h3.7Z" /></svg>
               </a>
             </div>
           </div>

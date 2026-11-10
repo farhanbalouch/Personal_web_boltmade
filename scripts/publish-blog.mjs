@@ -85,6 +85,7 @@ ARTICLE QUALITY:
 - Add one short takeaway grounded in the source. For a personal story use a
   reflection. For a technical piece use a practical point. Do not add new facts.
 - Also provide a separate short moral per language, derived from the actual source.
+  Keep it point-to-point, ideally under 90 characters, and never repeat the takeaway.
 - Provide shortTitle (2–6 natural words, not an arbitrary chopped sentence) and
   secondaryTitle (a descriptive alternate title). Keep title as the full descriptive SEO title.
 

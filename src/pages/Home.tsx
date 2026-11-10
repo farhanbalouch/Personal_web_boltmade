@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Compass, Heart, Rocket, ArrowRight, MessageCircle, Sparkles } from 'lucide-react';
+import { Compass, Heart, Rocket, ArrowRight, MessageCircle, Sparkles, CalendarDays } from 'lucide-react';
 import { Seo } from '@/components/Seo';
 import { Starfield } from '@/components/Starfield';
 import { Reveal } from '@/components/Reveal';
@@ -7,6 +7,9 @@ import { useRouter } from '@/router';
 import { highlights, SITE } from '@/data/content';
 import { MovieHubSpotlight } from '@/components/MovieHubSpotlight';
 import { FeaturedProjects } from '@/components/FeaturedProjects';
+import { blogPosts, formatBlogDate } from '@/data/blog';
+import { contentTitle, contentSubtitle } from '@/lib/content-labels';
+import './home-sections.css';
 
 const iconMap = { compass: Compass, heart: Heart, rocket: Rocket };
 
@@ -491,6 +494,25 @@ export function Home() {
 
       <FeaturedProjects />
       <MovieHubSpotlight showAllProjectsButton />
+      {blogPosts.length > 0 && <section className="home-latest-blogs">
+        <div className="home-section-heading">
+          <div><span className="home-section-kicker">FRESH FROM THE JOURNEY</span><h2>Latest notes</h2><p>New ideas and stories, shared as they happen.</p></div>
+          <button className="home-blog-all" onClick={() => navigate('/blog')}>All blog posts <ArrowRight size={16} /></button>
+        </div>
+        <div className="home-blog-grid">
+          {blogPosts.slice(0, 3).map((post, index) => <Reveal key={post.slug} delay={index * 100}>
+            <button className="home-blog-card" onClick={() => navigate(`/blog/${post.slug}`)}>
+              {post.images?.[0] && <img src={post.images[0].src} alt={post.images[0].alt} loading="lazy" width={post.images[0].width} height={post.images[0].height} />}
+              <div className="home-blog-card-copy"><span className="home-blog-date"><CalendarDays size={14} />{formatBlogDate(post.publishedAt)}</span>
+                <h3>{contentTitle(post.translations.en)}</h3>
+                {contentSubtitle(post.translations.en) && <p className="home-blog-subtitle">{contentSubtitle(post.translations.en)}</p>}
+                <p className="home-blog-excerpt">{post.translations.en.excerpt}</p>
+                <span className="home-blog-read">Read the post <ArrowRight size={15} /></span>
+              </div>
+            </button>
+          </Reveal>)}
+        </div>
+      </section>}
     </>
   );
 }

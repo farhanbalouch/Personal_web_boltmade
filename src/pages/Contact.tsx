@@ -75,6 +75,13 @@ export function Contact() {
       url: 'https://www.facebook.com/share/18xn791BLy/',
       color: 'hover:border-blue-600/50'
     },
+    {
+      icon: ({ className }: { className?: string }) => <svg className={className} viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18.9 2H22l-6.78 7.75L23.2 22h-6.25l-4.9-7.42L5.56 22H2.43l7.25-8.28L1.6 2h6.4l4.43 6.78L18.9 2Zm-1.1 18h1.73L7.08 3.9H5.22L17.8 20Z" /></svg>,
+      label: 'X (Twitter)',
+      handle: '@FarhanBalouch08',
+      url: 'https://x.com/FarhanBalouch08',
+      color: 'hover:border-white/50'
+    },
     { 
       icon: Instagram, 
       label: 'Instagram', 

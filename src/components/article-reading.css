@@ -86,7 +86,7 @@
 .reading-static-list a { color: var(--gold-soft); font-weight: 650; }
 .reading-static-list p { color: var(--text-muted); margin-block: .4rem 0; }
 
-.reading-moral { max-width:34rem; margin:24px 0 38px auto; text-align:right; padding:6px 0 6px 22px; color:#ddc18e; font-family:Georgia,'Noto Nastaliq Urdu',serif; font-style:italic; }
+.reading-moral { max-width:27rem; margin:20px 0 34px auto; text-align:right; padding:6px 0 6px 18px; color:#ddc18e; font-family:Georgia,'Noto Nastaliq Urdu',serif; font-style:italic; }
 .reading-moral > span { font:9px Inter,sans-serif; letter-spacing:2px; text-transform:uppercase; color:#8fbdb4; }
-.reading-moral p { line-height:1.8; font-size:16px; margin-top:8px; }
+.reading-moral p { line-height:1.65; font-size:15px; margin-top:6px; }
 .reading-subtitle { font-size:clamp(15px,2vw,19px); line-height:1.7; color:#a9b8cc; margin:12px 0 24px; max-width:48rem; }

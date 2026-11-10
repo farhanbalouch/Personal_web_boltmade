@@ -31,7 +31,7 @@ export async function createImagePreview(body) {
   if (!imageAiConfigured()) throw fail(503, 'AI images need a Workers AI token and account ID in the Studio Vercel project.');
 
   const prompt = edit
-    ? `Edit the uploaded reference image. Keep its subject, facial identity and composition unless explicitly asked to change them. Apply only these changes: ${instructions}`
+    ? `Edit the uploaded reference photograph. Identity preservation is the highest priority: preserve the real person's identity and exact face, facial features, expression, skin tone, hair, age, body shape, proportions, pose, and clothing. Do not replace, beautify, reshape, duplicate, or redraw the person. Change only the requested background, surroundings, composition, or lighting. Keep the result natural and photorealistic. If any requested edit risks changing the person, leave the person untouched. Apply these instructions: ${instructions}`
     : `Create a landscape editorial illustration for a personal website, with a clear visual idea. No watermark or text unless specifically requested. Topic: ${topic}\nArt direction: ${instructions || 'Use the topic to choose the scene and style.'}`;
   const form = new FormData();
   form.set('prompt', prompt);
