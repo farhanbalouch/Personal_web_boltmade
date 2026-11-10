@@ -26,7 +26,7 @@ export function Contact() {
     { 
       icon: MessageCircle, 
       label: 'WhatsApp', 
-      handle: '+92 309 3244171',
+      handle: 'WhatsApp',
       url: 'https://wa.me/923093244171?text=Hi%20Farhan,%20I%20reached%20out%20via%20your%20website!',
       color: 'hover:border-emerald-500/50 hover:text-emerald-400',
       badge: 'Direct Chat'
@@ -143,7 +143,7 @@ export function Contact() {
                   <p className="text-xs font-semibold text-emerald-400 uppercase tracking-wider">Fastest Reply</p>
                   <span className="text-[10px] bg-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded-full font-medium">WhatsApp Direct</span>
                 </div>
-                <p className="font-display text-lg font-bold text-text truncate">+92 309 3244171</p>
+                <p className="font-display text-lg font-bold text-text truncate">WhatsApp</p>
               </div>
               <Send className="w-5 h-5 text-emerald-400 opacity-70 group-hover:translate-x-1 transition-transform" />
             </div>

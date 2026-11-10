@@ -2,10 +2,15 @@ import type { BlogPost } from '../data/blog';
 import { blogPromoScenes } from '../data/blog-promo-scenes';
 
 export type SocialPromo = { headline: string; subhead: string; caption: string; scene: string };
-export type PromoFormat = 'feed' | 'vertical';
+export type PromoFormat = 'feed' | 'vertical' | 'square';
+export type PromoLayout = 'cinematic' | 'editorial' | 'split' | 'minimal';
+export const promoLayouts = {cinematic:'Cinematic cover',editorial:'Editorial magazine',split:'Bold split',minimal:'Clean statement'};
+export function promoVariation(id: string) { const n=[...id].reduce((sum,c)=>sum+c.charCodeAt(0),0); return { layout: Object.keys(promoLayouts)[n%4] as PromoLayout, accent:['#e8b14b','#67d7bd','#af9bff','#f09281'][n%4] }; }
 
 export type PromoSettings = SocialPromo & {
   format: PromoFormat;
+  layout?: PromoLayout;
+  font?: 'serif' | 'sans';
   label: string;
   callToAction: string;
   accent: string;
@@ -15,6 +20,7 @@ export type PromoSettings = SocialPromo & {
 };
 
 export const promoFormats = {
+  square: {label:'Square post',ratio:'1:1',width:1080,height:1080},
   feed: { label: 'Instagram feed', ratio: '4:5', width: 1080, height: 1350 },
   vertical: { label: 'TikTok / Stories', ratio: '9:16', width: 1080, height: 1920 },
 };
@@ -27,9 +33,9 @@ export const blogPromoUrl = (slug: string) => `https://farhanbalouch.com/blog/${
 
 export function promoFromBlog(blog: BlogPost): SocialPromo {
   const { title, excerpt } = blog.translations.en;
-  const brief = blogPromoScenes[blog.slug];
+  const brief = blogPromoScenes[blog.slug] || blog.aliases?.map(alias => blogPromoScenes[alias]).find(Boolean);
   return {
-    headline: brief?.headline || title.slice(0, 90),
+    headline: blog.translations.en.shortTitle || brief?.headline || title.slice(0, 90),
     subhead: excerpt.slice(0, 150),
     caption: `${title}\n\n${excerpt}`.slice(0, 600),
     scene: brief?.scene || `Create a photorealistic editorial scene for “${title}”. Choose a focal subject grounded in this summary: ${excerpt.slice(0, 500)}`,
@@ -48,8 +54,9 @@ export function imagePrompt(settings: PromoSettings, finished: boolean) {
   return [
     'Create a finished, photorealistic blog announcement thumbnail for Farhan Balouch.',
     direction,
+    `Design: ${settings.layout || "cinematic"}; headline font: ${settings.font || "sans"}.`,
     `Use the website palette: deep navy ${navy}, warm cream ${cream}, accent ${settings.accent}, and subtle teal ${teal}. Fade the lower half to navy behind the title. Keep generous side and bottom margins.`,
-    settings.showLogo ? 'Place the attached official Farhan Balouch logo at the top on a small navy plate. Preserve its proportions and design. Leave the logo area empty if a reference is unavailable.' : 'Keep the top uncluttered.',
+    settings.showLogo ? 'Place the attached official Farhan Balouch logo at the top with its transparent background and no colored box. Preserve its proportions and design. Leave the logo area empty if a reference is unavailable.' : 'Keep the top uncluttered.',
     'Use the following text exactly, with a bold editorial serif headline and clear sans-serif supporting text:',
     ...[settings.label, settings.headline, settings.subhead, settings.callToAction, 'farhanbalouch.com'].filter(Boolean).map(text => JSON.stringify(text)),
     'Keep all typography within the safe margins and the artwork visible above the headline.',
@@ -94,87 +101,44 @@ function drawText(ctx: CanvasRenderingContext2D, text: string, x: number, y: num
 }
 
 export function renderPromo(canvas: HTMLCanvasElement, settings: PromoSettings, artwork: HTMLImageElement | null, logo: HTMLImageElement | null) {
-  const { width, height } = promoFormats[settings.format];
-  canvas.width = width;
-  canvas.height = height;
-  const ctx = canvas.getContext('2d');
-  if (!ctx) return;
-  const tall = settings.format === 'vertical';
-  const side = 82;
-  const textWidth = width - side * 2;
-  const top = tall ? 160 : 74;
-  const artHeight = height * (tall ? .65 : .60);
-  ctx.fillStyle = navy;
-  ctx.fillRect(0, 0, width, height);
-
-  if (artwork) {
-    const scale = Math.max(width / artwork.naturalWidth, artHeight / artwork.naturalHeight);
-    const sw = width / scale;
-    const sh = artHeight / scale;
-    ctx.drawImage(artwork, (artwork.naturalWidth - sw) * settings.focalX / 100,
-      (artwork.naturalHeight - sh) * settings.focalY / 100, sw, sh, 0, 0, width, artHeight);
-  } else {
-    const glow = ctx.createRadialGradient(770, artHeight * .42, 0, 770, artHeight * .42, 740);
-    glow.addColorStop(0, '#1c4d55');
-    glow.addColorStop(.58, '#132434');
-    glow.addColorStop(1, navy);
-    ctx.fillStyle = glow;
-    ctx.fillRect(0, 0, width, artHeight);
-    ctx.strokeStyle = settings.accent;
-    ctx.lineWidth = 3;
-    for (const [index, radius] of [135, 210, 285].entries()) {
-      ctx.globalAlpha = .36 - index * .08;
-      ctx.beginPath();
-      ctx.arc(765, artHeight * .43, radius, 0, Math.PI * 2);
-      ctx.stroke();
-    }
-    ctx.globalAlpha = 1;
-    ctx.fillStyle = settings.accent;
-    ctx.beginPath();
-    ctx.arc(765, artHeight * .43, 19, 0, Math.PI * 2);
-    ctx.fill();
+  const { width, height } = promoFormats[settings.format]; canvas.width=width;canvas.height=height;
+  const ctx=canvas.getContext('2d');if(!ctx)return;
+  const layout=settings.layout || 'cinematic', accent=settings.accent, side=78;
+  const tall=settings.format==='vertical', square=settings.format==='square';
+  const top=tall?155:68, footerY=height-(tall?260:85);
+  const sans='Inter, Arial, sans-serif', family=settings.font==='sans'?sans:'Georgia, serif';
+  ctx.fillStyle=navy;ctx.fillRect(0,0,width,height);
+  const artBottom=layout==='split'?height*.57:height;
+  if(artwork){
+    const scale=Math.max(width/artwork.naturalWidth,artBottom/artwork.naturalHeight),sw=width/scale,sh=artBottom/scale;
+    ctx.drawImage(artwork,(artwork.naturalWidth-sw)*settings.focalX/100,(artwork.naturalHeight-sh)*settings.focalY/100,sw,sh,0,0,width,artBottom);
+  }else{
+    const gradient=ctx.createLinearGradient(0,0,width,height);gradient.addColorStop(0,'#203a4b');gradient.addColorStop(.6,navy);gradient.addColorStop(1,accent);
+    ctx.fillStyle=gradient;ctx.fillRect(0,0,width,height);
+    ctx.save();ctx.translate(width*.72,height*.25);ctx.rotate(-.4);ctx.globalAlpha=.15;ctx.fillStyle=accent;
+    for(let i=0;i<5;i++)ctx.fillRect(i*65-170,-350,25,850);ctx.restore();
   }
-
-  const shade = ctx.createLinearGradient(0, 0, 0, artHeight);
-  shade.addColorStop(0, '#0a0e1755');
-  shade.addColorStop(.34, '#0a0e1700');
-  shade.addColorStop(.84, '#0a0e17e8');
-  shade.addColorStop(1, navy);
-  ctx.fillStyle = shade;
-  ctx.fillRect(0, 0, width, artHeight);
-  ctx.strokeStyle = settings.accent;
-  ctx.globalAlpha = .5;
-  ctx.lineWidth = 2;
-  ctx.strokeRect(42, tall ? 125 : 42, width - 84, height - (tall ? 335 : 84));
-  ctx.globalAlpha = 1;
-
-  if (settings.showLogo && logo) {
-    ctx.fillStyle = '#0a0e17ec';
-    ctx.beginPath();
-    ctx.roundRect(side, top, 410, 107, 18);
-    ctx.fill();
-    // The shipped website logo includes a transparent border around its artwork.
-    ctx.drawImage(logo, 22, 102, 630, 154, side + 28, top + 10, 354, 87);
+  const shade=ctx.createLinearGradient(0,0,0,height);shade.addColorStop(0,'#0a0e1766');shade.addColorStop(.3,'#0a0e1715');shade.addColorStop(.66,'#0a0e17d9');shade.addColorStop(1,navy);
+  ctx.fillStyle=shade;ctx.fillRect(0,0,width,height);
+  let titleY=height*(tall?.58:.54),textWidth=width-side*2,labelY=titleY-83;
+  if(layout==='editorial'){
+    ctx.fillStyle='#f7ecd8';ctx.fillRect(38,height*.51,width-76,height*.39);
+    titleY=height*.61;labelY=titleY-83;textWidth=width-side*2;
+  }else if(layout==='split'){
+    ctx.fillStyle=accent;ctx.fillRect(0,height*.53,width,12);titleY=height*.64;labelY=titleY-80;
+  }else if(layout==='minimal'){
+    ctx.fillStyle='#0a0e17bb';ctx.fillRect(0,0,width,height);
+    ctx.fillStyle=accent;ctx.font='700 220px Georgia';ctx.fillText('“',side-12,height*.44);titleY=height*.52;labelY=titleY-75;
   }
-
-  const labelY = tall ? 925 : 665;
-  ctx.fillStyle = settings.accent;
-  ctx.fillRect(side, labelY, 64, 5);
-  const sans = 'Inter, Arial, sans-serif';
-  drawText(ctx, settings.label, side, labelY + 54, textWidth,
-    { color: settings.accent, family: sans, size: 28, min: 23, rows: 1, weight: 700 });
-  const afterTitle = drawText(ctx, settings.headline, side, labelY + (tall ? 173 : 145), textWidth,
-    { color: cream, family: 'Georgia, serif', size: tall ? 96 : 83, min: 57, rows: 3, weight: 700 });
-  drawText(ctx, settings.subhead, side, afterTitle + 15, textWidth,
-    { color: '#d4deeb', family: sans, size: tall ? 37 : 32, min: 28, rows: 3, weight: 400 });
-
-  const footerY = height - (tall ? 253 : 111);
-  ctx.fillStyle = settings.accent;
-  ctx.fillRect(side, footerY - 49, textWidth, 2);
-  drawText(ctx, settings.callToAction, side, footerY, textWidth * .52,
-    { color: settings.accent, family: sans, size: 25, min: 20, rows: 1, weight: 700 });
-  ctx.fillStyle = cream;
-  ctx.font = `600 25px ${sans}`;
-  ctx.textAlign = 'right';
-  ctx.fillText('farhanbalouch.com', width - side, footerY, textWidth * .45);
+  if(settings.showLogo&&logo){
+    // The existing alpha logo has transparent padding; draw only its artwork, no backplate.
+    ctx.drawImage(logo,22,102,630,154,side,top,340,83);
+  }
+  const ink=layout==='editorial'?'#182437':cream;
+  drawText(ctx,settings.label,side,labelY,textWidth,{color:layout==='editorial'?'#72562e':accent,family:sans,size:25,min:21,rows:1,weight:700});
+  const after=drawText(ctx,settings.headline,side,titleY,textWidth,{color:ink,family,size:square?76:tall?100:90,min:square?43:52,rows:3,weight:700});
+  drawText(ctx,settings.subhead,side,after+18,textWidth,{color:layout==='editorial'?'#455267':'#d4deeb',family:sans,size:square?28:32,min:23,rows:square?2:3,weight:400});
+  ctx.fillStyle=accent;ctx.fillRect(side,footerY-39,62,4);
+  drawText(ctx,settings.callToAction,side,footerY,textWidth*.51,{color:accent,family:sans,size:24,min:19,rows:1,weight:700});
+  ctx.fillStyle=cream;ctx.font='600 24px '+sans;ctx.textAlign='right';ctx.fillText('farhanbalouch.com',width-side,footerY,textWidth*.46);ctx.textAlign='left';
 }

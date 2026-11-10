@@ -20,6 +20,8 @@ type ReadingNote = {
 
 export type ReadingText = {
   title: string;
+  shortTitle?: string;
+  secondaryTitle?: string;
   excerpt: string;
   body?: string[];
   paragraphs?: string[];
@@ -56,7 +58,7 @@ export function readingContent(slug: string, translation: ReadingText, language:
 
   const headings = new Map<number, string>();
   if (Array.isArray(editorial.sections)) {
-    for (const section of editorial.sections.slice(0, 12)) {
+    for (const section of editorial.sections) {
       if (section && Number.isInteger(section.start) && section.start >= 0 &&
           section.start < paragraphs.length && shortText(section.title, 150)) {
         headings.set(section.start, section.title.trim());
@@ -72,10 +74,11 @@ export function readingContent(slug: string, translation: ReadingText, language:
     .sort((a, b) => b.length - a.length)
     .slice(0, 20);
   const questions = Array.isArray(editorial.questions)
-    ? editorial.questions.filter((item) => item && shortText(item.question, 180) && shortText(item.answer, 600)).slice(0, 4)
+    ? editorial.questions.filter((item) => item && shortText(item.question, 180) && shortText(item.answer, 600))
     : [];
   const takeaway = shortText(editorial.takeaway, 600) ? editorial.takeaway.trim() : translation.moral;
-  return { paragraphs, headings, highlights, questions, takeaway };
+  const moral = shortText(translation.moral, 600) ? translation.moral.trim() : takeaway;
+  return { paragraphs, headings, highlights, questions, takeaway, moral };
 }
 
 export function splitLongParagraph(paragraph: string, language: BlogLanguage) {

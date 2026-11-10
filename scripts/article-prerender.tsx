@@ -1,3 +1,4 @@
+import {contentTitle, contentSubtitle} from '../src/lib/content-labels';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { ArticleIntro, ArticleReading } from '../src/components/ArticleReading';
 import { ContentPhotos } from '../src/components/ContentPhotos';
@@ -20,7 +21,8 @@ export function renderArticle(page: Page) {
     <main className="reading-static">
       <a className="reading-static-back" href={page.collection}>{page.collectionLabel}</a>
       <article>
-        <h1 className="font-display text-4xl sm:text-5xl leading-tight">{page.headline}</h1>
+        <h1 className="font-display text-4xl sm:text-5xl leading-tight">{contentTitle(page.translation)}</h1>
+        {contentSubtitle(page.translation) && <p className="reading-subtitle">{contentSubtitle(page.translation)}</p>}
         {page.publishedAt && <time dateTime={page.publishedAt} className="reading-eyebrow">
           {new Date(page.publishedAt).toLocaleDateString('en-US', { dateStyle: 'long', timeZone: 'UTC' })}
         </time>}

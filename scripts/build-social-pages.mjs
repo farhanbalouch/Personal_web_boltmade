@@ -84,7 +84,7 @@ export async function main() {
         const neighbor = (other) => other && { path: `/story/${other.slug}`, title: other.translations.en.title };
         const article = {
           path: `/${route}/${item.slug}`, slug: item.slug, collection: '/' + route, collectionLabel,
-          title: `${t.title} — Farhan Balouch`, headline: t.title, description: t.excerpt,
+          title: `${t.shortTitle || t.title}${t.shortTitle ? ' — ' + (t.secondaryTitle || t.title) : ''} — Farhan Balouch`, headline: t.shortTitle || t.title, alternativeHeadline: t.secondaryTitle || t.title, description: t.excerpt,
           translation: t, images: item.images, article: true, blog: route === 'blog',
           publishedAt: item.publishedAt, updatedAt: item.updatedAt, paragraphs: t.body || t.paragraphs,
           ...(route === 'story' ? { previous: neighbor(items[index - 1]), next: neighbor(items[index + 1]) } : {}),

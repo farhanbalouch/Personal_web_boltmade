@@ -1,3 +1,4 @@
+import { contentTitle, contentSubtitle, contentSeoTitle } from '@/lib/content-labels';
 import { ArrowRight, CalendarDays, Newspaper } from 'lucide-react';
 import { Seo } from '@/components/Seo';
 import { Reveal } from '@/components/Reveal';
@@ -54,9 +55,10 @@ export function Blog() {
                     <CalendarDays className="w-3.5 h-3.5" />
                     {formatBlogDate(post.publishedAt)}
                   </div>
-                  <h2 className="font-display text-xl sm:text-2xl mb-2 group-hover:text-gold transition-colors">
-                    {post.translations.en.title}
+                  <h2 className="font-display text-lg sm:text-xl mb-2 group-hover:text-gold transition-colors">
+                    {contentTitle(post.translations.en)}
                   </h2>
+                  {contentSubtitle(post.translations.en) && <p className="text-xs text-gold/75 mb-3 leading-relaxed">{contentSubtitle(post.translations.en)}</p>}
                   <p className="text-sm text-text-muted leading-relaxed line-clamp-2 mb-4">
                     {post.translations.en.excerpt}
                   </p>

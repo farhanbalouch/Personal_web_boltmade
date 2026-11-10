@@ -1,3 +1,4 @@
+import { contentTitle, contentSubtitle, contentSeoTitle } from '@/lib/content-labels';
 import { ArticleIntro, ArticleReading } from '@/components/ArticleReading';
 import { articleSchema } from '@/lib/article-schema';
 import { ContentPhotos } from "@/components/ContentPhotos";
@@ -46,11 +47,11 @@ export function StoryChapter({ slug }: { slug: string }) {
       {gateOpen ? <StoryGateOverlay onComplete={() => setGateOpen(false)} seconds={7} /> : <StoryDisclaimer />}
 
       <Seo
-        title={`${tEn.title} — Farhan Balouch`}
+        title={`${contentSeoTitle(tEn)} — Farhan Balouch`}
         description={tEn.excerpt}
         path={`/story/${chapter.slug}`}
         structuredData={articleSchema({
-          path: `/story/${chapter.slug}`, headline: tEn.title, description: tEn.excerpt,
+          path: `/story/${chapter.slug}`, headline: contentTitle(tEn), alternativeHeadline: contentSubtitle(tEn), description: tEn.excerpt,
           updatedAt: chapter.updatedAt, images: chapter.images,
         })}
         ogImage={chapter.images?.[0] ? `https://farhanbalouch.com${chapter.images[0].src}` : undefined}
@@ -76,11 +77,11 @@ export function StoryChapter({ slug }: { slug: string }) {
             </p>
           </Reveal>
           <Reveal delay={100}>
-            <h1 className="font-display text-4xl sm:text-5xl mb-3 leading-tight">{t.title}</h1>
+            <h1 className="font-display text-4xl sm:text-5xl mb-3 leading-tight">{contentTitle(t)}</h1>
           </Reveal>
 
           <Reveal delay={140}>
-            <p className="text-lg text-text-muted/80 mb-10">{t.subtitle}</p>
+            <p className="text-lg text-text-muted/80 mb-10">{contentSubtitle(t) || t.subtitle}</p>
           </Reveal>
 
           <p className="text-sm text-text-muted mb-4">

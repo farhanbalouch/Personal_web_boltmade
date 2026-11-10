@@ -1,3 +1,4 @@
+import { validateLabels } from "../studio-app/server/content-labels.js";
 import {
   createCipheriv,
   createDecipheriv,
@@ -133,6 +134,7 @@ export function validateRequest(body) {
   const id = body.id || randomUUID();
   if (!/^[a-f0-9-]{36}$/.test(id)) throw fail(400, "Invalid draft ID.");
   return {
+    ...validateLabels(body),
     id,
     kind,
     raw: body.raw.trim(),

@@ -1,3 +1,4 @@
+import { validateLabels } from "../server/content-labels.js";
 import { validateImages, validateUpload } from "../server/images.js";
 import { createImagePreview, imageAiConfigured } from "../server/image-ai.js";
 import {
@@ -162,6 +163,7 @@ export function validateRequest(body, savingDraft = false) {
   const id = body.id || randomUUID();
   if (!/^[a-f0-9-]{36}$/.test(id)) throw fail(400, "Invalid draft ID.");
   return {
+    ...validateLabels(body),
     id,
     kind,
     raw: savingDraft ? body.raw : body.raw.trim(),
@@ -186,7 +188,7 @@ async function saveDraft(token, body) {
   if (!current.ok && current.status !== 404) throw fail(502, "Could not check draft status.");
   const file = current.ok ? await current.json() : null;
   const prior = file ? draftFromFile(file) : null;
-  const summary = ({ kind, raw, slug, notify, images }) => JSON.stringify([kind, raw, slug, notify, images ?? []]);
+  const summary = ({ kind, raw, slug, notify, images, shortTitle, secondaryTitle, urlSlug, metadataOnly }) => JSON.stringify([kind, raw, slug, notify, images ?? [], shortTitle, secondaryTitle, urlSlug, metadataOnly]);
   if (prior && summary(prior) === summary(draft)) {
     return { id: draft.id, revision: file.sha, updatedAt: prior.updatedAt || prior.createdAt, message: "Draft saved to the cloud. Find it on any device in Saved drafts." };
   }

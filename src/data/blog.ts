@@ -10,15 +10,19 @@ export type BlogLanguage = 'en' | 'hi' | 'ur';
 
 export type BlogTranslation = {
   title: string;
+  shortTitle?: string;
+  secondaryTitle?: string;
   excerpt: string;
   body: string[];
   keywords: string[];
+  moral?: string;
   editorial?: Editorial;
 };
 
 export type BlogPost = {
   images?: ContentImage[];
   slug: string;
+  aliases?: string[];
   author: { name: string; url: string };
   updatedAt?: string;
   publishedAt: string; // ISO date-time, added automatically

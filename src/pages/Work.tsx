@@ -49,6 +49,7 @@ export function Work() {
         })}</dl>
       </section>
       <section className="py-12 max-w-5xl mx-auto px-5 sm:px-8">
+        <h2 className="font-display text-3xl mb-3">More things I’m building</h2><p className="text-text-muted mb-8">Learning, creating and exploring with AI.</p>
         <div className="grid gap-6 sm:grid-cols-2">
           {projects.filter(p => !p.showcase && !p.featuredOrder).map((p, i) => (
             <Reveal key={p.slug} delay={i * 90}>

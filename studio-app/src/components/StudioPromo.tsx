@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { Copy, Download, ImagePlus, Sparkles, X } from 'lucide-react';
-import { imagePrompt, promoFormats, renderPromo, type PromoFormat, type PromoSettings, type SocialPromo } from '@/lib/studio-promo';
+import { imagePrompt, promoFormats, promoLayouts, promoVariation, renderPromo, type PromoFormat, type PromoSettings, type SocialPromo } from '@/lib/studio-promo';
 import { optimizePhoto } from '@/lib/studio-images';
 import './studio-promo.css';
 
@@ -11,7 +11,9 @@ type Props = {
   published: boolean;
   imageAi: boolean;
   initialLabel?: string;
-  generateArtwork: (scene: string) => Promise<{ data: string; mime: string }>;
+  initialArtwork?: string;
+  generateArtwork: (scene: string) => Promise<{ data: string; mime: string; model?: string; fallback?: boolean }>;
+  editArtwork?: (request: {reference:string;width:number;height:number;instructions:string}) => Promise<{data:string;mime:string;model?:string;fallback?:boolean}>;
   close: () => void;
 };
 
@@ -28,7 +30,7 @@ const textFields = [
 function loadSettings(key: string, promo: SocialPromo, label: string): PromoSettings {
   const defaults: PromoSettings = {
     ...promo, format: 'feed', label, callToAction: 'READ THE BLOG',
-    accent: '#e8b14b', showLogo: true, focalX: 50, focalY: 50,
+    ...promoVariation(key), font: 'sans', showLogo: true, focalX: 50, focalY: 50,
   };
   try {
     const saved = JSON.parse(localStorage.getItem(key) || 'null');
@@ -36,7 +38,9 @@ function loadSettings(key: string, promo: SocialPromo, label: string): PromoSett
     for (const { key, max } of textFields) {
       if (typeof saved[key] === 'string') defaults[key] = Array.from(saved[key]).slice(0, max).join('');
     }
-    if (saved.format === 'vertical' || saved.format === 'feed') defaults.format = saved.format;
+    if (saved.layout in promoLayouts) defaults.layout = saved.layout;
+    if (saved.font === 'serif' || saved.font === 'sans') defaults.font = saved.font;
+    if (saved.format === 'square' || saved.format === 'vertical' || saved.format === 'feed') defaults.format = saved.format;
     if (/^#[a-f0-9]{6}$/i.test(saved.accent)) defaults.accent = saved.accent;
     if (typeof saved.showLogo === 'boolean') defaults.showLogo = saved.showLogo;
     for (const field of ['focalX', 'focalY'] as const) {
@@ -48,12 +52,13 @@ function loadSettings(key: string, promo: SocialPromo, label: string): PromoSett
 
 async function decodeImage(src: string) {
   const image = new Image();
+  image.crossOrigin = "anonymous";
   image.src = src;
   await image.decode();
   return image;
 }
 
-export function StudioPromo({ id, promo, url, published, imageAi, initialLabel = 'NEW ON THE BLOG', generateArtwork, close }: Props) {
+export function StudioPromo({ id, promo, url, published, imageAi, initialLabel = 'NEW ON THE BLOG', generateArtwork, editArtwork, initialArtwork, close }: Props) {
   const storageKey = 'studio-promo-v1:' + id;
   const [settings, setSettings] = useState(() => loadSettings(storageKey, promo, initialLabel));
   const [logo, setLogo] = useState<HTMLImageElement | null>(null);
@@ -61,6 +66,7 @@ export function StudioPromo({ id, promo, url, published, imageAi, initialLabel =
   const [busy, setBusy] = useState(false);
   const [notice, setNotice] = useState('');
   const [error, setError] = useState('');
+  const [editInstructions, setEditInstructions] = useState('');
   const canvas = useRef<HTMLCanvasElement>(null);
   const picker = useRef<HTMLInputElement>(null);
   const section = useRef<HTMLElement>(null);
@@ -70,6 +76,7 @@ export function StudioPromo({ id, promo, url, published, imageAi, initialLabel =
     let active = true;
     decodeImage(logoUrl).then(image => { if (active) setLogo(image); })
       .catch(() => { if (active) setError('The website logo could not load. Reload Studio to try again.'); });
+    if (initialArtwork) decodeImage(initialArtwork).then(image => { if(active) setArtwork(image); }).catch(() => {});
     return () => { active = false; };
   }, []);
   useEffect(() => {
@@ -112,6 +119,18 @@ export function StudioPromo({ id, promo, url, published, imageAi, initialLabel =
     return prepareArtwork(async () => {
       const result = await generateArtwork(artworkPrompt);
       if (!['image/jpeg', 'image/png', 'image/webp'].includes(result.mime)) throw new Error('Studio received an unsupported image.');
+      setNotice(`Artwork ready${result.model ? ' · ' + result.model : ''}${result.fallback ? ' (fallback model)' : ''}. Review before downloading.`);
+      return decodeImage(`data:${result.mime};base64,${result.data}`);
+    });
+  }
+
+  function editWithAi() {
+    if(!artwork || !editArtwork || !editInstructions.trim()) return;
+    return prepareArtwork(async()=>{
+      const blob=await fetch(artwork.src).then(response=>response.blob());
+      const source=await optimizePhoto(new File([blob],'reference',{type:blob.type}),480,'image/jpeg');
+      const result=await editArtwork({reference:source.data,width:source.width,height:source.height,instructions:editInstructions});
+      setNotice(`Edited preview ready${result.model ? ' · '+result.model : ''}. Original upload is not changed.`);
       return decodeImage(`data:${result.mime};base64,${result.data}`);
     });
   }
@@ -149,6 +168,7 @@ export function StudioPromo({ id, promo, url, published, imageAi, initialLabel =
         <button type="button" className="studio-primary" disabled={settings.showLogo && !logo} onClick={download}><Download size={17} /> Download thumbnail</button>
       </div>
       <div className="studio-promo-controls">
+        <div className="studio-promo-fields"><label>Design layout<select value={settings.layout || 'cinematic'} onChange={event=>update({layout:event.target.value as PromoSettings['layout']})}>{Object.entries(promoLayouts).map(([key,label])=><option key={key} value={key}>{label}</option>)}</select></label><label>Headline font<select value={settings.font || 'sans'} onChange={event=>update({font:event.target.value as 'sans'|'serif'})}><option value="sans">Modern bold</option><option value="serif">Editorial serif</option></select></label></div>
         <label>Post size
           <select value={settings.format} onChange={event => update({ format: event.target.value as PromoFormat })}>
             {Object.entries(promoFormats).map(([key, format]) => <option key={key} value={key}>{format.label} · {format.ratio}</option>)}
@@ -166,8 +186,9 @@ export function StudioPromo({ id, promo, url, published, imageAi, initialLabel =
               : <input type="text" maxLength={max} value={settings[key]} onChange={event => update({ [key]: event.target.value })} />}
           </label>)}
         </div>
+        <button type="button" className="studio-secondary" onClick={()=>{const keys=Object.keys(promoLayouts);update({layout:keys[(keys.indexOf(settings.layout || 'cinematic')+1)%keys.length] as PromoSettings['layout']});}}>Try another design</button>
         <div className="studio-promo-actions">
-          <button type="button" className="studio-secondary" disabled={busy || !imageAi} onClick={generate}><Sparkles size={16} /> {busy ? 'Preparing artwork…' : 'Generate artwork'}</button>
+          <button type="button" className="studio-secondary" disabled={busy || !imageAi} onClick={generate}><Sparkles size={16} /> {busy ? 'Preparing artwork…' : 'Generate with AI'}</button>
           <button type="button" className="studio-secondary" disabled={busy} onClick={() => picker.current?.click()}><ImagePlus size={16} /> Upload artwork</button>
           <input ref={picker} type="file" accept="image/jpeg,image/png,image/webp" hidden onChange={event => {
             const file = event.target.files?.[0];
@@ -175,6 +196,8 @@ export function StudioPromo({ id, promo, url, published, imageAi, initialLabel =
             if (file) void upload(file);
           }} />
         </div>
+        <p className="studio-hint">AI uses the shared Cloudflare free allocation. Model routing helps with model failures; it cannot reset the daily quota. No paid provider is added.</p>
+        {artwork && editArtwork && <label>What should AI change?<textarea rows={3} maxLength={900} value={editInstructions} onChange={event=>setEditInstructions(event.target.value)} placeholder="e.g. warmer light, cleaner background; keep my face and pose unchanged" /><button type="button" className="studio-secondary" disabled={busy || !imageAi || !editInstructions.trim()} onClick={editWithAi}><Sparkles size={15} />Edit artwork with AI</button></label>}
         {artwork && <div className="studio-promo-actions studio-promo-crop">
           <label>Horizontal crop <input type="range" value={settings.focalX} onChange={event => update({ focalX: Number(event.target.value) })} /></label>
           <label>Vertical crop <input type="range" value={settings.focalY} onChange={event => update({ focalY: Number(event.target.value) })} /></label>

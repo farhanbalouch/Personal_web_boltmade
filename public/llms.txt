@@ -22,3 +22,5 @@ Canonical website: https://farhanbalouch.com. Public writing is available in Eng
 - [SARAS Next controller](https://saras.farhanbalouch.com): Pair a phone with the Windows Companion for supported remote actions.
 - [SARAS Next downloads & setup](https://sarasdownload.farhanbalouch.com): The Windows Companion installer, guides and release history.
 - [Farhan Deals](https://farhandeals.store): Farhan Balouch’s e-commerce project, launched 1 January 2026.
+- [Dreamers](https://studentsdream.farhanbalouch.com/): Punjab Board FSc textbook reading, chapter practice and offline-focused study with an online AI teacher.
+- [Buildora](https://buildora.farhanbalouch.com/): Farhan Balouch’s AI-assisted website-building workspace, with templates, code and supported live previews.

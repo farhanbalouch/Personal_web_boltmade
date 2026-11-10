@@ -290,19 +290,21 @@ test("generation and reference edits produce previews without uploading or publi
   process.env.CLOUDFLARE_WORKERS_AI_TOKEN = credential;
   let providerResponse = { success: true, result: { image } };
   const fetch = t.mock.method(globalThis, "fetch", async (url, request) => {
-    assert.equal(url, `https://api.cloudflare.com/client/v4/accounts/${account}/ai/run/@cf/black-forest-labs/flux-2-klein-4b`);
+    assert.match(url, new RegExp(`https://api.cloudflare.com/client/v4/accounts/${account}/ai/run/@cf/black-forest-labs/flux-`));
     assert.equal(request.headers.Authorization, "Bearer " + credential);
     assert.equal(request.method, "POST");
-    assert.ok(request.body instanceof FormData);
+    assert.ok(request.body instanceof FormData || typeof request.body === "string");
     return Response.json(providerResponse, { status: providerResponse.success ? 200 : 429 });
   });
   const generated = await preview({ mode: "generate", topic: "AI tokens", instructions: "Use blue blocks" });
   assert.equal(generated.code, 200);
   assert.equal(generated.headers["Cache-Control"], "no-store");
-  assert.deepEqual(generated.body, { data: image, mime: "image/png" });
+  assert.equal(generated.body.data, image);
+  assert.equal(generated.body.mime, "image/png");
+  assert.equal(generated.body.model, "flux-1-schnell");
   const generateForm = fetch.mock.calls[0].arguments[1].body;
-  assert.match(generateForm.get("prompt"), /AI tokens[\s\S]*blue blocks/);
-  assert.equal(generateForm.has("input_image_0"), false);
+  assert.match(JSON.parse(generateForm).prompt, /AI tokens[\s\S]*blue blocks/);
+  assert.equal(JSON.parse(generateForm).steps, 4);
 
   const edited = await preview({ mode: "edit", topic: "Private draft topic", instructions: "Brighten the source photo", reference, width: 496, height: 320 });
   assert.equal(edited.code, 200);
@@ -317,7 +319,7 @@ test("generation and reference edits produce previews without uploading or publi
   providerResponse = { success: false, errors: [{ code: 3036 }] };
   const limited = await preview({ mode: "generate", topic: "AI tokens" });
   assert.equal(limited.code, 429);
-  assert.match(limited.body.error, /free usage limit/);
+  assert.match(limited.body.error, /free allowance/);
 });
 
 test("separate drafts round trip, and a stale device cannot overwrite a newer cloud copy", async (t) => {

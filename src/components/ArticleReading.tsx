@@ -23,7 +23,7 @@ export function ArticleIntro({ translation, language }: Pick<Props, 'translation
 
 export function ArticleReading({ slug, translation, language, images }: Props & { images?: ContentImage[] }) {
   const labels = readingLabels(language);
-  const { paragraphs, headings, highlights, questions, takeaway } = readingContent(slug, translation, language);
+  const { paragraphs, headings, highlights, questions, takeaway, moral } = readingContent(slug, translation, language);
   const used = new Set<string>();
   const sectionId = (start: number) => `section-${start + 1}`;
   const contents = [...headings.entries()].sort(([a], [b]) => a - b);
@@ -67,6 +67,7 @@ export function ArticleReading({ slug, translation, language, images }: Props & 
           <p>{takeaway}</p>
         </section>
       )}
+      {moral && <aside className="reading-moral" aria-label={language === 'en' ? 'Moral' : 'Sabak'}><span>{language === 'ur' ? 'سبق' : 'Moral'}</span><p>{moral}</p></aside>}
       <ContentPhotos images={gallery} mode="gallery" />
     </div>
   );

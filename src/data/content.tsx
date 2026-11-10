@@ -68,6 +68,23 @@ export type Project = {
 
 export const projects: Project[] = [
   {
+    slug: 'dreamers', title: 'Dreamers', category: 'Education · FSc learning',
+    tagline: 'A study space that travels with you.',
+    description: 'Dreamers is a learning platform created by Farhan Balouch for Punjab Board FSc Class XI and XII. It brings textbook PDFs, chapter practice, search and an AI teacher into an offline-focused study space. Download available material before studying without internet; AI features require a connection.',
+    features: ['FSc XI & XII', 'Textbook reading', 'Offline study', 'AI teacher'],
+    link: 'https://studentsdream.farhanbalouch.com/', displayUrl: 'studentsdream.farhanbalouch.com',
+    cta: 'Explore Dreamers', status: 'live', icon: 'book',
+  },
+  {
+    slug: 'buildora', title: 'Buildora', category: 'AI · Website builder',
+    tagline: 'Turn an idea into a working website.',
+    description: 'Buildora is an AI-assisted website-building workspace founded by Farhan Balouch. Describe an idea, work with code and templates, and preview supported projects in one place. Start as a guest with your own AI key; account features include saving projects and exporting source files.',
+    features: ['AI coding workspace', 'Live previews', 'Starter templates', 'Source export'],
+    link: 'https://buildora.farhanbalouch.com/', displayUrl: 'buildora.farhanbalouch.com',
+    secondaryLink: 'https://buildora.farhanbalouch.com/builder/work', secondaryCta: 'Open workspace',
+    cta: 'Explore Buildora', status: 'live', icon: 'bot',
+  },
+  {
     slug: 'nexus-ai',
     title: 'Nexus AI',
     category: 'AI Chatbot',
@@ -109,7 +126,7 @@ export const projects: Project[] = [
     cta: 'Explore Farhan Deals',
     status: 'live',
     icon: 'store',
-    logo: '/projects/farhan-deals.jpg',
+    logo: '/projects/farhan-deals-transparent.png',
     featuredOrder: 1,
   },
   {
@@ -176,6 +193,8 @@ export type Language = 'en' | 'hi' | 'ur';
 
 export type ChapterTranslation = {
   title: string;
+  shortTitle?: string;
+  secondaryTitle?: string;
   subtitle: string;
   excerpt: string;
   moral: string;

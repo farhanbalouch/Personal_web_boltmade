@@ -4,6 +4,8 @@ type Milestone = { date: string; label: string; released?: boolean };
 // Launch dates come from the owner or published release notes. Repository dates
 // describe a portfolio record, never an inferred product release.
 export const projectMilestones: Record<string, Milestone> = {
+  dreamers: { date: '2026-11-10', label: 'Added to portfolio' },
+  buildora: { date: '2026-11-10', label: 'Added to portfolio' },
   'farhan-deals': { date: '2026-01-01', label: 'Launched', released: true },
   saras: { date: '2026-10-29', label: 'Current preview released', released: true },
   'movie-hub': { date: '2026-10-28', label: 'Live relaunch', released: true },

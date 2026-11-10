@@ -1,3 +1,4 @@
+import { contentTitle, contentSubtitle, contentSeoTitle } from '@/lib/content-labels';
 import { ArticleIntro, ArticleReading } from '@/components/ArticleReading';
 import { articleSchema } from '@/lib/article-schema';
 import { ContentPhotos } from "@/components/ContentPhotos";
@@ -26,7 +27,7 @@ export function Stories({ slug }: { slug?: string }) {
         }
         path={slug ? `/stories/${slug}` : "/stories"}
         structuredData={story ? articleSchema({
-          path: `/stories/${story.slug}`, headline: story.translations.en.title,
+          path: `/stories/${story.slug}`, headline: contentTitle(story.translations.en), alternativeHeadline: contentSubtitle(story.translations.en),
           description: story.translations.en.excerpt, publishedAt: story.publishedAt,
           updatedAt: story.updatedAt, images: story.images,
         }) : undefined}
@@ -52,8 +53,9 @@ export function Stories({ slug }: { slug?: string }) {
             >
               <LanguageSwitcher />
               <h1 className="font-display text-4xl sm:text-5xl leading-tight mt-8 mb-5">
-                {t.title}
+                {contentTitle(t)}
               </h1>
+              {contentSubtitle(t) && <p className="reading-subtitle">{contentSubtitle(t)}</p>}
               <p className="text-text-muted text-xs mb-10">
                 {formatBlogDate(story.publishedAt, language)}
               </p>
@@ -72,6 +74,7 @@ export function Stories({ slug }: { slug?: string }) {
               <h1 className="font-display text-5xl sm:text-6xl mb-5">
                 Stories, as they happen.
               </h1>
+
               <p className="text-text-muted max-w-xl leading-relaxed">
                 Small moments, new ideas, and the things I’m building. A place
                 for everything along the way.
@@ -93,7 +96,7 @@ export function Stories({ slug }: { slug?: string }) {
                   <span>{formatBlogDate(s.publishedAt, language)}</span>
                 </div>
                 <h2 className="font-display text-2xl mb-4 group-hover:text-gold">
-                  {s.translations[language].title}
+                  {contentTitle(s.translations[language])}
                 </h2>
                 <p className="text-sm text-text-muted leading-relaxed mb-7">
                   {s.translations[language].excerpt}

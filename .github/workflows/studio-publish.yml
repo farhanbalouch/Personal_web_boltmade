@@ -31,7 +31,7 @@ jobs:
         run: |
           git config user.name "Farhan Studio"
           git config user.email "Muhammadfarhan138223@gmail.com"
-          git add content src/data public
+          git add content src/data public vercel.json
           if ! git diff --cached --quiet; then
             git commit -m "Publish edited content from Farhan Studio"
             git pull --rebase origin main

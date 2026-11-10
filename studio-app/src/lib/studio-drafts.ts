@@ -5,6 +5,10 @@ export type Draft = {
   id: string;
   kind: Kind;
   raw: string;
+  shortTitle?: string;
+  secondaryTitle?: string;
+  urlSlug?: string;
+  metadataOnly?: boolean;
   slug: string;
   notify: boolean;
   images?: ContentImage[];
@@ -23,7 +27,7 @@ const draftId = /^[a-f0-9-]{36}$/;
 export const emptyDraft = (): Draft => ({
   id: crypto.randomUUID(), kind: 'blog', raw: '', slug: '', notify: true, images: [],
 });
-export const hasDraftContent = (draft: Draft) => Boolean(draft.raw.trim() || draft.images?.length);
+export const hasDraftContent = (draft: Draft) => Boolean(draft.raw.trim() || draft.images?.length || draft.shortTitle?.trim() || draft.secondaryTitle?.trim());
 export const draftTitle = (draft: Draft) => draft.raw.split('\n').find(line => line.trim())?.trim().slice(0, 110) || 'Untitled draft';
 export const draftDate = (draft: Pick<Draft, 'updatedAt' | 'createdAt'>) => draft.updatedAt || draft.createdAt || '';
 

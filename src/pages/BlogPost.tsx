@@ -1,3 +1,4 @@
+import { contentTitle, contentSubtitle, contentSeoTitle } from '@/lib/content-labels';
 import { ArticleIntro, ArticleReading } from '@/components/ArticleReading';
 import { articleSchema } from '@/lib/article-schema';
 import { ContentPhotos } from "@/components/ContentPhotos";
@@ -52,11 +53,11 @@ export function BlogPost({ slug }: { slug: string }) {
   return (
     <>
       <Seo
-        title={`${tEn.title} — Farhan Balouch`}
+        title={`${contentSeoTitle(tEn)} — Farhan Balouch`}
         description={tEn.excerpt}
         path={`/blog/${post.slug}`}
         structuredData={articleSchema({
-          path: `/blog/${post.slug}`, headline: tEn.title, description: tEn.excerpt,
+          path: `/blog/${post.slug}`, headline: contentTitle(tEn), alternativeHeadline: contentSubtitle(tEn), description: tEn.excerpt,
           blog: true, publishedAt: post.publishedAt, updatedAt: post.updatedAt, images: post.images,
         })}
         ogImage={post.images?.[0] ? `${SITE.url}${post.images[0].src}` : undefined}
@@ -90,8 +91,9 @@ export function BlogPost({ slug }: { slug: string }) {
           {/* Title */}
           <Reveal delay={100}>
             <h1 className="font-display text-4xl sm:text-5xl mb-8 leading-tight">
-              {t.title}
+              {contentTitle(t)}
             </h1>
+            {contentSubtitle(t) && <p className="reading-subtitle">{contentSubtitle(t)}</p>}
           </Reveal>
 
           <ArticleIntro translation={t} language={language} />

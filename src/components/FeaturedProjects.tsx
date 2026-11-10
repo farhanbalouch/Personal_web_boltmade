@@ -31,7 +31,7 @@ export function ProjectCard({ project: p }: { project: Project }) {
   const milestone = projectMilestones[p.slug];
 
   return (
-    <article className="card-glow rounded-2xl border border-border bg-bg-card p-7 h-full flex flex-col">
+    <article id={p.slug} className="project-small-card card-glow rounded-2xl border border-border bg-bg-card p-6 h-full flex flex-col">
       <div className="flex items-start justify-between mb-5">
         <div className="w-12 h-12 rounded-xl bg-bg-soft border border-border flex items-center justify-center">
           {p.logo ? <img src={p.logo} alt={`${p.title} official logo`} className="w-10 h-10 object-contain" loading="lazy" /> : <Icon className="w-6 h-6 text-gold" />}
@@ -58,7 +58,7 @@ export function ProjectCard({ project: p }: { project: Project }) {
       </ul>
 
       {milestone && <p className="text-xs text-text-muted mb-5">{milestone.label} · <time dateTime={milestone.date}>{projectDate(milestone.date)}</time></p>}
-      <div className="mt-auto">
+      <div className="mt-auto project-small-actions">
         {p.link ? (
           <a
             href={p.link}
@@ -69,13 +69,15 @@ export function ProjectCard({ project: p }: { project: Project }) {
           >
             {p.cta}
             <ExternalLink className="w-4 h-4 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
-            <span className="text-xs text-text-muted font-normal">{p.displayUrl}</span>
+            
           </a>
         ) : (
           <span className="inline-flex items-center gap-2 text-sm text-text-muted italic">
             {p.cta} — stay tuned
           </span>
         )}
+        {p.secondaryLink && <a className="project-small-secondary" href={p.secondaryLink} target="_blank" rel="noopener noreferrer">{p.secondaryCta} <ExternalLink size={13} /></a>}
+        <span className="project-small-domain">{p.displayUrl}</span>
       </div>
     </article>
   );

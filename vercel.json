@@ -110,6 +110,19 @@
           "value": "noindex, nofollow, noarchive"
         }
       ]
+    },
+    {
+      "source": "/media/studio/:path*",
+      "headers": [
+        {
+          "key": "Access-Control-Allow-Origin",
+          "value": "*"
+        },
+        {
+          "key": "Cross-Origin-Resource-Policy",
+          "value": "cross-origin"
+        }
+      ]
     }
   ],
   "redirects": [
@@ -127,6 +140,76 @@
       "source": "/admin",
       "destination": "/admin/",
       "permanent": false
+    },
+    {
+      "source": "/blog/finding-your-true-passion-a-practical-guide",
+      "destination": "/blog/find-your-passion",
+      "permanent": true
+    },
+    {
+      "source": "/blog/when-home-feels-like-fear-instead-of-peace-my-personal-journ",
+      "destination": "/blog/when-home-feels-unsafe",
+      "permanent": true
+    },
+    {
+      "source": "/blog/a-window-to-human-nature-lessons-on-fear-action-and-society",
+      "destination": "/blog/fear-and-action",
+      "permanent": true
+    },
+    {
+      "source": "/blog/my-new-admin-panel-streamlining-content-and-launching-movie",
+      "destination": "/blog/behind-the-studio",
+      "permanent": true
+    },
+    {
+      "source": "/blog/ensuring-website-reliability-my-approach-to-testing-notifica",
+      "destination": "/blog/testing-what-matters",
+      "permanent": true
+    },
+    {
+      "source": "/blog/ensuring-reliable-communication-my-third-test-for-email-and",
+      "destination": "/blog/reliable-alerts",
+      "permanent": true
+    },
+    {
+      "source": "/blog/refining-my-notification-system-a-second-chance-at-testing",
+      "destination": "/blog/a-second-test",
+      "permanent": true
+    },
+    {
+      "source": "/blog/testing-my-custom-notification-system-today",
+      "destination": "/blog/notifications-under-test",
+      "permanent": true
+    },
+    {
+      "source": "/blog/why-i-built-my-personal-website-my-journey-and-learnings",
+      "destination": "/blog/why-i-built-this-website",
+      "permanent": true
+    },
+    {
+      "source": "/blog/my-college-days-when-a-headache-was-just-an-excuse",
+      "destination": "/blog/the-headache-excuse",
+      "permanent": true
+    },
+    {
+      "source": "/blog/what-are-ai-tokens-a-simple-explanation-for-beginners",
+      "destination": "/blog/understanding-ai-tokens",
+      "permanent": true
+    },
+    {
+      "source": "/blog/finding-my-recharge-why-simple-breaks-boost-my-focus-in-ai-a",
+      "destination": "/blog/finding-my-recharge",
+      "permanent": true
+    },
+    {
+      "source": "/blog/a-day-i-chose-friends-over-lectures-my-college-confession",
+      "destination": "/blog/friends-and-lectures",
+      "permanent": true
+    },
+    {
+      "source": "/blog/from-tears-to-triumph-how-my-school-became-my-second-home",
+      "destination": "/blog/from-fear-to-belonging",
+      "permanent": true
     }
   ]
 }

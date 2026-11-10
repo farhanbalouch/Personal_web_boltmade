@@ -207,6 +207,7 @@ export function Studio() {
       kind,
       raw,
       slug: post.slug,
+      shortTitle: t.shortTitle || "", secondaryTitle: t.secondaryTitle || "", urlSlug: post.slug, metadataOnly: true,
       notify: false,
       images: post.images || [],
       dirty: true,
@@ -214,7 +215,7 @@ export function Studio() {
     });
     setPreview(null);
     setTab("write");
-    setMessage("Editing the existing item. Its public URL will stay the same.");
+    setMessage("Editing existing content. Names-only update is on; turn it off to rewrite the text. Old links redirect if you change the address.");
   }
   function newDraft() {
     if (!keepDeviceDraft()) {
@@ -463,6 +464,8 @@ export function Studio() {
             url={promoUrl ?? undefined}
             published={!promoResult || Boolean(content?.liveIds?.includes(promoResult.id))}
             imageAi={content?.imageAi === true}
+            initialArtwork={promoBlog?.images?.[0] ? "https://farhanbalouch.com" + promoBlog.images[0].src : undefined}
+            editArtwork={request => api({action:"image-preview", mode:"edit", topic:"", ...request})}
             initialLabel={promoResult?.socialPromo ? undefined : "FROM THE BLOG"}
             generateArtwork={scene => api({ action: "image-preview", mode: "generate", topic: scene,
               instructions: "Photorealistic background art only. Keep it free of any lettering or logos." })}
@@ -489,6 +492,7 @@ export function Studio() {
                     input({
                       kind: e.target.value as Kind,
                       slug: "",
+                      urlSlug: "", metadataOnly: false,
                       notify: true,
                     })
                   }
@@ -522,6 +526,12 @@ export function Studio() {
                     </select>
                   </>
                 )}
+                <label htmlFor="studio-short-title">Short display title (optional)</label>
+                <input id="studio-short-title" maxLength={80} placeholder="e.g. Fear and Action" value={draft.shortTitle || ''} disabled={working} onChange={e => input({shortTitle:e.target.value})} />
+                <label htmlFor="studio-secondary-title">Secondary / alternate title (optional)</label>
+                <input id="studio-secondary-title" maxLength={180} placeholder="A descriptive name readers can search for" value={draft.secondaryTitle || ''} disabled={working} onChange={e => input({secondaryTitle:e.target.value})} />
+                {draft.kind !== 'chapter' && <><label htmlFor="studio-url-slug">Short link (optional)</label><input id="studio-url-slug" maxLength={64} pattern="[a-z0-9]+(-[a-z0-9]+)*" placeholder="fear-and-action" value={draft.urlSlug || ''} disabled={working} onChange={e => input({urlSlug:e.target.value})} /><p className="studio-hint">Use lowercase English letters, numbers and hyphens. Old published links redirect when you change this.</p></>}
+                {draft.slug && <label className="studio-check"><input type="checkbox" checked={draft.metadataOnly === true} disabled={working} onChange={e => input({metadataOnly:e.target.checked})} /> Update names and link only; keep all article text (no AI rewrite)</label>}
                 <label htmlFor="studio-raw" className="sr-only">
                   Your note
                 </label>

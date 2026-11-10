@@ -3,6 +3,8 @@ export type Language = 'en' | 'hi' | 'ur';
 
 export type ChapterTranslation = {
   title: string;
+  shortTitle?: string;
+  secondaryTitle?: string;
   subtitle: string;
   excerpt: string;
   moral: string;
