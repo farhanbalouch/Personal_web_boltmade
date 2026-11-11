@@ -8,6 +8,7 @@ import { draftTitle, emptyDraft, forgetDraft, hasDraftContent, listDeviceDrafts,
 import { lazy, Suspense, useCallback, useEffect, useRef, useState } from "react";
 import {
   ArrowUpRight,
+  Briefcase,
   BookOpen,
   Check,
   FileText,
@@ -30,6 +31,7 @@ import type { StoryChapter } from "@/data/content";
 import { blogPromoUrl, promoFromBlog, type SocialPromo } from "@/lib/studio-promo";
 import "./studio.css";
 const Memories = lazy(() => import("@/components/Memories").then(module => ({ default: module.Memories })));
+const StudioProjects = lazy(() => import("@/components/StudioProjects").then(module => ({ default: module.StudioProjects })));
 type Run = {
   id: number;
   title: string;
@@ -83,7 +85,7 @@ export function Studio() {
     [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [content, setContent] = useState<Content | null>(null),
-    [tab, setTab] = useState(() => new URLSearchParams(window.location.search).get("space") === "memories" ? "memories" : "write");
+    [tab, setTab] = useState(() => { const space = new URLSearchParams(window.location.search).get("space"); return space === "memories" || space === "projects" ? space : "write"; });
   const [draft, setDraft] = useState(restoreActiveDraft);
   const [deviceSaved, setDeviceSaved] = useState(true);
   const cloudRevision = content?.drafts.find(note => note.name === draft.id + ".json")?.sha;
@@ -356,6 +358,7 @@ export function Studio() {
             { id: "biography", label: "My biography", icon: LayoutDashboard },
             { id: "activity", label: "Activity", icon: Radio },
             { id: "memories", label: "Memories · private", icon: LockKeyhole },
+            { id: "projects", label: "Projects", icon: Briefcase },
           ].map(({ id, label, icon: Icon }) => (
             <button
               key={id}
@@ -428,7 +431,7 @@ export function Studio() {
                       ? "Ideas in progress."
                       : tab === "biography"
                         ? "The bigger story."
-                        : tab === "memories" ? "Memories, just for you." : "Behind the scenes."}
+                        : tab === "memories" ? "Memories, just for you." : tab === "projects" ? "Projects, one place." : "Behind the scenes."}
               </h1>
               <p>
                 {tab === "write"
@@ -436,11 +439,12 @@ export function Studio() {
                   : "Everything you need, in one place."}
               </p>
             </div>
-            {tab !== "memories" && <button type="button" className="studio-primary" disabled={working} onClick={newDraft}>
+            {tab !== "memories" && tab !== "projects" && <button type="button" className="studio-primary" disabled={working} onClick={newDraft}>
               <Plus size={17} /> New draft
             </button>}
           </div>
           {tab === "memories" && <Suspense fallback={<p role="status">Opening Memories…</p>}><Memories /></Suspense>}
+          {tab === "projects" && <Suspense fallback={<p role="status">Opening project settings…</p>}><StudioProjects /></Suspense>}
           {tab === "write" && <div className="studio-stats">
             <div><span className="studio-stat-icon"><BookOpen size={20} /></span><strong>{content?.blogs.length || 0}<small>Published blogs</small></strong><span>YOUR PERSPECTIVE</span></div>
             <div><span className="studio-stat-icon"><Sparkles size={20} /></span><strong>{content?.stories.length || 0}<small>Public stories</small></strong><span>YOUR JOURNEY</span></div>

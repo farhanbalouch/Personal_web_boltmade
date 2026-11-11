@@ -5,6 +5,9 @@
     },
     "api/diary.js": {
       "maxDuration": 60
+    },
+    "api/projects.js": {
+      "maxDuration": 60
     }
   },
   "rewrites": [

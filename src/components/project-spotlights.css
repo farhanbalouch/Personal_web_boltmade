@@ -86,6 +86,10 @@
 
 .project-small-card { position:relative; overflow:hidden; transition:border-color .2s,transform .2s; background:radial-gradient(ellipse at 100% 0,#5b9f9820,transparent 70%),#111a2b; }
 .project-small-card:hover { border-color:#8b7955; transform:translateY(-3px); }
+.project-small-card[data-template="glass"] { background:linear-gradient(145deg,#162a3bcc,#101827ee); backdrop-filter:blur(14px); box-shadow:inset 0 1px #ffffff12,0 16px 50px #0003; }
+.project-small-card[data-template="editorial"] { background:linear-gradient(145deg,#221b1b,#111724 65%); border-color:#72543888; }
+.project-small-card[data-template="minimal"] { background:#101724; border-color:#38465a; }
+.project-small-card[data-template="aurora"] { background:radial-gradient(ellipse at 100% 0,#5b9f9820,transparent 70%),#111a2b; }
 .project-small-actions > a:first-child { display:inline-flex; padding:10px 13px; border:1px solid #99784566; background:#d5b26a12; border-radius:10px; margin-right:12px; }
 .project-small-secondary { display:inline-flex; align-items:center; gap:6px; font-size:12px; color:#88d3c5; margin-top:12px; }
 .project-small-domain { display:block; font-size:10px; color:#92a1b8; margin-top:15px; overflow-wrap:anywhere; }

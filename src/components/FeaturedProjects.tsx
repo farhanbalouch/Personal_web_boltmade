@@ -31,7 +31,7 @@ export function ProjectCard({ project: p }: { project: Project }) {
   const milestone = projectMilestones[p.slug];
 
   return (
-    <article id={p.slug} className="project-small-card card-glow rounded-2xl border border-border bg-bg-card p-6 h-full flex flex-col">
+    <article id={p.slug} data-template={p.template || 'aurora'} className="project-small-card card-glow rounded-2xl border border-border bg-bg-card p-6 h-full flex flex-col">
       <div className="flex items-start justify-between mb-5">
         <div className="w-12 h-12 rounded-xl bg-bg-soft border border-border flex items-center justify-center">
           {p.logo ? <img src={p.logo} alt={`${p.title} official logo`} className="w-10 h-10 object-contain" loading="lazy" /> : <Icon className="w-6 h-6 text-gold" />}

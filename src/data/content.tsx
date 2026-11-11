@@ -9,6 +9,7 @@ import type { ContentImage } from "./blog";
 
 import phasesData from './phases.json';
 import storyChaptersData from './story-chapters.json';
+import projectsData from './projects.json';
 
 export const SITE = {
   name: 'Farhan Balouch',
@@ -60,117 +61,16 @@ export type Project = {
   logo?: string;
   secondaryLink?: string;
   secondaryCta?: string;
+  releaseDate?: string;
+  releaseLabel?: string;
   featuredOrder?: number;
+  template?: 'aurora' | 'glass' | 'editorial' | 'minimal';
   icon: 'bot' | 'book' | 'store' | 'shield' | 'film';
   spotlight?: boolean;
   showcase?: boolean;
 };
 
-export const projects: Project[] = [
-  {
-    slug: 'dreamers', title: 'Dreamers', category: 'Education · FSc learning',
-    tagline: 'A study space that travels with you.',
-    description: 'Dreamers is a learning platform created by Farhan Balouch for Punjab Board FSc Class XI and XII. It brings textbook PDFs, chapter practice, search and an AI teacher into an offline-focused study space. Download available material before studying without internet; AI features require a connection.',
-    features: ['FSc XI & XII', 'Textbook reading', 'Offline study', 'AI teacher'],
-    link: 'https://studentsdream.farhanbalouch.com/', displayUrl: 'studentsdream.farhanbalouch.com',
-    cta: 'Explore Dreamers', status: 'live', icon: 'book',
-  },
-  {
-    slug: 'buildora', title: 'Buildora', category: 'AI · Website builder',
-    tagline: 'Turn an idea into a working website.',
-    description: 'Buildora is an AI-assisted website-building workspace founded by Farhan Balouch. Describe an idea, work with code and templates, and preview supported projects in one place. Start as a guest with your own AI key; account features include saving projects and exporting source files.',
-    features: ['AI coding workspace', 'Live previews', 'Starter templates', 'Source export'],
-    link: 'https://buildora.farhanbalouch.com/', displayUrl: 'buildora.farhanbalouch.com',
-    secondaryLink: 'https://buildora.farhanbalouch.com/builder/work', secondaryCta: 'Open workspace',
-    cta: 'Explore Buildora', status: 'live', icon: 'bot',
-  },
-  {
-    slug: 'nexus-ai',
-    title: 'Nexus AI',
-    category: 'AI Chatbot',
-    tagline: 'An intelligent AI chatbot and coding assistant.',
-    description:
-      'Nexus AI is an AI chatbot built to be genuinely helpful \u2014 an intelligent assistant that can answer questions, think through problems and help with coding.',
-    features: ['AI chatbot', 'Coding assistant', 'Smart, helpful answers'],
-    link: 'https://nexusai.farhanbalouch.com',
-    displayUrl: 'nexusai.farhanbalouch.com',
-    cta: 'Try Nexus AI',
-    status: 'live',
-    icon: 'bot',
-  },
-  {
-    slug: 'rawi',
-    title: 'Rawi',
-    category: 'AI Storyteller',
-    tagline: 'The AI storyteller of Farhan Balouch.',
-    description:
-      'Rawi is an AI chatbot and storyteller that knows Farhan Balouch\u2019s journey. It carries the same information that lives on this official website \u2014 ask it anything and get the story back.',
-    features: ['AI storyteller', 'Knows Farhan\u2019s story', 'Powered by this website\u2019s data'],
-    link: 'https://rawi.farhanbalouch.com',
-    displayUrl: 'rawi.farhanbalouch.com',
-    cta: 'Talk to Rawi',
-    status: 'live',
-    icon: 'book',
-    spotlight: true,
-  },
-  {
-    slug: 'farhan-deals',
-    title: 'Farhan Deals',
-    category: 'E-commerce · Online business',
-    tagline: 'A small idea. A world of possibilities.',
-    description:
-      'Farhan Deals is an online shopping project founded by Farhan Balouch in Ahmadpur East, Pakistan. Launched on 1 January 2026, the store brings his interest in e-commerce, product discovery and digital business into one place.',
-    features: ['Online store', 'Product discovery', 'Founded in Pakistan'],
-    link: 'https://farhandeals.store',
-    displayUrl: 'farhandeals.store',
-    cta: 'Explore Farhan Deals',
-    status: 'live',
-    icon: 'store',
-    logo: '/projects/farhan-deals-transparent.png',
-    featuredOrder: 1,
-  },
-  {
-    slug: 'saras',
-    title: 'SARAS Next',
-    category: 'Windows companion · Mobile controller',
-    tagline: 'Your voice. Your computer. A little more connected.',
-    description:
-      'SARAS Next is a Windows companion and mobile web controller created by Farhan Balouch. Install the Companion on your Windows PC, pair your phone with laptop approval, and use supported voice and remote-control actions. The computer stays awake, online and running the Companion. Current development preview: 2.0.0-dev.8, released 29 October 2026.',
-    features: ['Windows companion', 'Phone-to-PC pairing', 'Voice interaction', 'Remote actions'],
-    link: 'https://saras.farhanbalouch.com',
-    displayUrl: 'saras.farhanbalouch.com',
-    cta: 'Open SARAS controller',
-    secondaryLink: 'https://sarasdownload.farhanbalouch.com',
-    secondaryCta: 'Download & setup guide',
-    status: 'preview',
-    icon: 'bot',
-    logo: '/projects/saras.svg',
-    featuredOrder: 2,
-  },
-  {
-    slug: 'hack-ai',
-    title: 'Hack AI',
-    category: 'AI \u00b7 Cybersecurity',
-    tagline: 'An AI built for cybersecurity, hacking and coding.',
-    description:
-      'Hack AI is an AI assistant focused on cybersecurity, ethical hacking and coding \u2014 built for people who want to learn how systems work and how to protect them.',
-    features: ['Cybersecurity', 'Ethical hacking', 'Coding help'],
-    link: 'https://hackarai.streamlit.app',
-    displayUrl: 'hackarai.streamlit.app',
-    cta: 'Open Hack AI',
-    status: 'live',
-    icon: 'shield',
-  },
-  {
-    slug: 'movie-hub', title: 'Movie Hub', category: 'Streaming · Shorts · AI',
-    tagline: 'Watch, download and discover movies — with Shorts, a social feed and an AI assistant.',
-    description: 'Movie Hub is a movie streaming and downloading website. Watch and download movies, scroll Cinephile Shorts (short videos like YouTube Shorts and TikTok), post on an X-style feed, and let the Movie Hub Assistant recommend films for your mood.',
-    features: ['Stream movies', 'Download movies', 'Cinephile Shorts', 'X Feed', 'AI assistant & smart search'],
-    link: 'https://moviehub.farhanbalouch.com', displayUrl: 'moviehub.farhanbalouch.com',
-    cta: 'Watch on Movie Hub', status: 'live', icon: 'film', showcase: true,
-    featuredOrder: 3,
-  },
-];
+export const projects = projectsData as Project[];
 
 // ---------------------------------------------------------------------
 // STORY (data lives in JSON — see note at top of file)

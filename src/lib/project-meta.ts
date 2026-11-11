@@ -3,7 +3,7 @@ import { projects, SITE, type Project } from '../data/content';
 type Milestone = { date: string; label: string; released?: boolean };
 // Launch dates come from the owner or published release notes. Repository dates
 // describe a portfolio record, never an inferred product release.
-export const projectMilestones: Record<string, Milestone> = {
+const recordedMilestones: Record<string, Milestone> = {
   dreamers: { date: '2026-11-10', label: 'Added to portfolio' },
   buildora: { date: '2026-11-10', label: 'Added to portfolio' },
   'farhan-deals': { date: '2026-01-01', label: 'Launched', released: true },
@@ -12,6 +12,12 @@ export const projectMilestones: Record<string, Milestone> = {
   'nexus-ai': { date: '2026-09-11', label: 'Portfolio record' },
   rawi: { date: '2026-09-21', label: 'Portfolio record' },
   'hack-ai': { date: '2026-09-11', label: 'Portfolio record' },
+};
+export const projectMilestones: Record<string, Milestone> = {
+  ...recordedMilestones,
+  ...Object.fromEntries(projects.filter(project => project.releaseDate).map(project => [project.slug, {
+    date: project.releaseDate!, label: project.releaseLabel || 'Added to portfolio', released: project.releaseLabel?.toLowerCase() === 'launched',
+  }])) as Record<string, Milestone>,
 };
 export const projectDate = (date: string) => new Date(date + 'T00:00:00Z').toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' });
 export const orderedProjects = () => [...projects].sort((a, b) => (a.featuredOrder || 10) - (b.featuredOrder || 10));
