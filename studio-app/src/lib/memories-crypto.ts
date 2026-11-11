@@ -1,7 +1,8 @@
 export type Envelope = { version: 1; iv: string; data: string };
 export type MemoryConfig = { version: 1; iterations: 600000; salt: string; check: Envelope };
 export type MemoryPhoto = { id: string; data: string; caption: string; width: number; height: number };
-export type Memory = { title: string; text: string; happenedAt: string; photos: MemoryPhoto[] };
+export type MemoryKind = 'moment' | 'question' | 'thought' | 'fact-check';
+export type Memory = { title: string; text: string; happenedAt: string; photos: MemoryPhoto[]; kind?: MemoryKind };
 export type MemoryRecord = { id: string; revision: string | null; createdAt: string; updatedAt: string; envelope: Envelope };
 const encoder = new TextEncoder();
 export function toBase64(bytes: Uint8Array) {
@@ -38,4 +39,4 @@ export async function unlockConfig(passphrase: string, config: MemoryConfig) {
   return key;
 }
 export const memoryContext = (id: string) => `farhan-memories:v1:${id}`;
-export const emptyMemory = (): Memory => ({ title: '', text: '', happenedAt: '', photos: [] });
+export const emptyMemory = (): Memory => ({ title: '', text: '', happenedAt: '', photos: [], kind: 'moment' });
