@@ -9,6 +9,7 @@ export type Draft = {
   secondaryTitle?: string;
   urlSlug?: string;
   metadataOnly?: boolean;
+  offlineQuickNote?: boolean;
   slug: string;
   notify: boolean;
   images?: ContentImage[];

@@ -25,6 +25,8 @@ import {
   ShieldCheck,
   Eye,
   EyeOff,
+  CloudOff,
+  Trash2,
 } from "lucide-react";
 import type { BlogPost } from "@/data/blog";
 import type { StoryChapter } from "@/data/content";
@@ -84,6 +86,12 @@ export function Studio() {
   const [auth, setAuth] = useState<"loading" | "login" | "ready">("login"),
     [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [offlineDrawerOpen, setOfflineDrawerOpen] = useState(() => typeof navigator !== "undefined" && !navigator.onLine);
+  const [onlineNow, setOnlineNow] = useState(() => typeof navigator === "undefined" || navigator.onLine);
+  const [offlineNoteTitle, setOfflineNoteTitle] = useState("");
+  const [offlineNoteText, setOfflineNoteText] = useState("");
+  const [offlineNoteId, setOfflineNoteId] = useState("");
+  const [offlineNotes, setOfflineNotes] = useState(() => listDeviceDrafts().filter(note => note.offlineQuickNote));
   const [content, setContent] = useState<Content | null>(null),
     [tab, setTab] = useState(() => { const space = new URLSearchParams(window.location.search).get("space"); return space === "memories" || space === "projects" ? space : "write"; });
   const [draft, setDraft] = useState(restoreActiveDraft);
@@ -136,6 +144,13 @@ export function Studio() {
     robots.content = "noindex, nofollow";
     document.head.appendChild(robots);
     return () => robots.remove();
+  }, []);
+  useEffect(() => {
+    const online = () => { setOnlineNow(true); };
+    const offline = () => { setOnlineNow(false); setOfflineDrawerOpen(true); };
+    window.addEventListener("online", online);
+    window.addEventListener("offline", offline);
+    return () => { window.removeEventListener("online", online); window.removeEventListener("offline", offline); };
   }, []);
   useEffect(() => {
     setDeviceSaved(rememberDraft(draft));
@@ -246,7 +261,7 @@ export function Studio() {
   }
   const publish = (mode: "save" | "publish", copy = false) =>
     action(async () => {
-      const note = copy ? { ...draft, id: crypto.randomUUID(), revision: undefined } : draft;
+      const note = { ...(copy ? { ...draft, id: crypto.randomUUID(), revision: undefined } : draft), offlineQuickNote: false };
       const result = await api({ action: mode, ...note });
       setMessage(result.message);
       if (mode === "publish") {
@@ -275,6 +290,30 @@ export function Studio() {
           <b>FB<span className="studio-brand-dot">.</span></b><span>FARHAN BALOUCH<small>CREATOR STUDIO</small></span>
         </a>
         <div className="studio-login-install"><StudioInstall /></div>
+        <section className={`studio-offline-drawer ${offlineDrawerOpen ? "is-open" : ""}`} aria-label="Offline quick notes">
+          <button type="button" className="studio-offline-toggle" aria-expanded={offlineDrawerOpen} onClick={() => setOfflineDrawerOpen(value => !value)}>
+            <span><CloudOff size={17}/><b>Offline Quick Notes</b><small>{onlineNow ? "Device-only drafts" : "Offline · saved on this device"} · {offlineNotes.length} saved</small></span>
+            <span className="studio-offline-chevron">{offlineDrawerOpen ? "−" : "+"}</span>
+          </button>
+          <div className="studio-offline-body">
+            <p>Internet ke baghair note likho. Yeh password ke baghair sirf isi device par draft hoga; online aakar login karo, phir Saved drafts mein kholo.</p>
+            <label htmlFor="offline-note-title">Title (optional)</label>
+            <input id="offline-note-title" maxLength={120} value={offlineNoteTitle} onChange={event => setOfflineNoteTitle(event.target.value)} placeholder="Aaj ka khayal…" />
+            <label htmlFor="offline-note-text">Your note</label>
+            <textarea id="offline-note-text" rows={4} maxLength={50000} value={offlineNoteText} onChange={event => setOfflineNoteText(event.target.value)} placeholder="Type your note here. It stays on this device until you log in and save it." />
+            <div className="studio-offline-actions">
+              <button type="button" className="studio-primary" disabled={!offlineNoteText.trim()} onClick={() => {
+                const current = offlineNotes.find(note => note.id === offlineNoteId);
+                const note = { ...(current || emptyDraft()), kind: "blog" as const, raw: `${offlineNoteTitle.trim() ? offlineNoteTitle.trim() + "\n\n" : ""}${offlineNoteText.trim()}`, notify: false, dirty: true, offlineQuickNote: true, updatedAt: new Date().toISOString() };
+                if (!rememberDraft(note)) { setError("Is device par storage full ya blocked hai. Thori space khali karke dobara try karo."); return; }
+                setOfflineNotes(listDeviceDrafts().filter(item => item.offlineQuickNote)); setOfflineNoteTitle(""); setOfflineNoteText(""); setOfflineNoteId(""); setError("");
+              }}><Save size={15}/>{offlineNoteId ? "Update device draft" : "Save device draft"}</button>
+              <span>Local only · not uploaded</span>
+            </div>
+            {!!offlineNotes.length && <div className="studio-offline-list"><b>Saved on this device</b>{offlineNotes.map(note => <div key={note.id}><button type="button" onClick={() => { const firstBreak = note.raw.indexOf("\n\n"); setOfflineNoteTitle(firstBreak >= 0 ? note.raw.slice(0, firstBreak) : ""); setOfflineNoteText(firstBreak >= 0 ? note.raw.slice(firstBreak + 2) : note.raw); setOfflineNoteId(note.id); setOfflineDrawerOpen(true); }}>{draftTitle(note)}</button><button type="button" aria-label={`Delete ${draftTitle(note)}`} onClick={() => { forgetDraft(note.id); setOfflineNotes(listDeviceDrafts().filter(item => item.offlineQuickNote)); if (offlineNoteId === note.id) { setOfflineNoteId(""); setOfflineNoteTitle(""); setOfflineNoteText(""); } }}><Trash2 size={14}/></button></div>)}</div>}
+            <small className="studio-offline-warning">Note: yeh drawer password/encryption ke baghair hai; shared device par private secrets ya passwords na likho. Device data clear karne se drafts mit sakte hain.</small>
+          </div>
+        </section>
         <div className="studio-login-grid">
           <section className="studio-intro">
             <span className="studio-eyebrow"><span className="studio-dot" /> YOUR IDEAS. YOUR UNIVERSE.</span>
@@ -296,6 +335,7 @@ export function Studio() {
                 setShowPassword(false);
                 unlocked.current = true;
                 sessionGeneration.current++;
+                if (offlineNotes.some(note => note.offlineQuickNote)) setTab("drafts");
                 await load();
               });
             }}
@@ -491,16 +531,18 @@ export function Studio() {
                 <select
                   disabled={working}
                   id="studio-kind"
-                  value={draft.kind}
+                  value={draft.offlineQuickNote ? "" : draft.kind}
                   onChange={(e) =>
                     input({
                       kind: e.target.value as Kind,
                       slug: "",
                       urlSlug: "", metadataOnly: false,
                       notify: true,
+                      offlineQuickNote: false,
                     })
                   }
                 >
+                  {draft.offlineQuickNote && <option value="" disabled>Choose what this note is before saving</option>}
                   {Object.entries(labels).map(([k, v]) => (
                     <option key={k} value={k}>
                       {v}
@@ -530,6 +572,7 @@ export function Studio() {
                     </select>
                   </>
                 )}
+                {draft.offlineQuickNote && <p className="studio-offline-import-hint">This is still a device-only note. Choose its content type above, then use “Save private draft” to copy it to your account. Public publish stays a separate step.</p>}
                 <label htmlFor="studio-short-title">Short display title (optional)</label>
                 <input id="studio-short-title" maxLength={80} placeholder="e.g. Fear and Action" value={draft.shortTitle || ''} disabled={working} onChange={e => input({shortTitle:e.target.value})} />
                 <label htmlFor="studio-secondary-title">Secondary / alternate title (optional)</label>
@@ -623,6 +666,7 @@ export function Studio() {
                   className="studio-primary"
                   disabled={
                     working ||
+                    draft.offlineQuickNote ||
                     (draft.images || []).some((image) => !image.alt.trim()) ||
                     draft.raw.trim().length < 10 ||
                     (draft.kind === "chapter" && !draft.slug)
@@ -634,11 +678,11 @@ export function Studio() {
                 </button>
                 <button
                   className="studio-secondary"
-                  disabled={working || !hasDraftContent(draft) || (draft.images || []).some((image) => !image.alt.trim())}
+                  disabled={working || draft.offlineQuickNote || !hasDraftContent(draft) || (draft.images || []).some((image) => !image.alt.trim())}
                   onClick={() => publish("save")}
                 >
                   <Save size={16} />
-                  {cloudDraft ? "Update saved draft" : "Save private draft"}
+                  {draft.offlineQuickNote ? "Choose type to save draft" : cloudDraft ? "Update saved draft" : "Save private draft"}
                 </button>
                 {cloudDraft && <button type="button" className="studio-secondary"
                   disabled={working || !hasDraftContent(draft) || (draft.images || []).some(image => !image.alt.trim())}

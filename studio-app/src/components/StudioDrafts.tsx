@@ -64,7 +64,7 @@ export function StudioDrafts({ cloud, labels, loadDraft, open, disabled }: Props
       const date = summary?.updatedAt || summary?.createdAt;
       return <article key={id}>
         <div>
-          <span className="studio-tag">{online ? local ? 'Cloud draft · device changes' : 'Saved to cloud' : 'This device only'}</span>
+          <span className="studio-tag">{local?.offlineQuickNote ? 'Offline quick note · this device' : online ? local ? 'Cloud draft · device changes' : 'Saved to cloud' : 'This device only'}</span>
           <h2>{summary?.title ?? `Draft · ${id.slice(0, 8)}`}</h2>
           {summary && <small>{labels[summary.kind]}{date && <> · <time dateTime={date}>{new Date(date).toLocaleString()}</time></>}</small>}
         </div>

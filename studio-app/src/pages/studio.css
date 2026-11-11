@@ -143,6 +143,31 @@
 .studio-loading svg { color: var(--gold); animation: studio-spin 5s linear infinite; }
 /* Install controls */
 .studio-login-install { position: absolute; top: 32px; right: 5.5vw; }
+.studio-offline-drawer { position:relative; z-index:2; max-width:1120px; margin:22px auto 0; overflow:hidden; border:1px solid #3b526d; border-radius:17px; background:linear-gradient(110deg,#14233a,#101a2b); box-shadow:0 12px 38px #0003; animation:studio-rise .55s ease both; }
+.studio-offline-toggle { display:flex; align-items:center; justify-content:space-between; width:100%; padding:13px 17px; background:transparent; color:#e7eef9; text-align:left; }
+.studio-offline-toggle>span:first-child { display:grid; grid-template-columns:22px 1fr; align-items:center; column-gap:9px; }
+.studio-offline-toggle svg { grid-row:span 2; color:#72d8c5; }
+.studio-offline-toggle b { font-size:12px; }
+.studio-offline-toggle small { grid-column:2; color:#9eb1ca; font-size:9px; }
+.studio-offline-chevron { display:grid; place-items:center; width:30px; height:30px; border:1px solid #405674; border-radius:50%; color:#f0ce87; font-size:20px; transition:transform .25s ease; }
+.studio-offline-drawer.is-open .studio-offline-chevron { transform:rotate(180deg); }
+.studio-offline-body { display:grid; grid-template-columns:1fr 1fr; gap:9px 14px; max-height:0; padding:0 18px; opacity:0; overflow:hidden; transform:translateY(-7px); transition:max-height .35s ease,padding .35s ease,opacity .25s ease,transform .35s ease; }
+.studio-offline-drawer.is-open .studio-offline-body { max-height:700px; padding:2px 18px 17px; opacity:1; transform:translateY(0); }
+.studio-offline-body>p,.studio-offline-warning,.studio-offline-list { grid-column:1/-1; }
+.studio-offline-body>p { margin:2px 0 5px; color:#b2c1d5; font-size:10px; line-height:1.6; }
+.studio-offline-body label { align-self:end; color:#d1dced; font-size:10px; }
+.studio-offline-body input,.studio-offline-body textarea { width:100%; min-width:0; border:1px solid #405571; border-radius:9px; background:#0b1729; color:#edf3fc; padding:10px 11px; font:inherit; font-size:11px; }
+.studio-offline-body textarea { grid-column:1/-1; resize:vertical; }
+.studio-offline-actions { grid-column:1/-1; display:flex; align-items:center; flex-wrap:wrap; gap:10px; }
+.studio-offline-actions button { display:inline-flex; align-items:center; gap:7px; padding:9px 12px; border-radius:10px; font-size:10px; }
+.studio-offline-actions>span,.studio-offline-warning { color:#9aadc6; font-size:9px; line-height:1.5; }
+.studio-offline-list { display:grid; gap:7px; margin-top:2px; }
+.studio-offline-list>b { color:#e6c987; font-size:10px; }
+.studio-offline-list>div { display:flex; align-items:center; justify-content:space-between; gap:8px; padding:7px 9px; border:1px solid #344a65; border-radius:9px; background:#0e1a2c; }
+.studio-offline-list button { display:inline-flex; align-items:center; gap:7px; overflow:hidden; background:transparent; color:#dce6f4; font-size:10px; text-align:left; text-overflow:ellipsis; white-space:nowrap; }
+.studio-offline-list button:last-child { flex:none; color:#edbd83; }
+.studio-offline-warning { margin:0; }
+.studio-offline-import-hint { padding:11px 13px; border-left:3px solid #e9c37b; border-radius:0 9px 9px 0; background:#e9c37b0b; color:#d6c69f; font-size:10px; line-height:1.6; }
 .studio-install { position: relative; }
 .studio-install-button { display: flex; align-items: center; gap: 8px; border: 1px solid #4c675f; background: #1e3c40; color: #a3eedb; padding: 10px 13px; border-radius: 11px; font-size: 10px !important; }
 .studio-install-help { position: absolute; right: 0; top: 48px; width: min(340px, 88vw); z-index: 20; padding: 26px; background: #182b43; border: 1px solid #516078; border-radius: 17px; box-shadow: 0 20px 65px #0008; }
@@ -191,6 +216,10 @@
   .studio-login-install { top: 25px; right: 22px; }
   .studio-login-install .studio-install-button { font-size: 0 !important; padding: 10px; gap: 0; }
   .studio-login-grid { grid-template-columns: 1fr; gap: 27px; margin: 52px auto 12px; max-width: 440px; }
+  .studio-offline-drawer { margin:18px auto 0; }
+  .studio-offline-body { grid-template-columns:1fr; }
+  .studio-offline-body>p,.studio-offline-warning,.studio-offline-list,.studio-offline-actions,.studio-offline-body textarea { grid-column:1; }
+  .studio-offline-drawer.is-open .studio-offline-body { max-height:850px; }
   .studio-login-grid h1 { font-size: clamp(42px, 11vw, 60px); margin-bottom: 16px; }
   .studio-login-grid section > p { font-size: 12px; max-width: 340px; }
   .studio-orbit { display: none; }
