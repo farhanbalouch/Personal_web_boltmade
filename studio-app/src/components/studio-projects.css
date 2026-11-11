@@ -37,8 +37,22 @@
 .studio-project-form-head button { font-size:10px!important; padding:8px 10px!important; }
 .studio-project-fields { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:13px; }
 .studio-project-fields label { display:grid; gap:6px; color:#b7c7da; font-size:10px; }
+.studio-project-fields label>small,.studio-project-logo-tip { color:#93a9c3; font-size:9px; line-height:1.55; }
 .studio-project-fields .wide { grid-column:1/-1; }
 .studio-project-fields textarea { resize:vertical; }
+.studio-project-logo-field { display:grid; gap:11px; padding:14px; border:1px solid #344c69; border-radius:13px; background:#0c192a88; }
+.studio-project-logo-heading { display:flex; align-items:flex-start; justify-content:space-between; gap:12px; }
+.studio-project-logo-heading strong { color:#f2d18e; font-size:12px; }
+.studio-project-logo-heading p { margin:4px 0 0; color:#9fb2cb; font-size:10px; line-height:1.5; }
+.studio-project-logo-actions { display:flex; flex-wrap:wrap; gap:8px; }
+.studio-project-logo-actions button,.studio-project-logo-heading button,.studio-project-logo-generated button { display:inline-flex; align-items:center; justify-content:center; gap:6px; min-height:36px; padding:8px 11px; border:1px solid #405571; border-radius:10px; background:#1a2c45; color:#e8eff8; font-size:10px; }
+.studio-project-file-input { display:none!important; }
+.studio-project-logo-current,.studio-project-logo-generated { display:flex; align-items:center; gap:12px; padding:9px; border:1px solid #344960; border-radius:11px; background:#101d30; color:#aabbd2; font-size:10px; }
+.studio-project-logo-current img,.studio-project-logo-generated img { width:64px; height:64px; border-radius:12px; object-fit:contain; background:#08111f; }
+.studio-project-logo-generated>div { display:flex; flex-wrap:wrap; align-items:center; gap:7px; }
+.studio-project-logo-generated strong,.studio-project-logo-generated small { flex-basis:100%; }
+.studio-project-logo-generated small { color:#9fb2cb; font-size:9px; }
+.studio-project-logo-prompt { display:grid; gap:6px; color:#b7c7da; font-size:10px; }
 .studio-project-form-foot { align-items:flex-start; flex-direction:column; margin-top:17px; padding-top:16px; border-top:1px solid #344960; }
 .studio-project-form-foot p,.studio-project-preview-note { margin:0; color:#a4b6ce; font-size:10px; line-height:1.6; }
 .studio-project-preview { scroll-margin-top:20px; }

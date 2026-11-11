@@ -58,11 +58,14 @@ function validateProject(input) {
   };
   const features = Array.isArray(input.features) ? input.features.map(v => String(v).trim()).filter(Boolean).slice(0, 10) : [];
   if (features.some(v => v.length > 100)) throw fail(400, 'Keep each feature under 100 characters.');
+  const keywords = Array.isArray(input.keywords) ? input.keywords.map(v => String(v).trim()).filter(Boolean).slice(0, 10) : [];
+  if (keywords.some(v => v.length > 60)) throw fail(400, 'Keep each search phrase under 60 characters.');
   const releaseDate = text('releaseDate', 10);
   if (releaseDate && !/^\d{4}-\d{2}-\d{2}$/.test(releaseDate)) throw fail(400, 'Use YYYY-MM-DD for a project date.');
   const result = {
     slug, title: text('title', 100, true), category: text('category', 100, true),
     tagline: text('tagline', 180, true), description: text('description', 1500, true),
+    seoTitle: text('seoTitle', 65), seoDescription: text('seoDescription', 200), keywords,
     features, link: url('link'), displayUrl: text('displayUrl', 200),
     cta: text('cta', 80, true), status, icon, template,
     logo: text('logo', 500), secondaryLink: url('secondaryLink'), secondaryCta: text('secondaryCta', 80),
@@ -84,7 +87,7 @@ async function askProjectAi(body) {
   const secret = process.env.CLOUDFLARE_WORKERS_AI_TOKEN?.trim();
   if (!/^[a-f0-9]{32}$/i.test(account || '') || !secret) throw fail(503, 'Project AI needs the Cloudflare Workers AI account ID and token configured for the Studio project.');
   if (typeof body.message !== 'string' || !body.message.trim() || body.message.length > 1600) throw fail(400, 'Write a project question or instruction up to 1,600 characters.');
-  const system = `You are Farhan's private project setup assistant inside Creator Studio. Discuss ideas in concise, beginner-friendly language. Help create professional, truthful portfolio copy and suggest a fitting saved visual template. Do not invent releases, capabilities, metrics, links, or confirmed launch dates. Keep unknown facts unknown. Never publish or claim you published. Return only valid JSON with keys reply (short string) and project (complete project object). The object keys must be slug,title,category,tagline,description,features,link,displayUrl,cta,status,icon,template,logo,secondaryLink,secondaryCta,releaseDate,releaseLabel,featuredOrder,spotlight,showcase. Valid status: live, coming-soon, preview, placeholder. Valid icon: bot, book, store, shield, film. Valid template: aurora, glass, editorial, minimal. Preserve existing project fields and links unless Farhan explicitly asks to change them. For a new project, fill copy from facts supplied and leave unknown URLs empty. If discussing without a change, return the current object unchanged. Feature list must be an array of short strings. If data is missing, ask in reply rather than guessing.`;
+  const system = `You are Farhan's private project setup assistant inside Creator Studio. Discuss ideas in concise, beginner-friendly language. Help create professional, truthful portfolio copy and suggest a fitting saved visual template. Do not invent releases, capabilities, metrics, links, or confirmed launch dates. Keep unknown facts unknown. Never publish or claim you published. Return only valid JSON with keys reply (short string) and project (complete project object). The object keys must be slug,title,category,tagline,description,seoTitle,seoDescription,keywords,features,link,displayUrl,cta,status,icon,template,logo,secondaryLink,secondaryCta,releaseDate,releaseLabel,featuredOrder,spotlight,showcase. Valid status: live, coming-soon, preview, placeholder. Valid icon: bot, book, store, shield, film. Valid template: aurora, glass, editorial, minimal. Preserve existing project fields and links unless Farhan explicitly asks to change them. For a new project, fill copy from facts supplied and leave unknown URLs empty. SEO title should be concise and accurate; SEO description should be clear, natural and non-spammy; keywords should be only a few factual search phrases. If discussing without a change, return the current object unchanged. Feature list must be an array of short strings. If data is missing, ask in reply rather than guessing.`;
   const prompt = [{ role: 'system', content: system }, { role: 'system', content: `Current project draft:\n${JSON.stringify(body.project || {})}` }, ...safeConversation(body.messages), { role: 'user', content: body.message.trim() }];
   const models = ['@cf/qwen/qwen3.8-27b', '@cf/meta/llama-3.3-70b-instruct-fp8-fast'];
   let lastStatus = 502;

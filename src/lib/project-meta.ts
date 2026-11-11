@@ -25,7 +25,8 @@ export function projectSchema(project: Project) {
   const milestone = projectMilestones[project.slug];
   return {
     '@type': 'CreativeWork', '@id': SITE.url + '/work#' + project.slug,
-    name: project.title, description: project.description, url: project.link,
+    name: project.seoTitle || project.title, description: project.seoDescription || project.description, url: project.link,
+    ...(project.keywords?.length ? { keywords: project.keywords.join(', ') } : {}),
     creator: { '@type': 'Person', name: SITE.name, url: SITE.url },
     ...(project.logo ? { image: SITE.url + project.logo } : {}),
     ...(milestone?.released ? { datePublished: milestone.date } : {}),

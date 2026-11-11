@@ -444,7 +444,7 @@ export function Studio() {
             </button>}
           </div>
           {tab === "memories" && <Suspense fallback={<p role="status">Opening Memories…</p>}><Memories /></Suspense>}
-          {tab === "projects" && <Suspense fallback={<p role="status">Opening project settings…</p>}><StudioProjects /></Suspense>}
+          {tab === "projects" && <Suspense fallback={<p role="status">Opening project settings…</p>}><StudioProjects imageAi={content?.imageAi === true} /></Suspense>}
           {tab === "write" && <div className="studio-stats">
             <div><span className="studio-stat-icon"><BookOpen size={20} /></span><strong>{content?.blogs.length || 0}<small>Published blogs</small></strong><span>YOUR PERSPECTIVE</span></div>
             <div><span className="studio-stat-icon"><Sparkles size={20} /></span><strong>{content?.stories.length || 0}<small>Public stories</small></strong><span>YOUR JOURNEY</span></div>

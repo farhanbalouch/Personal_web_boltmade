@@ -63,6 +63,9 @@ export type Project = {
   secondaryCta?: string;
   releaseDate?: string;
   releaseLabel?: string;
+  seoTitle?: string;
+  seoDescription?: string;
+  keywords?: string[];
   featuredOrder?: number;
   template?: 'aurora' | 'glass' | 'editorial' | 'minimal';
   icon: 'bot' | 'book' | 'store' | 'shield' | 'film';
