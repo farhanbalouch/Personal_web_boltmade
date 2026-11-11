@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { BookHeart, Download, ImagePlus, LockKeyhole, PenLine, Plus, Save, ShieldCheck, X } from 'lucide-react';
-import { createConfig, decrypt, emptyMemory, encrypt, memoryContext, unlockConfig, type Memory, type MemoryConfig, type MemoryRecord } from '@/lib/memories-crypto';
+import { createConfig, decrypt, emptyMemory, encrypt, memoryContext, unlockConfig, type Memory, type MemoryConfig, type MemoryKind, type MemoryRecord } from '@/lib/memories-crypto';
 import { optimizePhoto } from '@/lib/studio-images';
 import { parseStudioResponse } from '@/lib/studio-response';
 import './memories.css';
@@ -13,6 +13,8 @@ const request = async (body?: object): Promise<any> => parseStudioResponse(await
 } : { cache: 'no-store', credentials: 'same-origin' }));
 const date = (value: string) => value ? new Date(value).toLocaleString('en-PK', { timeZone: 'Asia/Karachi', dateStyle: 'medium', timeStyle: 'medium' }) : 'Not saved to cloud yet';
 const noteTitle = (value: Memory) => value.title.trim() || value.text.trim().slice(0, 70) || 'Untitled memory';
+const kindLabel: Record<MemoryKind, string> = { moment: 'Moment', question: 'Sawaal', thought: 'Khayal', 'fact-check': 'Fact-check' };
+const kindPrefix: Record<MemoryKind, string> = { moment: '[Moment]', question: '[Sawaal]', thought: '[Khayal]', 'fact-check': '[Fact-check]' };
 
 export function Memories() {
   const [index, setIndex] = useState<Index | null>(null), [key, setKey] = useState<CryptoKey | null>(null);
@@ -130,10 +132,10 @@ export function Memories() {
     if (selected?.record.id === note.record.id) return;
     await guard(); change.current++; setSelected(note); setEditing(Boolean(note.local)); setDirty(Boolean(note.local)); setDeviceSaved(true);
   });
-  const fresh = () => action(async () => {
+  const fresh = (kind: MemoryKind = 'moment') => action(async () => {
     await guard(); change.current++;
     const record: MemoryRecord = { id: crypto.randomUUID(), revision: null, createdAt: '', updatedAt: '', envelope: { version: 1, iv: '', data: '' } };
-    setSelected({ record, value: emptyMemory() }); setEditing(true); setDirty(false); setDeviceSaved(true);
+    setSelected({ record, value: { ...emptyMemory(), kind, title: `${kindPrefix[kind]} ` } }); setEditing(true); setDirty(false); setDeviceSaved(true);
   });
   const save = (asNew = false) => action(async () => {
     if (!key || !selected) return;
@@ -194,8 +196,16 @@ export function Memories() {
     <div className="memories-toolbar"><span><ShieldCheck size={16} /> Encrypted & private</span><div>
       <button disabled={busy} onClick={backup}><Download size={16} /> Encrypted backup</button>
       <button disabled={busy} onClick={() => action(async () => { await guard(); lock(); })}><LockKeyhole size={16} /> Lock</button>
-      <button className="studio-primary" disabled={busy} onClick={fresh}><Plus size={16} /> New memory</button>
+      <button className="studio-primary" disabled={busy} onClick={() => fresh()}><Plus size={16} /> New memory</button>
     </div></div>
+    <section className="memories-quick-save" aria-label="Thoughts and questions">
+      <div><strong>Thoughts & questions</strong><p>Save an idea privately with a clear title label.</p></div>
+      <div className="memories-quick-actions">
+        <button disabled={busy} onClick={() => fresh('question')}>＋ Sawaal</button>
+        <button disabled={busy} onClick={() => fresh('thought')}>＋ Khayal</button>
+        <button disabled={busy} onClick={() => fresh('fact-check')}>＋ Fact-check</button>
+      </div>
+    </section>
     <p className="memories-caption">Cloud saves sync between devices. Unsaved recovery copies stay encrypted on this device. Locks after one minute in the background.</p>
     {error && <p role="alert" className="studio-error">{error}</p>}{message && <p role="status" className="studio-success">{message}</p>}
     {busy && <p role="status">Working on your private space…</p>}
@@ -204,7 +214,7 @@ export function Memories() {
       <button className="memories-refresh" disabled={busy} onClick={() => action(async () => { await guard(); const data = await request(); setIndex(data); await list(key, data, epoch.current); })}>Refresh cloud & device copies</button>
       {!matching.length && <p>{notes.length ? 'No matching moments.' : 'Your first memory starts here. Choose New memory.'}</p>}
       {matching.map(note => <button key={note.record.id} className={`memories-list-item ${selected?.record.id === note.record.id ? 'active' : ''}`} disabled={busy} onClick={() => open(note)}>
-        <strong>{noteTitle(note.value)}</strong><small>{note.local ? 'Device recovery copy · not synced' : date(note.record.createdAt)}</small><span>{note.value.photos.length ? `${note.value.photos.length} photo${note.value.photos.length > 1 ? 's' : ''}` : 'A personal note'}</span>
+        <strong>{noteTitle(note.value)}</strong><small>{note.local ? 'Device recovery copy · not synced' : date(note.record.createdAt)}</small><span>{note.value.kind && note.value.kind !== 'moment' ? `${kindLabel[note.value.kind]} · ` : ''}{note.value.photos.length ? `${note.value.photos.length} photo${note.value.photos.length > 1 ? 's' : ''}` : 'A personal note'}</span>
       </button>)}
     </aside><div className="studio-paper memories-note">
       {!selected ? <div className="memories-empty"><BookHeart size={45} /><h2>For the moments you keep.</h2><p>Open a memory to read it, or write something just for yourself.</p></div> : <>
