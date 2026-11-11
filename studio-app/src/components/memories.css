@@ -10,6 +10,12 @@
 .memories-caption { font-size:11px!important; color:#a9bbd1; display:flex; align-items:center; gap:7px; margin:13px 0; line-height:1.7; }
 .memories-toolbar,.memories-toolbar > div,.memories-note-actions,.memories-save-row { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:14px; }
 .memories-toolbar > span { display:flex; gap:8px; color:#85e4cd; font-size:12px; }
+.memories-quick-save { display:flex; align-items:center; justify-content:space-between; gap:16px; flex-wrap:wrap; margin-top:16px; padding:15px 18px; border:1px solid #314765; border-radius:15px; background:linear-gradient(110deg,#14243b,#101a2b); }
+.memories-quick-save strong { color:#f2d18e; font-size:13px; }
+.memories-quick-save p { margin:4px 0 0; color:#a9bbd1; font-size:11px; }
+.memories-space .memories-quick-actions { display:flex; gap:8px; flex-wrap:wrap; }
+.memories-space .memories-quick-actions button { background:#1c2c43; border-color:#405673; color:#e3ebf7; }
+.memories-space .memories-quick-actions button:hover:not(:disabled) { color:#f2d18e; border-color:#d9b575; transform:translateY(-1px); }
 .memories-space button { display:inline-flex; align-items:center; justify-content:center; gap:7px; font-size:12px; padding:10px 12px; border:1px solid #3b526b; border-radius:10px; }
 .memories-space button:hover:not(:disabled) { border-color:#d9b575; }
 .memories-space button:disabled { opacity:.55; cursor:wait; }
