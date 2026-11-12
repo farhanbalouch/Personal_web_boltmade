@@ -1,5 +1,40 @@
 [
   {
+    "id": "cd713141-ddd1-464e-b985-55a60ded917b",
+    "status": "failed",
+    "title": "Aj ma apko apny sabsy bary aur famous project ky baary ma batana chahta hon wo project jisky name sy",
+    "error": "The operation was aborted due to timeout",
+    "createdAt": "2026-11-12T17:37:23.112Z"
+  },
+  {
+    "status": "prepared",
+    "id": "545bd51e-8ba5-48e0-abf8-a72ff914300c",
+    "title": "My Farhan Deals Journey: Overcoming Challenges in Online Business as a Young Entrepreneur",
+    "message": "New blog: My Farhan Deals Journey: Overcoming Challenges in Online Business as a Young Entrepreneur",
+    "url": "https://farhanbalouch.com/blog/farhan-deals-journey",
+    "createdAt": "2026-11-12T17:35:23.106Z",
+    "socialPromo": {
+      "headline": "My Farhan Deals Journey",
+      "subhead": "From teenage dreams to real-world online business struggles.",
+      "scene": "A young man, Farhan Balouch (18-20 years old, South Asian appearance), sits in a dimly lit room, late at night. He is intensely focused on a laptop screen, which displays a Shopify dashboard or a dropshipping product page. Scattered around him are open notebooks, a half-empty tea glass, and perhaps a mobile phone displaying social media reels. The room has a humble, authentic feel, perhaps a typical Pakistani home setting. The lighting is warm but focused on his face and the screen, highlighting his determination and the solitary nature of his work. The mood is one of quiet perseverance and ambition.",
+      "caption": "Farhan Deals mera sabse bara project hai, lekin is tak pahunchna aasan nahi tha. Bank account se lekar Shopify fees tak, har kadam par mushkilein aayi. Meri kahani padhiye!"
+    }
+  },
+  {
+    "status": "prepared",
+    "id": "1daa9d3a-e66e-4add-b29a-bcae02c4e7fc",
+    "title": "My Journey to Launch Farhan Deals: Overcoming Bank Account Challenges for Online Business",
+    "message": "New blog: My Journey to Launch Farhan Deals: Overcoming Bank Account Challenges for Online Business",
+    "url": "https://farhanbalouch.com/blog/farhan-deals-my-startup-story",
+    "createdAt": "2026-11-12T17:34:19.645Z",
+    "socialPromo": {
+      "headline": "Farhan Deals: My Startup Story",
+      "subhead": "From zero to online business hero, facing Pakistan's unique challenges.",
+      "scene": "A young man (Farhan, without showing his face clearly) in a modest home office setting in Ahmadpur East, Pakistan, illuminated by the glow of a laptop screen at night. His desk is simple, perhaps with a cup of chai. He's intently looking at the screen, which shows a Shopify dashboard or an e-commerce website. A stack of old bank statements or a checkbook is subtly visible in the background, hinting at the challenges overcome. The mood is determined and hopeful, reflecting the late-night efforts and perseverance described in the story. The lighting is warm and focused on the screen, creating a sense of deep concentration.",
+      "caption": "Farhan Deals ki shuruaat aasaan na thi. Bank account ki mushkilaat se lekar uncle ke account tak, meri kahani seekhne aur himmat ki misaal hai. Padhye aur janiye kaise maine online business shuru kiya!"
+    }
+  },
+  {
     "id": "a1ff0326-8110-4244-bde0-3b73aa31c61b",
     "status": "failed",
     "title": "Aj ma apko apny sabsy bary aur famous project ky baary ma batana chahta hon wo project jisky name sy",
