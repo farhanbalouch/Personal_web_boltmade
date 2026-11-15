@@ -16,6 +16,7 @@ import {
   Send,
   Sparkles,
   Upload,
+  Trash2,
 } from "lucide-react";
 import type { BlogPost } from "@/data/blog";
 import type { StoryChapter } from "@/data/content";
@@ -614,6 +615,30 @@ export function Studio() {
                         <button onClick={() => edit(p, p.kind)}>
                           Edit <PenLine size={14} />
                         </button>
+                        {p.kind === "blog" && (
+                          <button
+                            type="button"
+                            className="studio-delete"
+                            disabled={busy}
+                            onClick={() => {
+                              const confirmed = window.confirm(
+                                `Permanently delete this published blog?\\n\\n"${p.translations.en.title}"\\n\\nThis cannot be undone.`,
+                              );
+                              if (!confirmed) return;
+                              action(async () => {
+                                const result = await api({
+                                  action: "delete-blog",
+                                  slug: p.slug,
+                                });
+                                setMessage(result.message);
+                                await load();
+                              });
+                            }}
+                          >
+                            <Trash2 size={14} />
+                            Delete
+                          </button>
+                        )}
                         <a
                           href={`${p.kind === "blog" ? "/blog" : "/stories"}/${p.slug}`}
                           target="_blank"
