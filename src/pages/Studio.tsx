@@ -605,6 +605,41 @@ export function Studio() {
                       <div>
                         <span className="studio-tag">{labels[p.kind]}</span>
                         <h2>{p.translations.en.title}</h2>
+                        {p.kind === "blog" && (
+                          <button
+                            type="button"
+                            disabled={busy}
+                            onClick={() => {
+                              const confirmed = window.confirm(
+                                `Permanently delete this published blog?\\n\\n"${p.translations.en.title}"\\n\\nThis cannot be undone.`,
+                              );
+                              if (!confirmed) return;
+                              action(async () => {
+                                const result = await api({ action: "delete-blog", slug: p.slug });
+                                setMessage(result.message);
+                                await load();
+                              });
+                            }}
+                            style={{
+                              display: "inline-flex",
+                              visibility: "visible",
+                              opacity: 1,
+                              position: "relative",
+                              zIndex: 2,
+                              margin: "8px 0 12px",
+                              padding: "10px 16px",
+                              background: "#a32626",
+                              color: "#ffffff",
+                              border: "2px solid #7d1717",
+                              borderRadius: "6px",
+                              fontWeight: 700,
+                              fontSize: "13px",
+                              cursor: busy ? "wait" : "pointer",
+                            }}
+                          >
+                            <Trash2 size={15} /> Delete published blog
+                          </button>
+                        )}
                         <p>{p.translations.en.excerpt}</p>
                         <small>
                           {new Date(p.publishedAt).toLocaleDateString("en-GB")}
