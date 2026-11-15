@@ -611,10 +611,6 @@ export function Studio() {
                         </small>
                       </div>
                       <div className="studio-row-actions">
-                        <button onClick={() => setPreview(p)}>Read</button>
-                        <button onClick={() => edit(p, p.kind)}>
-                          Edit <PenLine size={14} />
-                        </button>
                         {p.kind === "blog" && (
                           <button
                             type="button"
@@ -639,6 +635,10 @@ export function Studio() {
                             Delete
                           </button>
                         )}
+                        <button onClick={() => setPreview(p)}>Read</button>
+                        <button onClick={() => edit(p, p.kind)}>
+                          Edit <PenLine size={14} />
+                        </button>
                         <a
                           href={`${p.kind === "blog" ? "/blog" : "/stories"}/${p.slug}`}
                           target="_blank"
