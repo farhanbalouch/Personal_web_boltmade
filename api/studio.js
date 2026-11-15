@@ -266,6 +266,40 @@ export default async function handler(req, res) {
         message: "Weekly biography update queued. Check Activity for progress.",
       });
     }
+    if (body.action === "delete-blog") {
+      const slug = body.slug;
+      if (typeof slug !== "string" || !/^[a-z0-9-]{1,100}$/.test(slug))
+        throw fail(400, "Invalid blog address.");
+
+      const file = await github(
+        token,
+        repo("/contents/src/data/blog-posts.json?ref=main"),
+      );
+      const blogs = JSON.parse(
+        Buffer.from(file.content, "base64").toString("utf8"),
+      );
+      if (!Array.isArray(blogs))
+        throw fail(502, "The published blog data is invalid.");
+
+      const remaining = blogs.filter((post) => post.slug !== slug);
+      if (remaining.length === blogs.length)
+        throw fail(404, "This published blog was not found.");
+
+      await github(token, repo("/contents/src/data/blog-posts.json"), {
+        method: "PUT",
+        body: JSON.stringify({
+          message: `Delete published blog: ${slug}`,
+          content: Buffer.from(JSON.stringify(remaining, null, 2) + "\n").toString("base64"),
+          sha: file.sha,
+          branch: "main",
+        }),
+      });
+
+      return reply(200, {
+        ok: true,
+        message: "Published blog deleted from the website source.",
+      });
+    }
     if (!["save", "publish"].includes(body.action))
       throw fail(400, "Unknown Studio action.");
     const draft = validateRequest(body);
