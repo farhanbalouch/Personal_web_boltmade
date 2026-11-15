@@ -789,3 +789,15 @@
   line-height: 1.7;
   margin-top: 9px;
 }
+
+
+.studio-row-actions .studio-delete {
+  color: #a13c38;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.studio-row-actions .studio-delete:hover {
+  text-decoration: underline;
+}
