@@ -1,6 +1,6 @@
 import { unseal } from './studio.js';
 
-const REPO = 'muhammadfarhan138223-cmyk/Personal_web_boltmade';
+const REPO = 'farhanbalouch/Personal_web_boltmade';
 const PATH = 'src/data/projects.json';
 const COOKIE = '__Host-farhan-studio';
 const fail = (status, message) => Object.assign(new Error(message), { status });
