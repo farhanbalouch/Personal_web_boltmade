@@ -9,8 +9,8 @@ import {
   randomUUID,
   timingSafeEqual,
 } from "node:crypto";
-const REPO = "muhammadfarhan138223-cmyk/Personal_web_boltmade";
-const OWNER = "muhammadfarhan138223-cmyk";
+const REPO = "farhanbalouch/Personal_web_boltmade";
+const OWNER = "farhanbalouch";
 const COOKIE = "__Host-farhan-studio";
 const TTL = 8 * 60 * 60;
 const fail = (status, message) => Object.assign(new Error(message), { status });
@@ -111,7 +111,7 @@ export async function github(token, path, options = {}) {
       message =
         "Your GitHub account was verified, but GitHub denied the website content file (HTTP " +
         r.status +
-        "). Check Resource owner: muhammadfarhan138223-cmyk, selected repository: Personal_web_boltmade, and Contents: Read and write.";
+        "). Check Resource owner: farhanbalouch, selected repository: Personal_web_boltmade, and Contents: Read and write.";
     else
       message =
         stage +
