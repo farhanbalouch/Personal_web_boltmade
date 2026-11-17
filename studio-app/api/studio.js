@@ -211,6 +211,90 @@ async function saveDraft(token, body) {
   return { id: draft.id, revision: saved.content.sha, updatedAt, message: "Draft saved to the cloud. Find it on any device in Saved drafts." };
 }
 
+
+async function deletePublishedBlog(token, slug) {
+  if (typeof slug !== "string" || !/^[a-z0-9-]{1,100}$/.test(slug))
+    throw fail(400, "Invalid blog address.");
+
+  // Read both source files from the same commit, then publish both changes atomically.
+  const ref = await github(token, repo("/git/ref/heads/main"));
+  const parentSha = ref?.object?.sha;
+  if (!/^[a-f0-9]{40}$/.test(parentSha || ""))
+    throw fail(502, "Could not identify the current website version.");
+  const parent = await github(token, repo("/git/commits/" + parentSha));
+  if (!parent?.tree?.sha)
+    throw fail(502, "Could not read the current website files.");
+
+  const [blogFile, configFile] = await Promise.all([
+    github(token, repo("/contents/src/data/blog-posts.json?ref=" + parentSha)),
+    github(token, repo("/contents/vercel.json?ref=" + parentSha)),
+  ]);
+  const decode = (file) => {
+    if (!file?.content || file.encoding !== "base64")
+      throw fail(502, "The website returned an unreadable content file.");
+    try { return JSON.parse(Buffer.from(file.content, "base64").toString("utf8")); }
+    catch { throw fail(502, "The website content file contains invalid JSON."); }
+  };
+  const blogs = decode(blogFile);
+  const config = decode(configFile);
+  if (!Array.isArray(blogs) || !config || typeof config !== "object")
+    throw fail(502, "The website content files have an unexpected format.");
+
+  const matches = blogs.filter((post) => post?.slug === slug);
+  if (!matches.length) throw fail(404, "This blog post is no longer in the published library. Refresh and check again.");
+  if (matches.length !== 1) throw fail(409, "This blog address appears more than once. No content was changed.");
+
+  const post = matches[0];
+  const aliases = Array.isArray(post.aliases)
+    ? post.aliases.filter((alias) => typeof alias === "string" && /^[a-z0-9-]{1,100}$/.test(alias))
+    : [];
+  const removedPaths = new Set([slug, ...aliases].map((value) => "/blog/" + value));
+  const normalizePath = (value) => typeof value === "string"
+    ? (value.endsWith("/") ? value.slice(0, -1) : value)
+    : "";
+  const redirects = Array.isArray(config.redirects) ? config.redirects : [];
+  config.redirects = redirects.filter((item) =>
+    !removedPaths.has(normalizePath(item?.source)) &&
+    !removedPaths.has(normalizePath(item?.destination))
+  );
+  const nextBlogs = blogs.filter((item) => item?.slug !== slug);
+  const updatedFiles = [
+    { path: "src/data/blog-posts.json", content: JSON.stringify(nextBlogs, null, 2) + "\n" },
+    { path: "vercel.json", content: JSON.stringify(config, null, 2) + "\n" },
+  ];
+
+  const blobs = await Promise.all(updatedFiles.map(async (file) => {
+    const blob = await github(token, repo("/git/blobs"), {
+      method: "POST",
+      body: JSON.stringify({ content: file.content, encoding: "utf-8" }),
+    });
+    return { path: file.path, mode: "100644", type: "blob", sha: blob.sha };
+  }));
+  const tree = await github(token, repo("/git/trees"), {
+    method: "POST",
+    body: JSON.stringify({ base_tree: parent.tree.sha, tree: blobs }),
+  });
+  const commit = await github(token, repo("/git/commits"), {
+    method: "POST",
+    body: JSON.stringify({
+      message: "Permanently delete blog: " + slug,
+      tree: tree.sha,
+      parents: [parentSha],
+    }),
+  });
+  try {
+    await github(token, repo("/git/refs/heads/main"), {
+      method: "PATCH",
+      body: JSON.stringify({ sha: commit.sha, force: false }),
+    });
+  } catch (err) {
+    if (err.githubStatus === 409 || err.githubStatus === 422)
+      throw fail(409, "The website changed while this deletion was being prepared. Nothing was deleted. Refresh the library and try again.");
+    throw err;
+  }
+  return { slug, title: post.translations?.en?.title || slug, commit: commit.sha };
+}
+
 export default async function handler(req, res) {
   res.setHeader("Cache-Control", "no-store");
   res.setHeader("X-Farhan-Studio", "api-v4");
@@ -346,6 +430,15 @@ export default async function handler(req, res) {
       );
       return reply(202, {
         message: "Weekly biography update queued. Check Activity for progress.",
+      });
+    }
+    if (body.action === "delete-blog") {
+      const deleted = await deletePublishedBlog(token, body.slug);
+      return reply(200, {
+        ok: true,
+        slug: deleted.slug,
+        commit: deleted.commit,
+        message: `"${deleted.title}" has been permanently removed from the website content. Its public page and old URL will disappear when the website deployment finishes.`,
       });
     }
     if (body.action === "save") return reply(202, await saveDraft(token, body));

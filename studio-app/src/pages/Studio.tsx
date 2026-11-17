@@ -104,7 +104,7 @@ export function Studio() {
     [message, setMessage] = useState(""),
     [error, setError] = useState("");
   const [query, setQuery] = useState(""),
-    [preview, setPreview] = useState<BlogPost | null>(null),
+    [preview, setPreview] = useState<(BlogPost & { kind: Kind }) | null>(null),
     [lang, setLang] = useState<"en" | "hi" | "ur">("en");
   const working = busy || photoBusy;
   const file = useRef<HTMLInputElement>(null);
@@ -208,6 +208,18 @@ export function Studio() {
     } finally {
       setBusy(false);
     }
+  }
+  async function deleteBlog(post: BlogPost) {
+    const confirmed = window.confirm(
+      `Permanently delete this published blog?\\n\\n"${post.translations.en.title}"\\n\\nPublic URL: https://farhanbalouch.com/blog/${post.slug}\\n\\nThe article and its old URL will be removed from the website. This cannot be undone.`,
+    );
+    if (!confirmed) return;
+    await action(async () => {
+      const result = await api({ action: "delete-blog", slug: post.slug });
+      setPreview(current => current?.slug === post.slug ? null : current);
+      setMessage(result.message);
+      await load();
+    });
   }
   function keepDeviceDraft() {
     return !hasDraftContent(draft) || (draft.revision && !draft.dirty) || rememberDraft(draft);
@@ -707,9 +719,21 @@ export function Studio() {
               />
               {preview ? (
                 <article className="studio-paper studio-reading">
-                  <button onClick={() => setPreview(null)}>
-                    ← Back to library
-                  </button>
+                  <div className="studio-reading-toolbar">
+                    <button type="button" onClick={() => setPreview(null)}>
+                      ← Back to library
+                    </button>
+                    {preview.kind === "blog" && (
+                      <button
+                        type="button"
+                        className="studio-delete-blog"
+                        disabled={working}
+                        onClick={() => deleteBlog(preview)}
+                      >
+                        <Trash2 size={16} /> Delete this blog
+                      </button>
+                    )}
+                  </div>
                   <div className="studio-languages">
                     {(["en", "hi", "ur"] as const).map((l) => (
                       <button key={l} onClick={() => setLang(l)}>
@@ -745,6 +769,17 @@ export function Studio() {
                         <button onClick={() => edit(p, p.kind)}>
                           Edit <PenLine size={14} />
                         </button>
+                        {p.kind === "blog" && (
+                          <button
+                            type="button"
+                            className="studio-delete-blog"
+                            disabled={working}
+                            onClick={() => deleteBlog(p)}
+                            aria-label={`Permanently delete blog: ${p.translations.en.title}`}
+                          >
+                            <Trash2 size={14} /> Delete
+                          </button>
+                        )}
                         <a
                           href={`https://farhanbalouch.com${p.kind === "blog" ? "/blog" : "/stories"}/${p.slug}`}
                           target="_blank"

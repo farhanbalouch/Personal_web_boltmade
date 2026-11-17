@@ -329,3 +329,38 @@
 .studio-draft-actions { display: grid; justify-items: start; gap: 9px; }
 .studio-draft-actions > button:disabled { opacity: .5; }
 .studio-content-list h2, .studio-paper-top span:first-child { overflow-wrap: anywhere; }
+
+
+/* Animated, high-contrast delete action for individual published blog posts. */
+.studio-reading-toolbar { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; margin-bottom: 18px; }
+.studio-delete-blog {
+  position: relative; isolation: isolate; overflow: hidden;
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  padding: 9px 13px; border: 1px solid #d56b79 !important; border-radius: 10px;
+  background: linear-gradient(135deg, #7f2938, #451d2b) !important;
+  color: #fff0f1 !important; font-size: 11px; font-weight: 700;
+  box-shadow: 0 7px 18px #05091455, inset 0 1px #ffffff20;
+  transition: transform .22s ease, box-shadow .22s ease, border-color .22s ease;
+}
+.studio-delete-blog::after {
+  content: ""; position: absolute; z-index: -1; top: -70%; bottom: -70%; left: -45%;
+  width: 34%; pointer-events: none;
+  background: linear-gradient(90deg, transparent, #ffffff38, transparent);
+  transform: translateX(-160%) rotate(18deg);
+  animation: studio-delete-shine 4.2s ease-in-out infinite;
+}
+.studio-delete-blog:hover:not(:disabled) {
+  transform: translateY(-2px); border-color: #ff9aa4 !important;
+  box-shadow: 0 10px 24px #9e304755, 0 0 0 3px #e45c6b18;
+}
+.studio-delete-blog:hover:not(:disabled) svg { transform: rotate(-10deg) scale(1.08); }
+.studio-delete-blog svg { flex: 0 0 auto; transition: transform .22s ease; }
+.studio-delete-blog:focus-visible { outline: 2px solid #ffb5bd; outline-offset: 3px; }
+.studio-delete-blog:disabled { opacity: .48; cursor: wait; animation: none; }
+@keyframes studio-delete-shine {
+  0%, 58% { transform: translateX(-160%) rotate(18deg); }
+  82%, 100% { transform: translateX(390%) rotate(18deg); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .studio-delete-blog, .studio-delete-blog::after, .studio-delete-blog svg { animation: none; transition: none; }
+}

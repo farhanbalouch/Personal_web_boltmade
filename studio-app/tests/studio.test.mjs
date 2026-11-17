@@ -361,3 +361,68 @@ test("separate drafts round trip, and a stale device cannot overwrite a newer cl
   assert.equal(retry.body.revision, phone.body.revision);
   assert.equal(writes, 3);
 });
+
+
+test("delete-blog atomically removes one blog and its canonical and alias URLs", async () => {
+  const original = globalThis.fetch;
+  const parentSha = "a".repeat(40);
+  const blogPosts = [
+    { slug: "remove-this-post", aliases: ["old-remove-this-post"], translations: { en: { title: "Remove this post" } } },
+    { slug: "keep-this-post", aliases: ["old-keep-this-post"], translations: { en: { title: "Keep this post" } } },
+  ];
+  const websiteConfig = {
+    redirects: [
+      { source: "/blog/remove-this-post", destination: "/blog/remove-this-post", permanent: true },
+      { source: "/blog/old-remove-this-post", destination: "/blog/remove-this-post", permanent: true },
+      { source: "/blog/keep-this-post-old", destination: "/blog/keep-this-post", permanent: true },
+      { source: "/blog/another-old-link", destination: "/blog/remove-this-post", permanent: true },
+    ],
+  };
+  const blobContents = [];
+  let treePayload;
+  let refUpdated = false;
+  globalThis.fetch = async (url, options = {}) => {
+    const path = new URL(url).pathname;
+    if (path.endsWith("/git/ref/heads/main") && !options.method)
+      return Response.json({ object: { sha: parentSha } });
+    if (path.endsWith("/git/commits/" + parentSha))
+      return Response.json({ tree: { sha: "b".repeat(40) } });
+    if (path.endsWith("/contents/src/data/blog-posts.json"))
+      return Response.json({ sha: "c".repeat(40), encoding: "base64", content: Buffer.from(JSON.stringify(blogPosts)).toString("base64") });
+    if (path.endsWith("/contents/vercel.json"))
+      return Response.json({ sha: "d".repeat(40), encoding: "base64", content: Buffer.from(JSON.stringify(websiteConfig)).toString("base64") });
+    if (path.endsWith("/git/blobs")) {
+      blobContents.push(JSON.parse(options.body).content);
+      return Response.json({ sha: String(blobContents.length).padStart(40, "e") });
+    }
+    if (path.endsWith("/git/trees")) {
+      treePayload = JSON.parse(options.body);
+      return Response.json({ sha: "f".repeat(40) });
+    }
+    if (path.endsWith("/git/commits") && options.method === "POST")
+      return Response.json({ sha: "1".repeat(40) });
+    if (path.endsWith("/git/refs/heads/main") && options.method === "PATCH") {
+      refUpdated = true;
+      return Response.json({ ref: "refs/heads/main" });
+    }
+    throw new Error("Unexpected GitHub request: " + path);
+  };
+  try {
+    const r = await request({
+      method: "POST",
+      headers: { ...loginHeaders, cookie: "__Host-farhan-studio=" + seal() },
+      body: { action: "delete-blog", slug: "remove-this-post" },
+    });
+    assert.equal(r.code, 200);
+    assert.equal(r.body.slug, "remove-this-post");
+    assert.equal(refUpdated, true);
+    assert.deepEqual(treePayload.tree.map(item => item.path).sort(), ["src/data/blog-posts.json", "vercel.json"]);
+    const nextBlogs = blobContents.map(value => JSON.parse(value)).find(Array.isArray);
+    assert.deepEqual(nextBlogs.map(post => post.slug), ["keep-this-post"]);
+    const nextConfig = blobContents.map(value => JSON.parse(value)).find(value => Array.isArray(value.redirects));
+    assert.deepEqual(nextConfig.redirects, [websiteConfig.redirects[2]]);
+    assert.match(r.body.message, /permanently removed/);
+  } finally {
+    globalThis.fetch = original;
+  }
+});
