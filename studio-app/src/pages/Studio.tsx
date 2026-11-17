@@ -211,7 +211,7 @@ export function Studio() {
   }
   async function deleteBlog(post: BlogPost) {
     const confirmed = window.confirm(
-      `Permanently delete this published blog?\\n\\n"${post.translations.en.title}"\\n\\nPublic URL: https://farhanbalouch.com/blog/${post.slug}\\n\\nThe article and its old URL will be removed from the website. This cannot be undone.`,
+      `Permanently delete this published blog?\n\n"${post.translations.en.title}"\n\nPublic URL: https://farhanbalouch.com/blog/${post.slug}\n\nThe article and its old URL will be removed from the website. This cannot be undone.`,
     );
     if (!confirmed) return;
     await action(async () => {
