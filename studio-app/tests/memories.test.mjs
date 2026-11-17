@@ -34,7 +34,7 @@ function response() {
 }
 const host = 'studio.example.test';
 function req(body, options = {}) { return { method: body ? 'POST' : 'GET', body, headers: { host, origin: 'https://' + host, 'content-type': 'application/json', cookie: '__Host-farhan-studio=' + seal(), ...options } }; }
-const path = '/repos/muhammadfarhan138223-cmyk/Personal_web_boltmade';
+const path = '/repos/farhanbalouch/Personal_web_boltmade';
 test('authenticated encrypted cloud lifecycle protects timestamps, multiple entries and concurrent-device edits', async () => {
   const actualFetch = globalThis.fetch, files = new Map(), blobs = new Map(); let writes = 0, largeBlobReads = 0;
   const json = (data, status = 200) => new Response(JSON.stringify(data), { status, headers: { 'Content-Type': 'application/json' } });
