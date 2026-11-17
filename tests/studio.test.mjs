@@ -188,7 +188,7 @@ test("login removes clipboard whitespace before verifying and sealing a token", 
     return new Response(
       JSON.stringify(
         url.endsWith("/user")
-          ? { login: "muhammadfarhan138223-cmyk" }
+          ? { login: "farhanbalouch" }
           : { content: Buffer.from("[]").toString("base64") },
       ),
     );
