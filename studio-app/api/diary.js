@@ -1,6 +1,6 @@
 import { github, unseal } from './studio.js';
 
-const root = '/repos/muhammadfarhan138223-cmyk/Personal_web_boltmade';
+const root = '/repos/farhanbalouch/Personal_web_boltmade';
 const folder = 'private/memories';
 const fail = (status, message) => Object.assign(new Error(message), { status });
 const uuid = /^[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$/;
