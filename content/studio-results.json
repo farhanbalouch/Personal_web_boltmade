@@ -1,5 +1,12 @@
 [
   {
+    "id": "6ad014be-9b59-44cc-bf3d-3fd32e44d606",
+    "status": "failed",
+    "title": "hlo kiya haal ha ye testing ha means notifications testing in mobile when i upload blog",
+    "error": "Gemini request failed (401). Check API quota and GEMINI_API_KEY.",
+    "createdAt": "2026-11-20T09:40:19.422Z"
+  },
+  {
     "id": "d0fb0701-1378-44b1-a8f4-14f9a6fbbbad",
     "status": "failed",
     "title": "hlo kiya haal ha ye testing ha means notifications testing in mobile when i upload blog",
