@@ -1,5 +1,12 @@
 [
   {
+    "id": "d0fb0701-1378-44b1-a8f4-14f9a6fbbbad",
+    "status": "failed",
+    "title": "hlo kiya haal ha ye testing ha means notifications testing in mobile when i upload blog",
+    "error": "Gemini request failed (401). Check API quota and GEMINI_API_KEY.",
+    "createdAt": "2026-11-20T09:39:17.002Z"
+  },
+  {
     "status": "prepared",
     "id": "790b3f1d-7d2a-4127-af7e-b7392fa1abce",
     "title": "My Farhan Deals Journey: Overcoming Online Business Startup Challenges",
