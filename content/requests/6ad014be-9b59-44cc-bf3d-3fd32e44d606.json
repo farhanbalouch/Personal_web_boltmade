@@ -1,0 +1,28 @@
+{
+  "shortTitle": "testing blog notify",
+  "secondaryTitle": "this is for testing",
+  "urlSlug": "",
+  "id": "6ad014be-9b59-44cc-bf3d-3fd32e44d606",
+  "kind": "blog",
+  "raw": "hlo kiya haal ha ye testing ha means notifications testing in mobile when i upload blog",
+  "slug": "",
+  "notify": true,
+  "createdAt": "2026-11-20T09:40:10.569Z",
+  "images": [
+    {
+      "src": "/media/studio/e4eb284062395c63a4176bd8941ea6cc.webp",
+      "alt": "Illustration for hlo kiya haal ha ye testing ha",
+      "caption": "AI-generated illustration",
+      "width": 1024,
+      "height": 1024
+    },
+    {
+      "src": "/media/studio/ae75ba86ab5ba41e8b7224fa26e994a0.webp",
+      "alt": "Illustration for hlo kiya haal ha ye testing ha means notifications testing in mobile when i upload blog",
+      "caption": "AI-generated illustration",
+      "width": 1024,
+      "height": 1024
+    }
+  ],
+  "draftRevision": null
+}
