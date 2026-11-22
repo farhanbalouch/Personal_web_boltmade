@@ -8,7 +8,8 @@ export type MemoryConfigV2 = {
 };
 export type RecoveryBundle = { recoveryKey: string; backupCodes: string[] };
 const enc = new TextEncoder();
-const ITERATIONS = 600000;
+const ITERATIONS = 600000 as const;
+const bufferSource = (value: Uint8Array): BufferSource => value as unknown as BufferSource;
 const PASSWORD_CONTEXT = 'farhan-memories:v2:password-wrap';
 const RECOVERY_CONTEXT = 'farhan-memories:v2:recovery-wrap';
 const BACKUP_CONTEXT = (id: string) => `farhan-memories:v2:backup-code:${id}`;
@@ -26,16 +27,16 @@ function fromHex(value: string, bytes: number) {
 function random(length: number) { return crypto.getRandomValues(new Uint8Array(length)); }
 async function aesKey(raw: Uint8Array) {
   if (raw.length !== 32) throw new Error('Invalid data key.');
-  return crypto.subtle.importKey('raw', raw, { name: 'AES-GCM' }, false, ['encrypt', 'decrypt']);
+  return crypto.subtle.importKey('raw', bufferSource(raw), { name: 'AES-GCM' }, false, ['encrypt', 'decrypt']);
 }
 async function passwordKey(password: string, salt: Uint8Array) {
   if (password.length < 16 || password.length > 256) throw new Error('Use a passphrase of 16–256 characters.');
-  const material = await crypto.subtle.importKey('raw', enc.encode(password), 'PBKDF2', false, ['deriveKey']);
-  return crypto.subtle.deriveKey({ name: 'PBKDF2', salt, iterations: ITERATIONS, hash: 'SHA-256' }, material,
+  const material = await crypto.subtle.importKey('raw', bufferSource(enc.encode(password)), 'PBKDF2', false, ['deriveKey']);
+  return crypto.subtle.deriveKey({ name: 'PBKDF2', salt: bufferSource(salt), iterations: ITERATIONS, hash: 'SHA-256' }, material,
     { name: 'AES-GCM', length: 256 }, false, ['encrypt', 'decrypt']);
 }
 async function codeKey(secret: Uint8Array, info: string) {
-  const material = await crypto.subtle.importKey('raw', secret, 'HKDF', false, ['deriveKey']);
+  const material = await crypto.subtle.importKey('raw', bufferSource(secret), 'HKDF', false, ['deriveKey']);
   return crypto.subtle.deriveKey({ name: 'HKDF', hash: 'SHA-256', salt: enc.encode('Farhan Memories Recovery v2'), info: enc.encode(info) },
     material, { name: 'AES-GCM', length: 256 }, false, ['encrypt', 'decrypt']);
 }
@@ -102,18 +103,18 @@ async function unlockWithBackupSlot(config: MemoryConfigV2, code: string) {
   }
   throw new Error('That backup code is invalid or has already been used.');
 }
-export async function rotatePasswordV2(config: MemoryConfigV2, currentPassword: string, newPassword: string) {
+export async function rotatePasswordV2(config: MemoryConfigV2, currentPassword: string, newPassword: string): Promise<MemoryConfigV2> {
   const dek = await unwrapRaw(config.password.wrappedKey, await passwordKey(currentPassword, fromBase64(config.password.salt)), PASSWORD_CONTEXT);
   const salt = random(16), wrapping = await passwordKey(newPassword, salt);
   return { ...config, password: { salt: toBase64(salt), iterations: ITERATIONS, wrappedKey: await wrapRaw(dek, wrapping, PASSWORD_CONTEXT) } };
 }
-export async function rotatePasswordWithRecovery(config: MemoryConfigV2, recoveryCode: string, newPassword: string) {
+export async function rotatePasswordWithRecovery(config: MemoryConfigV2, recoveryCode: string, newPassword: string): Promise<MemoryConfigV2> {
   const wrapping = await codeKey(fromHex(recoveryCode.trim().replace(/\s/g, ''), 32), RECOVERY_CONTEXT);
   const dek = await unwrapRaw(config.recovery.wrappedKey, wrapping, RECOVERY_CONTEXT);
   const salt = random(16), next = await passwordKey(newPassword, salt);
   return { ...config, password: { salt: toBase64(salt), iterations: ITERATIONS, wrappedKey: await wrapRaw(dek, next, PASSWORD_CONTEXT) } };
 }
-export async function rotatePasswordWithBackupCode(config: MemoryConfigV2, backupCode: string, newPassword: string) {
+export async function rotatePasswordWithBackupCode(config: MemoryConfigV2, backupCode: string, newPassword: string): Promise<{ config: MemoryConfigV2; key: CryptoKey }> {
   const unlocked = await unlockWithBackupSlot(config, backupCode);
   const salt = random(16), next = await passwordKey(newPassword, salt);
   const raw = await unwrapRaw(unlocked.key ? (config.backupCodes.find(x => x.id === unlocked.usedId)!).wrappedKey : config.password.wrappedKey,
@@ -125,12 +126,12 @@ export async function rotatePasswordWithBackupCode(config: MemoryConfigV2, backu
 export async function rotatePasswordWithCurrentKey(config: MemoryConfigV2, password: string, newPassword: string) {
   return rotatePasswordV2(config, password, newPassword);
 }
-export async function regenerateRecovery(config: MemoryConfigV2, currentPassword: string) {
+export async function regenerateRecovery(config: MemoryConfigV2, currentPassword: string): Promise<{ config: MemoryConfigV2; recoveryKey: string }> {
   const dek = await unwrapRaw(config.password.wrappedKey, await passwordKey(currentPassword, fromBase64(config.password.salt)), PASSWORD_CONTEXT);
   const bytes = random(32), wrapping = await codeKey(bytes, RECOVERY_CONTEXT);
   return { config: { ...config, recovery: { wrappedKey: await wrapRaw(dek, wrapping, RECOVERY_CONTEXT) } }, recoveryKey: toHex(bytes) };
 }
-export async function consumeBackupCode(config: MemoryConfigV2, code: string) {
+export async function consumeBackupCode(config: MemoryConfigV2, code: string): Promise<{ key: CryptoKey; config: MemoryConfigV2 }> {
   const result = await unlockWithBackupSlot(config, code);
   return { key: result.key, config: { ...config, backupCodes: config.backupCodes.map(slot => slot.id === result.usedId ? { ...slot, used: true } : slot) } };
 }
