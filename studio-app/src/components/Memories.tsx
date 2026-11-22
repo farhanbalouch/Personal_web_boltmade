@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
-import { BookHeart, Download, ImagePlus, LockKeyhole, PenLine, Plus, Save, ShieldCheck, X } from 'lucide-react';
-import { createConfigV2, decrypt, encrypt, memoryContextV2, unlockWithPasswordV2, rotatePasswordV2, rotatePasswordWithRecovery, rotatePasswordWithBackupCode, regenerateRecovery, unlockWithRecoveryKey, type MemoryConfigV2, type RecoveryBundle } from '@/lib/memories-crypto-v2';
+import { BookHeart, Download, ImagePlus, KeyRound, LockKeyhole, PenLine, Plus, RefreshCw, Save, ShieldCheck, X } from 'lucide-react';
+import { createConfigV2, decrypt, encrypt, memoryContextV2, unlockWithPasswordV2, rotatePasswordV2, rotatePasswordWithRecovery, rotatePasswordWithBackupCode, regenerateRecovery, regenerateBackupCodes, unlockWithRecoveryKey, type MemoryConfigV2, type RecoveryBundle } from '@/lib/memories-crypto-v2';
 import { emptyMemory, type Memory, type MemoryKind, type MemoryRecord } from '@/lib/memories-crypto';
 import { optimizePhoto } from '@/lib/studio-images';
 import { parseStudioResponse } from '@/lib/studio-response';
@@ -27,6 +27,8 @@ export function Memories() {
   const [securityOpen, setSecurityOpen] = useState(false), [currentPassword, setCurrentPassword] = useState('');
   const [securityPassword, setSecurityPassword] = useState(''), [securityPasswordConfirm, setSecurityPasswordConfirm] = useState('');
   const [newRecoveryKey, setNewRecoveryKey] = useState('');
+  const [newBackupCodes, setNewBackupCodes] = useState<string[]>([]);
+  const [wrongAttempts, setWrongAttempts] = useState(0), [methodHint, setMethodHint] = useState(false);
   const [restoreOpen, setRestoreOpen] = useState(false), [restoreCode, setRestoreCode] = useState('');
   const restoreFile = useRef<HTMLInputElement>(null);
   const [notes, setNotes] = useState<Note[]>([]), [selected, setSelected] = useState<Note | null>(null);
@@ -131,10 +133,10 @@ export function Memories() {
         const created = await createConfigV2(passphrase); await request({ action: 'initialize', config: created.config });
         setRecoveryBundle(created.recovery); setPendingSetup({ key: created.key, config: created.config }); return;
       } else {
-        try { secret = await unlockWithPasswordV2(passphrase, data.config); } catch { throw new Error('Passphrase incorrect. Try your recovery key or one-time backup code.'); }
+        try { secret = await unlockWithPasswordV2(passphrase, data.config); setWrongAttempts(0); setMethodHint(false); } catch { const attempts = wrongAttempts + 1; setWrongAttempts(attempts); if (attempts >= 4) setMethodHint(true); throw new Error(attempts >= 4 ? 'Password did not work. You can switch to another recovery method below.' : `Passphrase incorrect. ${4 - attempts} more failed ${4 - attempts === 1 ? 'attempt' : 'attempts'} before we suggest another method.`); }
       }
       if (generation !== epoch.current) return;
-      setPassphrase(''); setConfirm(''); setRecoveryCode(''); setNewPassword(''); setNewPasswordConfirm(''); setRecoveryMode(null); setIndex(data); setKey(secret);
+      setPassphrase(''); setConfirm(''); setRecoveryCode(''); setNewPassword(''); setNewPasswordConfirm(''); setRecoveryMode(null); setWrongAttempts(0); setMethodHint(false); setIndex(data); setKey(secret);
       await list(secret, data, generation);
     } catch (e) { if (generation === epoch.current) { setError((e as Error).message); request().then(setIndex).catch(() => {}); } }
     finally { if (generation === epoch.current) setBusy(false); }
@@ -239,6 +241,13 @@ export function Memories() {
       setMessage('Memories passphrase changed. Your encrypted memories were not re-encrypted or altered.');
     });
   };
+  const renewBackupCodes = () => action(async () => {
+    if (!index?.config || !currentPassword) throw new Error('Enter your current Memories passphrase first.');
+    const result = await regenerateBackupCodes(index.config, currentPassword);
+    await request({ action: 'update-config', config: result.config });
+    setIndex({ ...index, config: result.config }); setNewBackupCodes(result.backupCodes);
+    setMessage('10 fresh backup codes are ready. Every previous backup code has been invalidated.');
+  });
   const renewRecoveryKey = () => action(async () => {
     if (!index?.config || !currentPassword) throw new Error('Enter your current Memories passphrase first.');
     const result = await regenerateRecovery(index.config, currentPassword);
@@ -298,7 +307,11 @@ export function Memories() {
       <button className="studio-primary" disabled={busy}>{busy ? 'Recovering…' : 'Recover and set new passphrase'}</button>
       <button type="button" onClick={() => { setRecoveryMode(null); setRecoveryCode(''); setNewPassword(''); setNewPasswordConfirm(''); }}>Back to password</button>
     </form>}
-    {index?.config && !recoveryMode && <div className="memories-recovery-options"><button type="button" onClick={() => setRecoveryMode('recovery')}>Forgot passphrase? Use recovery key</button><button type="button" onClick={() => setRecoveryMode('backup')}>Use one-time backup code</button></div>}
+    {index?.config && !recoveryMode && <div className="memories-recovery-options">
+      {methodHint && <div className="memories-method-hint" role="status"><strong>Let's try another way.</strong><span>Your memories are still safe. Choose a recovery method — no need to keep guessing.</span></div>}
+      <button type="button" onClick={() => { setRecoveryMode('recovery'); setError(''); }}><KeyRound size={17} /><span><strong>Use Recovery Key</strong><small>Reset your passphrase with your 64-character key</small></span></button>
+      <button type="button" onClick={() => { setRecoveryMode('backup'); setError(''); }}><ShieldCheck size={17} /><span><strong>Use a one-time backup code</strong><small>Each code works once; 10 are provided</small></span></button>
+    </div>}
     {!index && !error && <p role="status">Loading private storage…</p>}{error && <p className="studio-error" role="alert">{error}</p>}{message && <p role="status">{message}</p>}
     <p className="memories-caption"><ShieldCheck size={15} /> Studio login + separate encryption key + offline recovery kit</p>
   </section>;
@@ -310,19 +323,31 @@ export function Memories() {
       <button disabled={busy} onClick={() => action(async () => { await guard(); lock(); })}><LockKeyhole size={16} /> Lock</button>
       <button className="studio-primary" disabled={busy} onClick={() => fresh()}><Plus size={16} /> New memory</button>
     </div></div>
-    {securityOpen && <section className="memories-security-panel studio-paper">
-      <div className="memories-note-actions"><strong>Security & recovery</strong><button onClick={() => setSecurityOpen(false)}>Close</button></div>
-      <p className="memories-caption">Change your passphrase without touching the encrypted memories, or rotate a lost/exposed recovery key.</p>
-      <label htmlFor="security-current-password">Current Memories passphrase</label>
-      <input id="security-current-password" type="password" value={currentPassword} onChange={e => setCurrentPassword(e.target.value)} autoComplete="current-password" />
-      <form onSubmit={changeMemoriesPassword}>
-        <label htmlFor="security-new-password">New passphrase</label><input id="security-new-password" type="password" minLength={16} maxLength={256} value={securityPassword} onChange={e => setSecurityPassword(e.target.value)} required />
-        <label htmlFor="security-confirm-password">Repeat new passphrase</label><input id="security-confirm-password" type="password" minLength={16} maxLength={256} value={securityPasswordConfirm} onChange={e => setSecurityPasswordConfirm(e.target.value)} required />
-        <button className="studio-primary" disabled={busy}>Change passphrase</button>
-      </form>
-      <button disabled={busy || !currentPassword} onClick={renewRecoveryKey}>Generate a new recovery key</button>
-      {newRecoveryKey && <div><label>New recovery key — save now</label><div className="memories-recovery-code">{newRecoveryKey}</div><button onClick={() => navigator.clipboard.writeText(newRecoveryKey)}>Copy new recovery key</button><button onClick={() => setNewRecoveryKey('')}>I saved it</button></div>}
-    </section>}
+    {securityOpen && <div className="memories-drawer-backdrop" role="presentation" onMouseDown={e => { if (e.target === e.currentTarget) setSecurityOpen(false); }}>
+      <aside className="memories-security-drawer" role="dialog" aria-modal="true" aria-labelledby="memories-security-title">
+        <div className="memories-drawer-head"><div><span className="studio-eyebrow">PRIVATE MEMORIES</span><h2 id="memories-security-title">Security & recovery</h2></div><button aria-label="Close security drawer" onClick={() => setSecurityOpen(false)}><X size={19}/></button></div>
+        <p className="memories-caption">Your recovery controls. Changes do not re-encrypt or alter your saved memories.</p>
+        <label htmlFor="security-current-password">Confirm current Memories passphrase</label>
+        <input id="security-current-password" type="password" value={currentPassword} onChange={e => setCurrentPassword(e.target.value)} autoComplete="current-password" />
+        <div className="memories-drawer-card">
+          <strong>Change passphrase</strong><form onSubmit={changeMemoriesPassword}>
+            <label htmlFor="security-new-password">New passphrase</label><input id="security-new-password" type="password" minLength={16} maxLength={256} value={securityPassword} onChange={e => setSecurityPassword(e.target.value)} required />
+            <label htmlFor="security-confirm-password">Repeat new passphrase</label><input id="security-confirm-password" type="password" minLength={16} maxLength={256} value={securityPasswordConfirm} onChange={e => setSecurityPasswordConfirm(e.target.value)} required />
+            <button className="studio-primary" disabled={busy}>Update passphrase</button>
+          </form>
+        </div>
+        <div className="memories-drawer-card">
+          <strong>Recovery Key</strong><p>Replace the old key if it was lost or exposed.</p>
+          <button disabled={busy || !currentPassword} onClick={renewRecoveryKey}><KeyRound size={16}/> Generate new Recovery Key</button>
+          {newRecoveryKey && <div className="memories-fresh-codes"><label>New key — save it now</label><code>{newRecoveryKey}</code><button onClick={() => navigator.clipboard.writeText(newRecoveryKey)}>Copy key</button><button onClick={() => setNewRecoveryKey('')}>I saved it</button></div>}
+        </div>
+        <div className="memories-drawer-card">
+          <strong>One-time backup codes</strong><p>Regenerate a complete fresh set of 10. This immediately invalidates every code from the previous set, including unused ones.</p>
+          <button disabled={busy || !currentPassword} onClick={renewBackupCodes}><RefreshCw size={16}/> Generate 10 fresh codes</button>
+          {newBackupCodes.length > 0 && <div className="memories-fresh-codes"><label>Fresh backup codes — save now</label><div className="memories-backup-codes">{newBackupCodes.map((code,i)=><span key={code}>{i+1}. {code}</span>)}</div><button onClick={() => navigator.clipboard.writeText(newBackupCodes.join('\n'))}>Copy all 10 codes</button><button onClick={() => { const blob = new Blob([['FARHAN PRIVATE MEMORIES — NEW BACKUP CODES','Keep offline and private. Previous codes are invalid.',...newBackupCodes.map((code,i)=>(i+1)+'. '+code)].join('\n')],{type:'text/plain'}); const url=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download='farhan-memories-backup-codes.txt'; a.click(); setTimeout(()=>URL.revokeObjectURL(url),1000); }}>Download codes</button><button onClick={() => setNewBackupCodes([])}>I saved them</button></div>}
+        </div>
+      </aside>
+    </div>}
     <section className="memories-quick-save" aria-label="Thoughts and questions">
       <div><strong>Thoughts & questions</strong><p>Save an idea privately with a clear title label.</p></div>
       <div className="memories-quick-actions">
