@@ -6,6 +6,9 @@
     "api/diary.js": {
       "maxDuration": 60
     },
+    "api/diary-v2.js": {
+      "maxDuration": 60
+    },
     "api/projects.js": {
       "maxDuration": 60
     }
