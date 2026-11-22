@@ -48,3 +48,12 @@
 .memories-empty svg { color:#e3c88c; }
 @media(max-width:900px) { .memories-layout { grid-template-columns:1fr; } .memories-list { max-height:300px; overflow:auto; } }
 @media(max-width:480px) { .memories-layout .studio-paper { padding:18px; } .memories-timestamps { grid-template-columns:1fr; } .memories-toolbar > div { gap:8px; } .memories-space button { padding:11px; } }
+
+
+.memories-recovery-code { overflow-wrap:anywhere; padding:14px; margin:10px 0; border:1px dashed #d9b575; border-radius:12px; color:#f2d18e; background:#0b1629; font:600 15px/1.8 ui-monospace,monospace; letter-spacing:1px; }
+.memories-backup-codes { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px; margin:10px 0 16px; }
+.memories-backup-codes span { padding:9px; border:1px solid #344a65; border-radius:8px; background:#0b1629; color:#e1e8f3; font:12px ui-monospace,monospace; }
+.memories-confirm-save { display:flex!important; align-items:center; gap:10px; margin:20px 0!important; }
+.memories-confirm-save input { width:auto!important; }
+.memories-recovery-options { display:grid; gap:9px; margin-top:18px; }
+.memories-recovery-options button { width:100%; }
