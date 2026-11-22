@@ -1,14 +1,15 @@
 import { useEffect, useRef, useState } from 'react';
 import { BookHeart, Download, ImagePlus, LockKeyhole, PenLine, Plus, Save, ShieldCheck, X } from 'lucide-react';
-import { createConfig, decrypt, emptyMemory, encrypt, memoryContext, unlockConfig, type Memory, type MemoryConfig, type MemoryKind, type MemoryRecord } from '@/lib/memories-crypto';
+import { createConfigV2, decrypt, emptyMemory, encrypt, memoryContextV2, unlockWithPasswordV2, rotatePasswordWithRecovery, rotatePasswordWithBackupCode, type MemoryConfigV2, type RecoveryBundle } from '@/lib/memories-crypto-v2';
+import type { Memory, MemoryKind, MemoryRecord } from '@/lib/memories-crypto';
 import { optimizePhoto } from '@/lib/studio-images';
 import { parseStudioResponse } from '@/lib/studio-response';
 import './memories.css';
 
 type Note = { record: MemoryRecord; value: Memory; local?: boolean };
-type Index = { config: MemoryConfig | null; entries: { id: string; revision: string }[] };
-const prefix = 'farhan-memories-encrypted-v1:';
-const request = async (body?: object): Promise<any> => parseStudioResponse(await fetch('/api/diary', body ? {
+type Index = { config: MemoryConfigV2 | null; entries: { id: string; revision: string }[] };
+const prefix = 'farhan-memories-encrypted-v2:';
+const request = async (body?: object): Promise<any> => parseStudioResponse(await fetch('/api/diary-v2', body ? {
   method: 'POST', cache: 'no-store', credentials: 'same-origin', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body),
 } : { cache: 'no-store', credentials: 'same-origin' }));
 const date = (value: string) => value ? new Date(value).toLocaleString('en-PK', { timeZone: 'Asia/Karachi', dateStyle: 'medium', timeStyle: 'medium' }) : 'Not saved to cloud yet';
@@ -19,6 +20,10 @@ const kindPrefix: Record<MemoryKind, string> = { moment: '[Moment]', question: '
 export function Memories() {
   const [index, setIndex] = useState<Index | null>(null), [key, setKey] = useState<CryptoKey | null>(null);
   const [passphrase, setPassphrase] = useState(''), [confirm, setConfirm] = useState('');
+  const [recoveryMode, setRecoveryMode] = useState<'recovery' | 'backup' | null>(null);
+  const [recoveryCode, setRecoveryCode] = useState(''), [newPassword, setNewPassword] = useState(''), [newPasswordConfirm, setNewPasswordConfirm] = useState('');
+  const [recoveryBundle, setRecoveryBundle] = useState<RecoveryBundle | null>(null);
+  const [pendingSetup, setPendingSetup] = useState<{ key: CryptoKey; config: MemoryConfigV2 } | null>(null);
   const [notes, setNotes] = useState<Note[]>([]), [selected, setSelected] = useState<Note | null>(null);
   const [editing, setEditing] = useState(false), [query, setQuery] = useState('');
   const [busy, setBusy] = useState(false), [error, setError] = useState(''), [message, setMessage] = useState('');
@@ -29,7 +34,7 @@ export function Memories() {
   current.current = { key, selected, dirty };
   const persist = (note: Note, secret: CryptoKey) => {
     const task = saveQueue.current.catch(() => {}).then(async () => {
-      const envelope = await encrypt(secret, note.value, memoryContext(note.record.id));
+      const envelope = await encrypt(secret, note.value, memoryContextV2(note.record.id));
       localStorage.setItem(prefix + note.record.id, JSON.stringify({ ...note.record, envelope, deviceSavedAt: new Date().toISOString() }));
     });
     saveQueue.current = task;
@@ -91,7 +96,7 @@ export function Memories() {
           const cloud = data.entries.some(item => item.id === id) ? await request({ action: 'read', id }) as MemoryRecord : null;
           const useLocal = recovery && (!cloud || recovery.deviceSavedAt > cloud.updatedAt);
           const record = useLocal ? recovery : cloud;
-          if (record) found.push({ record, value: await decrypt<Memory>(secret, record.envelope, memoryContext(id)), local: Boolean(useLocal) });
+          if (record) found.push({ record, value: await decrypt<Memory>(secret, record.envelope, memoryContextV2(id)), local: Boolean(useLocal) });
         } catch { warnings.push(id); }
       }));
     }
@@ -101,27 +106,43 @@ export function Memories() {
     if (warnings.length) setError(`${warnings.length} memories could not be opened. Their encrypted files are kept. Check your connection and refresh the list.`);
   };
   const unlock = async (event: React.FormEvent) => {
-    event.preventDefault(); setError(''); setMessage(''); setBusy(true);
-    const generation = epoch.current;
+    event.preventDefault(); setError(''); setMessage(''); setBusy(true); const generation = epoch.current;
     try {
-      if (!index) throw new Error('The private storage is still loading.');
+      if (!index) throw new Error('Private storage is still loading.');
       let data = index, secret: CryptoKey;
-      if (!data.config) {
+      if (recoveryMode) {
+        if (newPassword.length < 16 || newPassword.length > 256 || newPassword !== newPasswordConfirm) throw new Error('New passphrases must match and contain 16–256 characters.');
+        if (!data.config) throw new Error('Recovery configuration was not found.');
+        if (recoveryMode === 'recovery') {
+          const nextConfig = await rotatePasswordWithRecovery(data.config, recoveryCode, newPassword);
+          await request({ action: 'update-config', config: nextConfig }); secret = await unlockWithPasswordV2(newPassword, nextConfig); data = { ...data, config: nextConfig };
+        } else {
+          const result = await rotatePasswordWithBackupCode(data.config, recoveryCode, newPassword);
+          await request({ action: 'update-config', config: result.config }); secret = result.key; data = { ...data, config: result.config };
+        }
+      } else if (!data.config) {
         if (passphrase.length < 16 || passphrase.length > 256) throw new Error('Use a separate passphrase of 16–256 characters.');
         if (passphrase !== confirm) throw new Error('The two passphrases do not match.');
-        const created = await createConfig(passphrase);
-        await request({ action: 'initialize', config: created.config });
-        data = { ...data, config: created.config }; secret = created.key;
+        const created = await createConfigV2(passphrase); await request({ action: 'initialize', config: created.config });
+        setRecoveryBundle(created.recovery); setPendingSetup({ key: created.key, config: created.config }); return;
       } else {
-        try { secret = await unlockConfig(passphrase, data.config); }
-        catch { throw new Error('That passphrase could not unlock Memories. Use the separate Memories passphrase.'); }
+        try { secret = await unlockWithPasswordV2(passphrase, data.config); } catch { throw new Error('Passphrase incorrect. Try your recovery key or one-time backup code.'); }
       }
       if (generation !== epoch.current) return;
-      setPassphrase(''); setConfirm(''); setIndex(data); setKey(secret);
+      setPassphrase(''); setConfirm(''); setRecoveryCode(''); setNewPassword(''); setNewPasswordConfirm(''); setRecoveryMode(null); setIndex(data); setKey(secret);
       await list(secret, data, generation);
-    } catch (e) {
-      if (generation === epoch.current) { setError((e as Error).message); request().then(setIndex).catch(() => {}); }
-    } finally { if (generation === epoch.current) setBusy(false); }
+    } catch (e) { if (generation === epoch.current) { setError((e as Error).message); request().then(setIndex).catch(() => {}); } }
+    finally { if (generation === epoch.current) setBusy(false); }
+  };
+  const finishRecoverySetup = async () => {
+    if (!pendingSetup || !index) return;
+    const data = { ...index, config: pendingSetup.config }; setKey(pendingSetup.key); setIndex(data); setRecoveryBundle(null); setPendingSetup(null);
+    await list(pendingSetup.key, data, epoch.current);
+  };
+  const downloadRecovery = () => {
+    if (!recoveryBundle) return;
+    const content = ['FARHAN PRIVATE MEMORIES — RECOVERY KIT','Keep offline and private. Never upload to GitHub or share it.','','RECOVERY KEY:',recoveryBundle.recoveryKey,'','ONE-TIME BACKUP CODES:',...recoveryBundle.backupCodes.map((code, i) => (i + 1) + '. ' + code),'','If password and all recovery methods are lost, encrypted memories cannot be decrypted.'].join('\n');
+    const url = URL.createObjectURL(new Blob([content], { type: 'text/plain' })); const a = document.createElement('a'); a.href = url; a.download = 'farhan-memories-recovery-kit.txt'; a.click(); setTimeout(() => URL.revokeObjectURL(url), 1000);
   };
   const action = async (fn: () => Promise<void>) => {
     setBusy(true); setError(''); setMessage(''); const generation = epoch.current;
@@ -143,7 +164,7 @@ export function Memories() {
     const generation = epoch.current;
     const note = asNew ? { ...selected, record: { ...selected.record, id: crypto.randomUUID(), revision: null, createdAt: '', updatedAt: '' } } : selected;
     try { await persist(note, key); } catch { setDeviceSaved(false); }
-    const envelope = await encrypt(key, note.value, memoryContext(note.record.id));
+    const envelope = await encrypt(key, note.value, memoryContextV2(note.record.id));
     if (envelope.data.length > 2266668) throw new Error('This memory is too large. Remove a photo or split it into two memories.');
     const record = await request({ action: 'save', id: note.record.id, revision: note.record.revision, envelope }) as MemoryRecord;
     if (generation !== epoch.current) return;
@@ -176,20 +197,38 @@ export function Memories() {
     const link = document.createElement('a'); link.href = url; link.download = `memories-encrypted-${new Date().toISOString().slice(0, 10)}.json`; link.click(); setTimeout(() => URL.revokeObjectURL(url), 1000);
     setMessage('Encrypted backup downloaded. Keep it with your separate passphrase in a safe place.');
   });
+  if (recoveryBundle) return <section className="memories-gate studio-paper">
+    <div className="memories-seal"><ShieldCheck size={30} /></div><p className="studio-eyebrow">SAVE YOUR RECOVERY KIT</p>
+    <h2>Three layers of recovery.</h2><p>Your memories use a random encryption key. Save these recovery methods now; this kit is shown only once.</p>
+    <label>Primary recovery key — 64 characters</label><div className="memories-recovery-code">{recoveryBundle.recoveryKey}</div>
+    <button type="button" onClick={() => navigator.clipboard.writeText(recoveryBundle.recoveryKey)}>Copy recovery key</button>
+    <label>10 one-time backup codes</label><div className="memories-backup-codes">{recoveryBundle.backupCodes.map((code, i) => <span key={code}>{i + 1}. {code}</span>)}</div>
+    <button type="button" onClick={downloadRecovery}><Download size={16} /> Download recovery kit</button>
+    <p className="memories-notice">Keep an offline copy (USB / printed / password manager secure note). Never put this kit in the public GitHub repository.</p>
+    <label className="memories-confirm-save"><input type="checkbox" id="recovery-saved-confirm" /> I saved the recovery key and backup codes somewhere safe.</label>
+    <button className="studio-primary" onClick={() => { const check = document.getElementById('recovery-saved-confirm') as HTMLInputElement | null; if (check?.checked) void finishRecoverySetup(); else setError('Confirm that you saved your recovery kit first.'); }}>I saved it — open Private Memories</button>
+    {error && <p className="studio-error" role="alert">{error}</p>}
+  </section>;
   if (!key) return <section className="memories-gate studio-paper">
     <div className="memories-seal"><BookHeart size={30} /></div><p className="studio-eyebrow">ONLY FOR YOU</p>
     <h2>A little space for your heart.</h2><p>Private words. Personal photos. Moments worth keeping.</p>
-    <p>Your text and photos are encrypted on this device before saving. They stay separate from your public writing and are never sent to the AI editor.</p>
-    {index && <form onSubmit={unlock}>
-      <label htmlFor="memories-key">{index.config ? 'Memories passphrase' : 'Create a separate Memories passphrase'}</label>
-      <input id="memories-key" type="password" autoComplete={index.config ? 'current-password' : 'new-password'} value={passphrase} onChange={event => setPassphrase(event.target.value)} required minLength={index.config ? undefined : 16} maxLength={256} disabled={busy} />
-      {!index.config && <><label htmlFor="memories-confirm">Repeat passphrase</label><input id="memories-confirm" type="password" autoComplete="new-password" value={confirm} onChange={event => setConfirm(event.target.value)} required minLength={16} maxLength={256} disabled={busy} />
-        <p className="memories-notice">Keep this passphrase safe. It cannot be reset to recover your memories. Use something different from your Studio password.</p></>}
-      <button className="studio-primary" disabled={busy || !index}><LockKeyhole size={17} />{busy ? 'Opening your space…' : index.config ? 'Unlock Memories' : 'Create my private space'}</button>
+    <p>New memories use a random encryption key, separate from your password. Cloud data and device recovery copies stay encrypted.</p>
+    {!recoveryMode ? <form onSubmit={unlock}>
+      <label htmlFor="memories-key">{index?.config ? 'Memories passphrase' : 'Create a separate Memories passphrase'}</label>
+      <input id="memories-key" type="password" autoComplete={index?.config ? 'current-password' : 'new-password'} value={passphrase} onChange={event => setPassphrase(event.target.value)} required minLength={index?.config ? undefined : 16} maxLength={256} disabled={busy} />
+      {!index?.config && <><label htmlFor="memories-confirm">Repeat passphrase</label><input id="memories-confirm" type="password" autoComplete="new-password" value={confirm} onChange={event => setConfirm(event.target.value)} required minLength={16} maxLength={256} disabled={busy} /><p className="memories-notice">A recovery key and 10 one-time backup codes will be generated after setup. Save them offline.</p></>}
+      <button className="studio-primary" disabled={busy || !index}><LockKeyhole size={17} />{busy ? 'Opening your space…' : index?.config ? 'Unlock Memories' : 'Create private space'}</button>
+    </form> : <form onSubmit={unlock}>
+      <h3>{recoveryMode === 'recovery' ? 'Recover with your recovery key' : 'Recover with a one-time backup code'}</h3>
+      <label htmlFor="memories-recovery-code">{recoveryMode === 'recovery' ? 'Recovery key' : 'Unused backup code'}</label><input id="memories-recovery-code" value={recoveryCode} onChange={e => setRecoveryCode(e.target.value)} autoComplete="off" required />
+      <label htmlFor="memories-new-password">New Memories passphrase</label><input id="memories-new-password" type="password" value={newPassword} onChange={e => setNewPassword(e.target.value)} minLength={16} maxLength={256} required />
+      <label htmlFor="memories-new-password-confirm">Repeat new passphrase</label><input id="memories-new-password-confirm" type="password" value={newPasswordConfirm} onChange={e => setNewPasswordConfirm(e.target.value)} minLength={16} maxLength={256} required />
+      <button className="studio-primary" disabled={busy}>{busy ? 'Recovering…' : 'Recover and set new passphrase'}</button>
+      <button type="button" onClick={() => { setRecoveryMode(null); setRecoveryCode(''); setNewPassword(''); setNewPasswordConfirm(''); }}>Back to password</button>
     </form>}
-    {!index && !error && <p role="status">Loading private storage…</p>}
-    {error && <p className="studio-error" role="alert">{error}</p>}{message && <p role="status">{message}</p>}
-    <p className="memories-caption"><ShieldCheck size={15} /> Studio login + your separate encryption passphrase</p>
+    {index?.config && !recoveryMode && <div className="memories-recovery-options"><button type="button" onClick={() => setRecoveryMode('recovery')}>Forgot passphrase? Use recovery key</button><button type="button" onClick={() => setRecoveryMode('backup')}>Use one-time backup code</button></div>}
+    {!index && !error && <p role="status">Loading private storage…</p>}{error && <p className="studio-error" role="alert">{error}</p>}{message && <p role="status">{message}</p>}
+    <p className="memories-caption"><ShieldCheck size={15} /> Studio login + separate encryption key + offline recovery kit</p>
   </section>;
   const matching = notes.filter(note => `${note.value.title} ${note.value.text}`.toLocaleLowerCase().includes(query.toLocaleLowerCase()));
   return <section className="memories-space">
