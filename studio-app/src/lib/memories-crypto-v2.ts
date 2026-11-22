@@ -126,6 +126,18 @@ export async function rotatePasswordWithBackupCode(config: MemoryConfigV2, backu
 export async function rotatePasswordWithCurrentKey(config: MemoryConfigV2, password: string, newPassword: string) {
   return rotatePasswordV2(config, password, newPassword);
 }
+export async function regenerateBackupCodes(config: MemoryConfigV2, currentPassword: string): Promise<{ config: MemoryConfigV2; backupCodes: string[] }> {
+  validateConfigV2(config);
+  const dek = await unwrapRaw(config.password.wrappedKey, await passwordKey(currentPassword, fromBase64(config.password.salt)), PASSWORD_CONTEXT);
+  const backupCodes: string[] = [], backupSlots: RecoverySlot[] = [];
+  for (let i = 0; i < 10; i++) {
+    const bytes = random(16), id = toHex(random(8)), code = toHex(bytes);
+    const context = BACKUP_CONTEXT(id), wrapping = await codeKey(bytes, context);
+    backupCodes.push(code);
+    backupSlots.push({ id, wrappedKey: await wrapDataKey(dek, wrapping, context), used: false });
+  }
+  return { config: { ...config, backupCodes: backupSlots }, backupCodes };
+}
 export async function regenerateRecovery(config: MemoryConfigV2, currentPassword: string): Promise<{ config: MemoryConfigV2; recoveryKey: string }> {
   const dek = await unwrapRaw(config.password.wrappedKey, await passwordKey(currentPassword, fromBase64(config.password.salt)), PASSWORD_CONTEXT);
   const bytes = random(32), wrapping = await codeKey(bytes, RECOVERY_CONTEXT);
