@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { BookHeart, Download, ImagePlus, LockKeyhole, PenLine, Plus, Save, ShieldCheck, X } from 'lucide-react';
-import { createConfigV2, decrypt, emptyMemory, encrypt, memoryContextV2, unlockWithPasswordV2, rotatePasswordV2, rotatePasswordWithRecovery, rotatePasswordWithBackupCode, regenerateRecovery, unlockWithRecoveryKey, type MemoryConfigV2, type RecoveryBundle } from '@/lib/memories-crypto-v2';
-import type { Memory, MemoryKind, MemoryRecord } from '@/lib/memories-crypto';
+import { createConfigV2, decrypt, encrypt, memoryContextV2, unlockWithPasswordV2, rotatePasswordV2, rotatePasswordWithRecovery, rotatePasswordWithBackupCode, regenerateRecovery, unlockWithRecoveryKey, type MemoryConfigV2, type RecoveryBundle } from '@/lib/memories-crypto-v2';
+import { emptyMemory, type Memory, type MemoryKind, type MemoryRecord } from '@/lib/memories-crypto';
 import { optimizePhoto } from '@/lib/studio-images';
 import { parseStudioResponse } from '@/lib/studio-response';
 import './memories.css';
