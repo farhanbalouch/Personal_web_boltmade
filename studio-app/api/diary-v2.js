@@ -67,7 +67,8 @@ function validateConfig(config) {
     recovery: { wrappedKey: config.recovery.wrappedKey },
     backupCodes: config.backupCodes.map(item => ({ id: item.id, used: item.used, wrappedKey: item.wrappedKey })) };
 }
-\nexport default async function handler(req, res) {
+
+export default async function handler(req, res) {
   res.setHeader('Cache-Control', 'no-store');
   res.setHeader('X-Robots-Tag', 'noindex, nofollow, noarchive');
   res.setHeader('X-Content-Type-Options', 'nosniff');
