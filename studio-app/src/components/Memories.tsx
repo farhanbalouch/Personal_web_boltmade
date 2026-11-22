@@ -193,9 +193,9 @@ export function Memories() {
     for (const item of data.entries) { if (generation !== epoch.current) return; entries.push(await request({ action: 'read', id: item.id })); }
     const deviceDrafts = Object.keys(localStorage).filter(name => name.startsWith(prefix)).map(name => JSON.parse(localStorage.getItem(name)!));
     if (generation !== epoch.current) return;
-    const url = URL.createObjectURL(new Blob([JSON.stringify({ format: 'farhan-memories-encrypted-backup-v1', exportedAt: new Date().toISOString(), config: data.config, entries, deviceDrafts })], { type: 'application/json' }));
+    const url = URL.createObjectURL(new Blob([JSON.stringify({ format: 'farhan-memories-encrypted-backup-v2', exportedAt: new Date().toISOString(), config: data.config, entries, deviceDrafts })], { type: 'application/json' }));
     const link = document.createElement('a'); link.href = url; link.download = `memories-encrypted-${new Date().toISOString().slice(0, 10)}.json`; link.click(); setTimeout(() => URL.revokeObjectURL(url), 1000);
-    setMessage('Encrypted backup downloaded. Keep it with your separate passphrase in a safe place.');
+    setMessage('Encrypted backup downloaded. Keep it with your recovery kit in a safe place.');
   });
   if (recoveryBundle) return <section className="memories-gate studio-paper">
     <div className="memories-seal"><ShieldCheck size={30} /></div><p className="studio-eyebrow">SAVE YOUR RECOVERY KIT</p>
