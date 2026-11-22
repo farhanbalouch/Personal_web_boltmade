@@ -9,11 +9,9 @@ export type MemoryConfigV2 = {
 export type RecoveryBundle = { recoveryKey: string; backupCodes: string[] };
 const enc = new TextEncoder();
 const ITERATIONS = 600000;
-const KEY_CONTEXT = 'farhan-memories:v2:data-key';
 const PASSWORD_CONTEXT = 'farhan-memories:v2:password-wrap';
 const RECOVERY_CONTEXT = 'farhan-memories:v2:recovery-wrap';
 const BACKUP_CONTEXT = (id: string) => `farhan-memories:v2:backup-code:${id}`;
-
 export function toBase64(bytes: Uint8Array) {
   let value = '';
   for (let i = 0; i < bytes.length; i += 8192) value += String.fromCharCode(...bytes.subarray(i, i + 8192));
@@ -21,12 +19,14 @@ export function toBase64(bytes: Uint8Array) {
 }
 export function fromBase64(value: string) { return Uint8Array.from(atob(value), c => c.charCodeAt(0)); }
 const toHex = (bytes: Uint8Array) => [...bytes].map(x => x.toString(16).padStart(2, '0')).join('');
-const fromHex = (value: string) => {
-  if (!/^[a-f0-9]{64}$/i.test(value)) throw new Error('Recovery key format is invalid.');
+function fromHex(value: string, bytes: number) {
+  if (typeof value !== 'string' || !new RegExp(`^[a-f0-9]{${bytes * 2}}$`, 'i').test(value)) throw new Error('Recovery code format is invalid.');
   return Uint8Array.from(value.match(/.{2}/g)!, x => parseInt(x, 16));
-};
-async function aesKey(raw: Uint8Array, extractable = false) {
-  return crypto.subtle.importKey('raw', raw, { name: 'AES-GCM' }, extractable, ['encrypt', 'decrypt']);
+}
+function random(length: number) { return crypto.getRandomValues(new Uint8Array(length)); }
+async function aesKey(raw: Uint8Array) {
+  if (raw.length !== 32) throw new Error('Invalid data key.');
+  return crypto.subtle.importKey('raw', raw, { name: 'AES-GCM' }, false, ['encrypt', 'decrypt']);
 }
 async function passwordKey(password: string, salt: Uint8Array) {
   if (password.length < 16 || password.length > 256) throw new Error('Use a passphrase of 16–256 characters.');
@@ -34,13 +34,13 @@ async function passwordKey(password: string, salt: Uint8Array) {
   return crypto.subtle.deriveKey({ name: 'PBKDF2', salt, iterations: ITERATIONS, hash: 'SHA-256' }, material,
     { name: 'AES-GCM', length: 256 }, false, ['encrypt', 'decrypt']);
 }
-async function recoveryKey(secret: Uint8Array, info: string) {
+async function codeKey(secret: Uint8Array, info: string) {
   const material = await crypto.subtle.importKey('raw', secret, 'HKDF', false, ['deriveKey']);
   return crypto.subtle.deriveKey({ name: 'HKDF', hash: 'SHA-256', salt: enc.encode('Farhan Memories Recovery v2'), info: enc.encode(info) },
     material, { name: 'AES-GCM', length: 256 }, false, ['encrypt', 'decrypt']);
 }
 export async function encrypt(key: CryptoKey, value: unknown, context: string): Promise<Envelope> {
-  const iv = crypto.getRandomValues(new Uint8Array(12));
+  const iv = random(12);
   const data = await crypto.subtle.encrypt({ name: 'AES-GCM', iv, additionalData: enc.encode(context) }, key, enc.encode(JSON.stringify(value)));
   return { version: 1, iv: toBase64(iv), data: toBase64(new Uint8Array(data)) };
 }
@@ -49,112 +49,89 @@ export async function decrypt<T>(key: CryptoKey, value: Envelope, context: strin
   const bytes = await crypto.subtle.decrypt({ name: 'AES-GCM', iv: fromBase64(value.iv), additionalData: enc.encode(context) }, key, fromBase64(value.data));
   return JSON.parse(new TextDecoder().decode(bytes)) as T;
 }
-async function wrap(rawDek: Uint8Array, key: CryptoKey, context: string) {
-  return encrypt(key, { key: toBase64(rawDek) }, context);
+async function wrapRaw(raw: Uint8Array, wrappingKey: CryptoKey, context: string) {
+  return encrypt(wrappingKey, { key: toBase64(raw) }, context);
 }
-async function unwrap(envelope: Envelope, key: CryptoKey, context: string) {
-  const payload = await decrypt<{ key: string }>(key, envelope, context);
-  const raw = fromBase64(payload.key);
-  if (raw.length !== 32) throw new Error('The recovery material is invalid.');
-  return aesKey(raw);
+async function unwrapRaw(envelope: Envelope, wrappingKey: CryptoKey, context: string) {
+  const payload = await decrypt<{ key: string }>(wrappingKey, envelope, context);
+  return fromBase64(payload.key);
 }
-function newSecret(length: number) { return crypto.getRandomValues(new Uint8Array(length)); }
-
+async function wrapDataKey(raw: Uint8Array, wrappingKey: CryptoKey, context: string) { return wrapRaw(raw, wrappingKey, context); }
 export async function createConfigV2(password: string): Promise<{ key: CryptoKey; config: MemoryConfigV2; recovery: RecoveryBundle }> {
-  const dek = newSecret(32);
-  const key = await aesKey(dek);
-  const passwordSalt = newSecret(16);
-  const passwordWrapKey = await passwordKey(password, passwordSalt);
-  const recoveryBytes = newSecret(32);
-  const recoveryWrapKey = await recoveryKey(recoveryBytes, RECOVERY_CONTEXT);
-  const backupCodes: string[] = [];
-  const backupSlots: RecoverySlot[] = [];
+  const dek = random(32), key = await aesKey(dek), salt = random(16);
+  const passwordWrap = await passwordKey(password, salt);
+  const recoveryBytes = random(32), recoveryWrap = await codeKey(recoveryBytes, RECOVERY_CONTEXT);
+  const backupCodes: string[] = [], backupSlots: RecoverySlot[] = [];
   for (let i = 0; i < 10; i++) {
-    const bytes = newSecret(16);
-    const id = toHex(newSecret(8));
-    const code = toHex(bytes);
-    const wrapKey = await recoveryKey(bytes, BACKUP_CONTEXT(id));
+    const bytes = random(16), id = toHex(random(8)), code = toHex(bytes);
+    const wrapping = await codeKey(bytes, BACKUP_CONTEXT(id));
     backupCodes.push(code);
-    backupSlots.push({ id, wrappedKey: await wrap(dek, wrapKey, BACKUP_CONTEXT(id)), used: false });
+    backupSlots.push({ id, wrappedKey: await wrapDataKey(dek, wrapping, BACKUP_CONTEXT(id)), used: false });
   }
-  const config: MemoryConfigV2 = {
-    version: 2,
-    password: { salt: toBase64(passwordSalt), iterations: ITERATIONS, wrappedKey: await wrap(dek, passwordWrapKey, PASSWORD_CONTEXT) },
-    recovery: { wrappedKey: await wrap(dek, recoveryWrapKey, RECOVERY_CONTEXT) },
-    backupCodes: backupSlots,
+  return {
+    key,
+    config: { version: 2, password: { salt: toBase64(salt), iterations: ITERATIONS, wrappedKey: await wrapDataKey(dek, passwordWrap, PASSWORD_CONTEXT) },
+      recovery: { wrappedKey: await wrapDataKey(dek, recoveryWrap, RECOVERY_CONTEXT) }, backupCodes: backupSlots },
+    recovery: { recoveryKey: toHex(recoveryBytes), backupCodes },
   };
-  return { key, config, recovery: { recoveryKey: toHex(recoveryBytes), backupCodes } };
-}
-export async function unlockWithPasswordV2(password: string, config: MemoryConfigV2) {
-  validateConfigV2(config);
-  const key = await passwordKey(password, fromBase64(config.password.salt));
-  return unwrap(config.password.wrappedKey, key, PASSWORD_CONTEXT);
-}
-export async function unlockWithRecoveryKey(config: MemoryConfigV2, code: string) {
-  validateConfigV2(config);
-  const derived = await recoveryKey(fromHex(code.trim().replace(/\s/g, '')), RECOVERY_CONTEXT);
-  return unwrap(config.recovery.wrappedKey, derived, RECOVERY_CONTEXT);
-}
-export async function unlockWithBackupCode(config: MemoryConfigV2, code: string) {
-  validateConfigV2(config);
-  const normalized = code.trim().replace(/\s/g, '').toLowerCase();
-  if (!/^[a-f0-9]{32}$/.test(normalized)) throw new Error('Backup code format is invalid.');
-  const slot = config.backupCodes.find(item => !item.used && item.id && item.wrappedKey);
-  // Check every unused slot: code-to-slot mapping is intentionally not disclosed.
-  for (const candidate of config.backupCodes.filter(item => !item.used)) {
-    const derived = await recoveryKey(fromHex(normalized.padEnd(64, '0').slice(0, 64)), BACKUP_CONTEXT(candidate.id));
-    try { return { key: await unwrap(candidate.wrappedKey, derived, BACKUP_CONTEXT(candidate.id)), usedId: candidate.id }; } catch { /* Try next slot. */ }
-  }
-  void slot;
-  throw new Error('That backup code is invalid or has already been used.');
-}
-export async function changePasswordV2(config: MemoryConfigV2, key: CryptoKey, newPassword: string) {
-  validateConfigV2(config);
-  const salt = newSecret(16);
-  const wrappingKey = await passwordKey(newPassword, salt);
-  const raw = new Uint8Array(await crypto.subtle.exportKey('raw', await exportableClone(key)));
-  return { ...config, password: { salt: toBase64(salt), iterations: ITERATIONS, wrappedKey: await wrap(raw, wrappingKey, PASSWORD_CONTEXT) } };
-}
-async function exportableClone(key: CryptoKey) {
-  // WebCrypto does not allow exporting the non-extractable live DEK. Re-wrap by recovering it from an existing slot instead.
-  throw new Error('Use rewrapPasswordV2 with the original password or recovery key.');
-}
-export async function rewrapPasswordV2(config: MemoryConfigV2, dek: CryptoKey, newPassword: string) {
-  validateConfigV2(config);
-  const raw = await decryptRawKeyForRewrap(dek);
-  const salt = newSecret(16), wrappingKey = await passwordKey(newPassword, salt);
-  return { ...config, password: { salt: toBase64(salt), iterations: ITERATIONS, wrappedKey: await wrap(raw, wrappingKey, PASSWORD_CONTEXT) } };
-}
-async function decryptRawKeyForRewrap(_key: CryptoKey): Promise<Uint8Array> {
-  throw new Error('Key rotation requires an exportable in-memory key handle; use rotatePasswordV2.');
-}
-export async function rotatePasswordV2(config: MemoryConfigV2, currentPassword: string, newPassword: string) {
-  const passwordWrapKey = await passwordKey(currentPassword, fromBase64(config.password.salt));
-  const payload = await decrypt<{ key: string }>(passwordWrapKey, config.password.wrappedKey, PASSWORD_CONTEXT);
-  const raw = fromBase64(payload.key);
-  const salt = newSecret(16), nextKey = await passwordKey(newPassword, salt);
-  return { ...config, password: { salt: toBase64(salt), iterations: ITERATIONS, wrappedKey: await wrap(raw, nextKey, PASSWORD_CONTEXT) } };
-}
-export async function rotatePasswordWithRecovery(config: MemoryConfigV2, recoveryCode: string, newPassword: string) {
-  const wrapKey = await recoveryKey(fromHex(recoveryCode.trim().replace(/\s/g, '')), RECOVERY_CONTEXT);
-  const payload = await decrypt<{ key: string }>(wrapKey, config.recovery.wrappedKey, RECOVERY_CONTEXT);
-  const raw = fromBase64(payload.key);
-  const salt = newSecret(16), nextKey = await passwordKey(newPassword, salt);
-  return { ...config, password: { salt: toBase64(salt), iterations: ITERATIONS, wrappedKey: await wrap(raw, nextKey, PASSWORD_CONTEXT) } };
-}
-export async function rotatePasswordWithBackupCode(config: MemoryConfigV2, backupCode: string, newPassword: string) {
-  const unlocked = await unlockWithBackupCode(config, backupCode);
-  const slot = config.backupCodes.find(item => item.id === unlocked.usedId)!;
-  const payload = await decrypt<{ key: string }>(slot.wrappedKey, await recoveryKey(fromHex(backupCode.trim().replace(/\s/g, '').toLowerCase()), BACKUP_CONTEXT(slot.id)), BACKUP_CONTEXT(slot.id));
-  const raw = fromBase64(payload.key), salt = newSecret(16), nextKey = await passwordKey(newPassword, salt);
-  return { config: { ...config, password: { salt: toBase64(salt), iterations: ITERATIONS, wrappedKey: await wrap(raw, await passwordKey(newPassword, salt), PASSWORD_CONTEXT) },
-    backupCodes: config.backupCodes.map(item => item.id === slot.id ? { ...item, used: true } : item) }, key: unlocked.key };
 }
 export function validateConfigV2(config: MemoryConfigV2) {
   if (!config || config.version !== 2 || config.password?.iterations !== ITERATIONS ||
-      fromBase64(config.password.salt).length !== 16 || config.backupCodes?.length !== 10 ||
-      !config.password.wrappedKey || !config.recovery?.wrappedKey ||
+      fromBase64(config.password.salt).length !== 16 || !config.password.wrappedKey || !config.recovery?.wrappedKey ||
+      !Array.isArray(config.backupCodes) || config.backupCodes.length !== 10 ||
       config.backupCodes.some(item => !/^[a-f0-9]{16}$/.test(item.id) || typeof item.used !== 'boolean' || !item.wrappedKey))
     throw new Error('Unsupported or damaged Memories recovery configuration.');
+}
+export async function unlockWithPasswordV2(password: string, config: MemoryConfigV2) {
+  validateConfigV2(config);
+  const wrapping = await passwordKey(password, fromBase64(config.password.salt));
+  return aesKey(await unwrapRaw(config.password.wrappedKey, wrapping, PASSWORD_CONTEXT));
+}
+export async function unlockWithRecoveryKey(config: MemoryConfigV2, code: string) {
+  validateConfigV2(config);
+  const wrapping = await codeKey(fromHex(code.trim().replace(/\s/g, ''), 32), RECOVERY_CONTEXT);
+  return aesKey(await unwrapRaw(config.recovery.wrappedKey, wrapping, RECOVERY_CONTEXT));
+}
+async function unlockWithBackupSlot(config: MemoryConfigV2, code: string) {
+  validateConfigV2(config);
+  const bytes = fromHex(code.trim().replace(/\s/g, ''), 16);
+  for (const slot of config.backupCodes.filter(item => !item.used)) {
+    const wrapping = await codeKey(bytes, BACKUP_CONTEXT(slot.id));
+    try { return { key: await aesKey(await unwrapRaw(slot.wrappedKey, wrapping, BACKUP_CONTEXT(slot.id))), usedId: slot.id }; }
+    catch { /* This code belongs to a different slot. */ }
+  }
+  throw new Error('That backup code is invalid or has already been used.');
+}
+export async function rotatePasswordV2(config: MemoryConfigV2, currentPassword: string, newPassword: string) {
+  const dek = await unwrapRaw(config.password.wrappedKey, await passwordKey(currentPassword, fromBase64(config.password.salt)), PASSWORD_CONTEXT);
+  const salt = random(16), wrapping = await passwordKey(newPassword, salt);
+  return { ...config, password: { salt: toBase64(salt), iterations: ITERATIONS, wrappedKey: await wrapRaw(dek, wrapping, PASSWORD_CONTEXT) } };
+}
+export async function rotatePasswordWithRecovery(config: MemoryConfigV2, recoveryCode: string, newPassword: string) {
+  const wrapping = await codeKey(fromHex(recoveryCode.trim().replace(/\s/g, ''), 32), RECOVERY_CONTEXT);
+  const dek = await unwrapRaw(config.recovery.wrappedKey, wrapping, RECOVERY_CONTEXT);
+  const salt = random(16), next = await passwordKey(newPassword, salt);
+  return { ...config, password: { salt: toBase64(salt), iterations: ITERATIONS, wrappedKey: await wrapRaw(dek, next, PASSWORD_CONTEXT) } };
+}
+export async function rotatePasswordWithBackupCode(config: MemoryConfigV2, backupCode: string, newPassword: string) {
+  const unlocked = await unlockWithBackupSlot(config, backupCode);
+  const salt = random(16), next = await passwordKey(newPassword, salt);
+  const raw = await unwrapRaw(unlocked.key ? (config.backupCodes.find(x => x.id === unlocked.usedId)!).wrappedKey : config.password.wrappedKey,
+    await codeKey(fromHex(backupCode.trim().replace(/\s/g, ''), 16), BACKUP_CONTEXT(unlocked.usedId)), BACKUP_CONTEXT(unlocked.usedId));
+  const updated = { ...config, password: { salt: toBase64(salt), iterations: ITERATIONS, wrappedKey: await wrapRaw(raw, next, PASSWORD_CONTEXT) },
+    backupCodes: config.backupCodes.map(slot => slot.id === unlocked.usedId ? { ...slot, used: true } : slot) };
+  return { config: updated, key: unlocked.key };
+}
+export async function rotatePasswordWithCurrentKey(config: MemoryConfigV2, password: string, newPassword: string) {
+  return rotatePasswordV2(config, password, newPassword);
+}
+export async function regenerateRecovery(config: MemoryConfigV2, currentPassword: string) {
+  const dek = await unwrapRaw(config.password.wrappedKey, await passwordKey(currentPassword, fromBase64(config.password.salt)), PASSWORD_CONTEXT);
+  const bytes = random(32), wrapping = await codeKey(bytes, RECOVERY_CONTEXT);
+  return { config: { ...config, recovery: { wrappedKey: await wrapRaw(dek, wrapping, RECOVERY_CONTEXT) } }, recoveryKey: toHex(bytes) };
+}
+export async function consumeBackupCode(config: MemoryConfigV2, code: string) {
+  const result = await unlockWithBackupSlot(config, code);
+  return { key: result.key, config: { ...config, backupCodes: config.backupCodes.map(slot => slot.id === result.usedId ? { ...slot, used: true } : slot) } };
 }
 export const memoryContextV2 = (id: string) => `farhan-memories:v2:${id}`;
