@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { BookHeart, Download, ImagePlus, LockKeyhole, PenLine, Plus, Save, ShieldCheck, X } from 'lucide-react';
-import { createConfigV2, decrypt, emptyMemory, encrypt, memoryContextV2, unlockWithPasswordV2, rotatePasswordWithRecovery, rotatePasswordWithBackupCode, type MemoryConfigV2, type RecoveryBundle } from '@/lib/memories-crypto-v2';
+import { createConfigV2, decrypt, emptyMemory, encrypt, memoryContextV2, unlockWithPasswordV2, rotatePasswordV2, rotatePasswordWithRecovery, rotatePasswordWithBackupCode, regenerateRecovery, type MemoryConfigV2, type RecoveryBundle } from '@/lib/memories-crypto-v2';
 import type { Memory, MemoryKind, MemoryRecord } from '@/lib/memories-crypto';
 import { optimizePhoto } from '@/lib/studio-images';
 import { parseStudioResponse } from '@/lib/studio-response';
@@ -24,6 +24,9 @@ export function Memories() {
   const [recoveryCode, setRecoveryCode] = useState(''), [newPassword, setNewPassword] = useState(''), [newPasswordConfirm, setNewPasswordConfirm] = useState('');
   const [recoveryBundle, setRecoveryBundle] = useState<RecoveryBundle | null>(null);
   const [pendingSetup, setPendingSetup] = useState<{ key: CryptoKey; config: MemoryConfigV2 } | null>(null);
+  const [securityOpen, setSecurityOpen] = useState(false), [currentPassword, setCurrentPassword] = useState('');
+  const [securityPassword, setSecurityPassword] = useState(''), [securityPasswordConfirm, setSecurityPasswordConfirm] = useState('');
+  const [newRecoveryKey, setNewRecoveryKey] = useState('');
   const [notes, setNotes] = useState<Note[]>([]), [selected, setSelected] = useState<Note | null>(null);
   const [editing, setEditing] = useState(false), [query, setQuery] = useState('');
   const [busy, setBusy] = useState(false), [error, setError] = useState(''), [message, setMessage] = useState('');
@@ -186,6 +189,25 @@ export function Memories() {
     }
     if (generation === epoch.current) update({ ...selected.value, photos: [...selected.value.photos, ...photos] });
   });
+  const changeMemoriesPassword = (event: React.FormEvent) => {
+    event.preventDefault();
+    return action(async () => {
+      if (!index?.config || !currentPassword) throw new Error('Enter your current Memories passphrase.');
+      if (securityPassword.length < 16 || securityPassword.length > 256 || securityPassword !== securityPasswordConfirm)
+        throw new Error('New passphrases must match and contain 16–256 characters.');
+      const config = await rotatePasswordV2(index.config, currentPassword, securityPassword);
+      await request({ action: 'update-config', config });
+      setIndex({ ...index, config }); setCurrentPassword(''); setSecurityPassword(''); setSecurityPasswordConfirm('');
+      setMessage('Memories passphrase changed. Your encrypted memories were not re-encrypted or altered.');
+    });
+  };
+  const renewRecoveryKey = () => action(async () => {
+    if (!index?.config || !currentPassword) throw new Error('Enter your current Memories passphrase first.');
+    const result = await regenerateRecovery(index.config, currentPassword);
+    await request({ action: 'update-config', config: result.config });
+    setIndex({ ...index, config: result.config }); setNewRecoveryKey(result.recoveryKey);
+    setMessage('New recovery key generated. The previous recovery key is now invalid; existing one-time backup codes still work.');
+  });
   const backup = () => action(async () => {
     await guard(); const generation = epoch.current;
     const data = await request() as Index;
@@ -234,9 +256,23 @@ export function Memories() {
   return <section className="memories-space">
     <div className="memories-toolbar"><span><ShieldCheck size={16} /> Encrypted & private</span><div>
       <button disabled={busy} onClick={backup}><Download size={16} /> Encrypted backup</button>
+      <button disabled={busy} onClick={() => { setSecurityOpen(!securityOpen); setError(''); setMessage(''); }}><ShieldCheck size={16} /> Security & recovery</button>
       <button disabled={busy} onClick={() => action(async () => { await guard(); lock(); })}><LockKeyhole size={16} /> Lock</button>
       <button className="studio-primary" disabled={busy} onClick={() => fresh()}><Plus size={16} /> New memory</button>
     </div></div>
+    {securityOpen && <section className="memories-security-panel studio-paper">
+      <div className="memories-note-actions"><strong>Security & recovery</strong><button onClick={() => setSecurityOpen(false)}>Close</button></div>
+      <p className="memories-caption">Change your passphrase without touching the encrypted memories, or rotate a lost/exposed recovery key.</p>
+      <label htmlFor="security-current-password">Current Memories passphrase</label>
+      <input id="security-current-password" type="password" value={currentPassword} onChange={e => setCurrentPassword(e.target.value)} autoComplete="current-password" />
+      <form onSubmit={changeMemoriesPassword}>
+        <label htmlFor="security-new-password">New passphrase</label><input id="security-new-password" type="password" minLength={16} maxLength={256} value={securityPassword} onChange={e => setSecurityPassword(e.target.value)} required />
+        <label htmlFor="security-confirm-password">Repeat new passphrase</label><input id="security-confirm-password" type="password" minLength={16} maxLength={256} value={securityPasswordConfirm} onChange={e => setSecurityPasswordConfirm(e.target.value)} required />
+        <button className="studio-primary" disabled={busy}>Change passphrase</button>
+      </form>
+      <button disabled={busy || !currentPassword} onClick={renewRecoveryKey}>Generate a new recovery key</button>
+      {newRecoveryKey && <div><label>New recovery key — save now</label><div className="memories-recovery-code">{newRecoveryKey}</div><button onClick={() => navigator.clipboard.writeText(newRecoveryKey)}>Copy new recovery key</button><button onClick={() => setNewRecoveryKey('')}>I saved it</button></div>}
+    </section>}
     <section className="memories-quick-save" aria-label="Thoughts and questions">
       <div><strong>Thoughts & questions</strong><p>Save an idea privately with a clear title label.</p></div>
       <div className="memories-quick-actions">
