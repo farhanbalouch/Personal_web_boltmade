@@ -1,25 +1,45 @@
-# Memories
+# Private Memories
 
-Open `https://farhanbalouch.com/memories` or **Memories · private** in Creator Studio.
-The public URL redirects to the dedicated Studio origin so the existing owner session remains the authentication boundary.
+Open **Memories · private** in Creator Studio. The v2 system uses a random data-encryption key (DEK), separate from the passphrase.
 
-1. Enter the Studio password.
-2. On the first visit, create a separate Memories passphrase (16–256 characters) and confirm it. Keep it safely: there is no password reset that can decrypt old entries.
-3. Choose **New memory**, write a title and text, optionally record when the moment happened in Pakistan time, and add up to four photos. Photos become optimized reading copies; preserve original images separately.
-4. Choose **Save encrypted to cloud**. A device recovery copy alone is not a cloud save. On another device, use the Studio password and the same Memories passphrase, then refresh the list.
-5. Download an **Encrypted backup** periodically. The backup contains the configuration, encrypted cloud entries and encrypted recovery copies from this device. It still requires the original passphrase. Keep both safely and separately. A backup is a portable data archive; this first version has no self-service import screen.
+## First setup
 
-## Privacy boundary
+1. Create a separate Memories passphrase (16–256 characters).
+2. Save the generated 64-hex-character Recovery Key and all 10 one-time backup codes. The screen shows this kit only once. Download it and keep an offline copy; do not commit it to GitHub.
+3. Download an encrypted backup periodically. Store it separately from the recovery kit.
+4. Save memories normally. Text, titles, event times, captions and photos are encrypted in the browser before upload.
 
-- Browser WebCrypto derives a nonextractable AES-256-GCM key with PBKDF2-HMAC-SHA-256 (600,000 iterations and a random 16-byte salt). Each encryption has a new random 12-byte IV. Authenticated context binds each encrypted entry to its UUID.
-- Titles, text, event time, photo contents and captions are encrypted before transmission. The passphrase and key are never sent to the API or AI editor. Cloud record UUIDs, sizes and server save timestamps are metadata, not encrypted.
-- Only encrypted configuration and entries are written under `private/memories/` in the existing private GitHub repository. They are outside public assets, the publishing workflow, public AI knowledge, sitemap and content collections. No new paid storage service is provisioned. Existing GitHub/Vercel plan and storage limits still apply.
-- `/api/diary` requires the existing signed owner session. Writes require the same HTTPS origin and JSON. A GitHub blob revision prevents a stale device from overwriting a newer memory. `createdAt` is assigned once by the server; later saves update `updatedAt`.
-- Device recovery copies contain ciphertext only. The passphrase/key stays in component memory. Switching away unmounts the decrypted reader. Memories locks after one minute in the background and on page exit; the owner can lock it manually.
-- The service worker bypasses all API calls. Private API responses use `Cache-Control: no-store`. The diary has no public publishing action.
+## Recovery paths
 
-Encryption cannot guarantee 100% security. A compromised unlocked device, malicious code served by a compromised website, weak passphrase or lost key remains a risk. This is a private journal, not a promise of permanent free archival storage. Maintain encrypted backups and keep your repository and hosting accounts secure.
+- **Memories passphrase:** normal unlock.
+- **Recovery Key:** 256-bit random key. It can reset a forgotten passphrase without changing any encrypted memory.
+- **10 one-time backup codes:** each is a separate random 128-bit code; successfully using one to reset the passphrase marks it spent.
+- **Encrypted backup archive:** can restore the encrypted configuration and records to an empty v2 storage. The archive still needs the passphrase or Recovery Key.
+- **Device recovery copies:** unsynced drafts remain encrypted in that browser's local storage. They do not replace cloud saves or offline backups.
+
+Use **Security & recovery** while unlocked to change the passphrase or rotate the Recovery Key. Rotating the Recovery Key invalidates the previous one; existing one-time backup codes remain available.
+
+## Encryption design
+
+- A random 256-bit DEK encrypts memory records with AES-256-GCM. Each record uses a fresh random 96-bit IV and UUID-bound additional authenticated data.
+- The DEK is independently wrapped by a PBKDF2-HMAC-SHA-256 password key (600,000 iterations and random 128-bit salt), a 256-bit random Recovery Key derived with HKDF-SHA-256, and 10 independent 128-bit one-time backup codes.
+- Password changes and recovery only replace the wrapped DEK. They do not re-encrypt or rewrite the memory records.
+- Recovery key and backup codes are displayed once at setup. The server stores only encrypted wrapped-key envelopes, never plaintext recovery material or passphrases.
+- V2 uses a separate storage namespace `private/memories-v2/` and API `/api/diary-v2`. Existing v1 files under `private/memories/` are left untouched; v2 does not silently overwrite or delete them.
+- API responses use `Cache-Control: no-store` and `X-Robots-Tag: noindex`. API writes require the existing owner session and same HTTPS origin. Encrypted records remain outside public content, sitemap and AI knowledge.
+
+## Limits and security notes
+
+No design can recover data if the passphrase, Recovery Key, every unused backup code, and all usable encrypted backups are all lost. Keep at least two independent offline copies of the recovery kit and encrypted archive. A compromised unlocked device or compromised website code can access data while unlocked. Keep the Studio hosting account, GitHub access and deployment credentials secure.
+
+Cloud metadata such as record IDs, file sizes and server timestamps is not encrypted. Keep the repository private. Do not move the recovery kit into the repository or project environment variables.
 
 ## Verification
 
-`npm run typecheck`, `npm test`, and `npm run build` in this directory. Synthetic tests cover a second device unlocking the same ciphertext, wrong passphrases, tampering, record binding, owner authorization, same-origin writes, independent entries, immutable creation timestamps, stale revision conflicts and reads of encrypted entries larger than GitHub Contents' inline response limit. Tests never save real personal data.
+Run from `studio-app/`:
+
+- `npm run typecheck`
+- `npm test`
+- `npm run build`
+
+The synthetic v2 tests cover password unlock, Recovery Key unlock, wrong credentials, password recovery without re-encrypting records, one-time backup-code invalidation and Recovery Key rotation. Do not test with real private memories.
