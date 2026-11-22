@@ -12,7 +12,7 @@ const cryptoV2 = await import('data:text/javascript;base64,' + Buffer.from(outpu
 const {
   createConfigV2, encrypt, decrypt, memoryContextV2, unlockWithPasswordV2,
   unlockWithRecoveryKey, rotatePasswordWithRecovery, rotatePasswordWithBackupCode,
-  regenerateRecovery, consumeBackupCode,
+  regenerateRecovery, regenerateBackupCodes, consumeBackupCode,
 } = cryptoV2;
 
 test('password and 256-bit recovery key unwrap the same independent data key', async () => {
@@ -56,4 +56,16 @@ test('recovery key can be rotated and individual backup codes can be consumed', 
   const consumed = await consumeBackupCode(rotated.config, setup.recovery.backupCodes[1]);
   assert.equal(consumed.config.backupCodes.find(item => item.used)?.used, true);
   await assert.rejects(consumeBackupCode(consumed.config, setup.recovery.backupCodes[1]));
+});
+
+test('regenerate all ten backup codes while invalidating the previous set', async () => {
+  const setup = await createConfigV2('passphrase-long-enough-for-code-refresh');
+  const oldCode = setup.recovery.backupCodes[0];
+  const refreshed = await regenerateBackupCodes(setup.config, 'passphrase-long-enough-for-code-refresh');
+  assert.equal(refreshed.backupCodes.length, 10);
+  assert.equal(new Set(refreshed.backupCodes).size, 10);
+  assert.ok(refreshed.config.backupCodes.every(slot => slot.used === false));
+  await assert.rejects(rotatePasswordWithBackupCode(refreshed.config, oldCode, 'another-long-passphrase'));
+  const recovered = await rotatePasswordWithBackupCode(refreshed.config, refreshed.backupCodes[9], 'another-long-passphrase');
+  assert.equal(recovered.config.backupCodes.filter(slot => slot.used).length, 1);
 });
