@@ -93,9 +93,16 @@ function validateConfig(config) {
           .map(item => ({ id: item.path.slice(0, -5), revision: item.sha, size: item.size })),
       });
     }
-    if (body.action === 'initialize') {
-      if (configFile) throw fail(409, 'Private Memories v2 is already initialized.');
+    if (body.action === 'initialize' || body.action === 'restore-init') {
       const stored = validateConfig(body.config);
+      if (configFile) {
+        if (body.action === 'restore-init') {
+          const prior = await decode(token, configFile);
+          if (JSON.stringify(prior) !== JSON.stringify(stored)) throw fail(409, 'This backup belongs to a different Memories key.');
+          return reply(200, { ok: true, alreadyInitialized: true });
+        }
+        throw fail(409, 'Private Memories v2 is already initialized.');
+      }
       await write(token, folder + '/config.json', stored);
       return reply(201, { ok: true });
     }
