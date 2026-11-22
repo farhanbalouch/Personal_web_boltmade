@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { BookHeart, Download, ImagePlus, LockKeyhole, PenLine, Plus, Save, ShieldCheck, X } from 'lucide-react';
-import { createConfigV2, decrypt, emptyMemory, encrypt, memoryContextV2, unlockWithPasswordV2, rotatePasswordV2, rotatePasswordWithRecovery, rotatePasswordWithBackupCode, regenerateRecovery, type MemoryConfigV2, type RecoveryBundle } from '@/lib/memories-crypto-v2';
+import { createConfigV2, decrypt, emptyMemory, encrypt, memoryContextV2, unlockWithPasswordV2, rotatePasswordV2, rotatePasswordWithRecovery, rotatePasswordWithBackupCode, regenerateRecovery, unlockWithRecoveryKey, type MemoryConfigV2, type RecoveryBundle } from '@/lib/memories-crypto-v2';
 import type { Memory, MemoryKind, MemoryRecord } from '@/lib/memories-crypto';
 import { optimizePhoto } from '@/lib/studio-images';
 import { parseStudioResponse } from '@/lib/studio-response';
@@ -27,6 +27,8 @@ export function Memories() {
   const [securityOpen, setSecurityOpen] = useState(false), [currentPassword, setCurrentPassword] = useState('');
   const [securityPassword, setSecurityPassword] = useState(''), [securityPasswordConfirm, setSecurityPasswordConfirm] = useState('');
   const [newRecoveryKey, setNewRecoveryKey] = useState('');
+  const [restoreOpen, setRestoreOpen] = useState(false), [restoreCode, setRestoreCode] = useState('');
+  const restoreFile = useRef<HTMLInputElement>(null);
   const [notes, setNotes] = useState<Note[]>([]), [selected, setSelected] = useState<Note | null>(null);
   const [editing, setEditing] = useState(false), [query, setQuery] = useState('');
   const [busy, setBusy] = useState(false), [error, setError] = useState(''), [message, setMessage] = useState('');
@@ -189,6 +191,42 @@ export function Memories() {
     }
     if (generation === epoch.current) update({ ...selected.value, photos: [...selected.value.photos, ...photos] });
   });
+  const restoreEncryptedBackup = (event: React.FormEvent) => {
+    event.preventDefault();
+    return action(async () => {
+      if (!index || index.config) throw new Error('Restore is allowed only into an empty Private Memories v2 space.');
+      const fileObject = restoreFile.current?.files?.[0];
+      if (!fileObject) throw new Error('Choose an encrypted Memories backup file.');
+      if (fileObject.size > 25000000) throw new Error('Backup file is too large (25 MB maximum).');
+      const archive = JSON.parse(await fileObject.text());
+      if (archive.format !== 'farhan-memories-encrypted-backup-v2' || archive.config?.version !== 2 ||
+          !Array.isArray(archive.entries) || !Array.isArray(archive.deviceDrafts))
+        throw new Error('This is not a supported encrypted Memories v2 backup.');
+      let secret: CryptoKey;
+      if (restoreCode.trim()) secret = await unlockWithRecoveryKey(archive.config, restoreCode);
+      else secret = await unlockWithPasswordV2(passphrase, archive.config);
+      const merged = new Map<string, any>();
+      for (const record of [...archive.entries, ...archive.deviceDrafts]) {
+        if (!record || !/^[a-f0-9-]{36}$/.test(record.id || '') || !record.envelope) continue;
+        const prior = merged.get(record.id);
+        if (!prior || (record.deviceSavedAt || record.updatedAt || '') > (prior.deviceSavedAt || prior.updatedAt || '')) merged.set(record.id, record);
+      }
+      const records = [...merged.values()];
+      if (!records.length) throw new Error('No encrypted memory records were found in this backup.');
+      for (const record of records) await decrypt<Memory>(secret, record.envelope, memoryContextV2(record.id));
+      await request({ action: 'restore-init', config: archive.config });
+      let cloud = await request() as Index;
+      const existing = new Set(cloud.entries.map(item => item.id));
+      for (const record of records) {
+        if (existing.has(record.id)) continue;
+        await request({ action: 'save', id: record.id, revision: null, envelope: record.envelope });
+      }
+      cloud = await request() as Index;
+      setIndex(cloud); setKey(secret); setRestoreOpen(false); setPassphrase(''); setRestoreCode('');
+      await list(secret, cloud, epoch.current);
+      setMessage('Encrypted backup restored. All imported records were verified before upload.');
+    });
+  };
   const changeMemoriesPassword = (event: React.FormEvent) => {
     event.preventDefault();
     return action(async () => {
@@ -235,6 +273,18 @@ export function Memories() {
     <div className="memories-seal"><BookHeart size={30} /></div><p className="studio-eyebrow">ONLY FOR YOU</p>
     <h2>A little space for your heart.</h2><p>Private words. Personal photos. Moments worth keeping.</p>
     <p>New memories use a random encryption key, separate from your password. Cloud data and device recovery copies stay encrypted.</p>
+    {!index?.config && !recoveryMode && <div className="memories-recovery-options">
+      <button type="button" onClick={() => setRestoreOpen(!restoreOpen)}>Restore from an encrypted backup</button>
+      {restoreOpen && <form onSubmit={restoreEncryptedBackup}>
+        <label htmlFor="memories-restore-file">Encrypted backup file (.json)</label>
+        <input ref={restoreFile} id="memories-restore-file" type="file" accept="application/json,.json" required />
+        <label htmlFor="memories-restore-password">Backup passphrase (or leave blank if using recovery key)</label>
+        <input id="memories-restore-password" type="password" value={passphrase} onChange={e => setPassphrase(e.target.value)} autoComplete="off" />
+        <label htmlFor="memories-restore-key">Recovery key (optional alternative)</label>
+        <input id="memories-restore-key" value={restoreCode} onChange={e => setRestoreCode(e.target.value)} autoComplete="off" />
+        <button className="studio-primary" disabled={busy}>Verify and restore encrypted backup</button>
+      </form>}
+    </div>}
     {!recoveryMode ? <form onSubmit={unlock}>
       <label htmlFor="memories-key">{index?.config ? 'Memories passphrase' : 'Create a separate Memories passphrase'}</label>
       <input id="memories-key" type="password" autoComplete={index?.config ? 'current-password' : 'new-password'} value={passphrase} onChange={event => setPassphrase(event.target.value)} required minLength={index?.config ? undefined : 16} maxLength={256} disabled={busy} />
