@@ -57,3 +57,9 @@
 .memories-confirm-save input { width:auto!important; }
 .memories-recovery-options { display:grid; gap:9px; margin-top:18px; }
 .memories-recovery-options button { width:100%; }
+
+
+.memories-security-panel { margin:18px 0; padding:20px; border:1px solid #465b73; border-radius:15px; background:#111e31; }
+.memories-security-panel form { display:grid; gap:8px; }
+.memories-security-panel > button { margin-top:14px; }
+.memories-security-panel .memories-note-actions { margin-bottom:12px; }
